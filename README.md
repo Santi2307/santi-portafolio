@@ -96,7 +96,7 @@ npm install
 npm run dev
 ```
 
-Your app will be available at: [http://localhost:5173](http://localhost:5173)
+Your app will be available at: https://santi-portafolio.vercel.app/
 
 ---
 
@@ -111,7 +111,7 @@ Your app will be available at: [http://localhost:5173](http://localhost:5173)
 ### Deploy on Vercel
 
 1. Push your code to GitHub
-2. Go to [vercel.com](https://vercel.com)
+2. Go to https://vercel.com/santiagos-projects-5d5c1d99/santi-portafolio/EhPS7cPMbyfRVLiJEdtKLBoYs6Mr
 3. Import your repository
 4. Click **Deploy**
 
