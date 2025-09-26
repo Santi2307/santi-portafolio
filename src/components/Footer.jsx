@@ -1,6 +1,14 @@
-import { ArrowUp, Github, Linkedin, Instagram, Mail } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
+
+const footerNavItems = [
+  { name: "Home", href: "#hero" },
+  { name: "About", href: "#about" },
+  { name: "Skills", href: "#skills" },
+  { name: "Projects", href: "#projects" },
+  { name: "Contact", href: "#contact" },
+];
 
 const getYear = () => new Date().getFullYear();
 
@@ -17,7 +25,7 @@ export const Footer = () => {
   }, []);
 
   return (
-    <footer id="footer" className="py-12 px-4 bg-card border-t border-border mt-12 text-center relative overflow-hidden">
+    <footer id="footer" className="py-12 px-4 bg-card border-t border-border mt-12 text-center relative">
       <div className="container mx-auto max-w-5xl flex flex-col md:flex-row justify-between items-center gap-8">
         <p className="text-sm text-muted-foreground order-3 md:order-1 mt-6 md:mt-0">
           &copy; {currentYear} Built and Designed by{" "}
@@ -25,24 +33,6 @@ export const Footer = () => {
             Santiago Delgado
           </span>. All rights reserved.
         </p>
-
-        <div className="flex space-x-4 order-2 md:order-2">
-          {socialLinks.map((link, index) => {
-            const Icon = link.icon;
-            return (
-              <a
-                key={index}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.label}
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Icon size={24} />
-              </a>
-            );
-          })}
-        </div>
 
         {showScrollButton && (
           <a
