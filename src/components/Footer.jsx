@@ -2,21 +2,6 @@ import { ArrowUp, Github, Linkedin, Instagram, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
 
-const socialLinks = [
-  { href: "https://www.linkedin.com/in/santiagodelgado23", icon: Linkedin, label: "LinkedIn profile" },
-  { href: "https://github.com/Santi2307", icon: Github, label: "GitHub profile" },
-  { href: "https://www.instagram.com/santidelgado2004", icon: Instagram, label: "Instagram profile" },
-  { href: "mailto:santiagodelgadosanchez9@gmail.com", icon: Mail, label: "Gmail" },
-];
-
-const footerNavItems = [
-  { name: "Home", href: "#hero" },
-  { name: "About", href: "#about" },
-  { name: "Skills", href: "#skills" },
-  { name: "Projects", href: "#projects" },
-  { name: "Contact", href: "#contact" },
-];
-
 const getYear = () => new Date().getFullYear();
 
 export const Footer = () => {
