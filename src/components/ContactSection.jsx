@@ -83,7 +83,7 @@ const ContactForm = () => {
         <input
           type="text"
           id="name"
-          placeholder="Santiago Delgado..."
+          placeholder="FirstName LastName..."
           {...register("name")}
           className={cn(
             "w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary",
@@ -102,7 +102,7 @@ const ContactForm = () => {
         <input
           type="email"
           id="email"
-          placeholder="example@gmail.com"
+          placeholder="example@gmail.com.co"
           {...register("email")}
           className={cn(
             "w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary",
