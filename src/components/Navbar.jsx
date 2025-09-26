@@ -325,7 +325,7 @@ export const Navbar = () => {
                 >
                   Santiago’s
                 </motion.span>
-                <span className="text-foreground">Portfolio</span>
+                <span className="text-foreground"> Portfolio </span>
               </a>
               <LiveIndicator />
             </div>
