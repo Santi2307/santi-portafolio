@@ -83,7 +83,7 @@ const ContactForm = () => {
         <input
           type="text"
           id="name"
-          placeholder="FirstName LastName..."
+          placeholder="Your Name"
           {...register("name")}
           className={cn(
             "w-full px-4 py-3 rounded-md border border-input bg-background focus:outline-hidden focus:ring-2 focus:ring-primary",
