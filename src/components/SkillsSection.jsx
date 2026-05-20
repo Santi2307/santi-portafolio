@@ -15,26 +15,26 @@ import { cn } from "@/lib/utils";
  */
 const SKILLS = [
   /* Systems */
-  { name: "Linux (RHEL / Ubuntu)", category: "systems",    level: 4, courses: ["OPS145", "OPS245", "OPS345", "OPS445", "RHT524"] },
+  { name: "Linux (RHEL / Ubuntu)", category: "systems",    level: 4, courses: ["ULI101", "OPS245", "OPS345", "OPS445", "RHT524", "RHT634", "OPS635"] },
   { name: "Bash Scripting",        category: "systems",    level: 4, courses: ["OPS445"] },
   { name: "Virtualization",        category: "systems",    level: 3, courses: ["MST200", "OPS245"], note: "VMware, VirtualBox, Hyper-V" },
-  { name: "Windows Server",        category: "systems",    level: 3, courses: ["MST100", "MST200"] },
-  { name: "LVM & Storage",         category: "systems",    level: 3, courses: ["OPS445"] },
-  { name: "PowerShell",            category: "systems",    level: 2, courses: ["MST200", "MST400"] },
+  { name: "Windows Server",        category: "systems",    level: 3, courses: ["MST100", "MST200", "MST400", "CPO550"] },
+  { name: "LVM & Storage",         category: "systems",    level: 3, courses: ["OPS635"] },
+  { name: "PowerShell",            category: "systems",    level: 2, courses: ["MST200", "MST300", "MST400", "CPO550" ] },
  
   /* Networking */
   { name: "Cisco IOS",             category: "networking", level: 3, courses: ["CSN305", "CPO520"] },
   { name: "Aruba AOS-CX",          category: "networking", level: 3, courses: ["APL701"] },
   { name: "VLANs & Trunking",      category: "networking", level: 4, courses: ["CSN205", "CSN305"] },
-  { name: "OSPF & DHCP",           category: "networking", level: 3, courses: ["CSN305", "APL701"] },
+  { name: "OSPF & DHCP",           category: "networking", level: 3, courses: ["CSN305","CSN405","CSN505" "APL701"] },
   { name: "Wireless & RF",         category: "networking", level: 3, courses: ["CSN405"], note: "Link budget, Fresnel zone, EIRP" },
-  { name: "Packet Tracer",         category: "networking", level: 4, courses: ["CSN115", "CSN205", "CSN305"] },
+  { name: "Packet Tracer",         category: "networking", level: 4, courses: ["CSN105", "CSN205", "CSN305"] },
  
   /* Cloud & Automation */
   { name: "Ansible",               category: "cloud",      level: 4, courses: ["APL701"], note: "Aruba switch automation capstone" },
   { name: "Docker / Podman",       category: "cloud",      level: 3, courses: ["OPS445"] },
   { name: "OpenShift",             category: "cloud",      level: 2, courses: ["OPS635"] },
-  { name: "Microsoft Azure",       category: "cloud",      level: 3, courses: ["MST300", "MST400", "CPO550"] },
+  { name: "Microsoft Azure",       category: "cloud",      level: 3, courses: ["MST200","MST300", "MST400", "CPO550"] },
   { name: "Azure Virtual Desktop", category: "cloud",      level: 3, courses: ["MST400"] },
   { name: "GlusterFS",             category: "cloud",      level: 2, courses: ["OPS635"] },
  
@@ -47,7 +47,7 @@ const SKILLS = [
   { name: "PostgreSQL / SQL",      category: "databases",  level: 3, courses: ["DAT330"] },
  
   /* Web Development */
-  { name: "React",                 category: "web",        level: 4, courses: [], note: "Portfolio, Marsupial dashboard" },
+  { name: "React",                 category: "web",        level: 4, courses: [], note: "Santi's Portfolio },
   { name: "JavaScript (ES6+)",     category: "web",        level: 4 },
   { name: "HTML / CSS",            category: "web",        level: 4 },
   { name: "Tailwind CSS",          category: "web",        level: 4 },
