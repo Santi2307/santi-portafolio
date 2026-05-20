@@ -1,268 +1,439 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useMotionValue,
+  useMotionTemplate,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import {
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  Code,
+  Download,
+  Rocket,
+  User,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Briefcase, Code, User, Rocket, ChevronRight, ChevronLeft } from "lucide-react";
-import { motion, useInView, useTransform, useSpring, AnimatePresence, useScroll } from "framer-motion";
 import usePhotoStore from "@/store";
-
-// Datos de ejemplo para simular la carga asíncrona
-const mockPhotos = [
-  "/images/santi1.jpeg",
-  "/images/santi2.jpeg",
-  "/images/santi3.jpeg",
+ 
+/* ─────────────────────────── Content ─────────────────────────── */
+ 
+const PHOTOS = [
+  { src: "/images/santi1.jpeg", alt: "Santiago at Seneca Polytechnic" },
+  { src: "/images/santi2.jpeg", alt: "Santiago working on a networking lab" },
+  { src: "/images/santi3.jpeg", alt: "Santiago in Toronto" },
 ];
-
-const mockSkillsData = [
+ 
+const BIO = [
+  "I'm Santiago Delgado, a recent Computer Systems Technology graduate from Seneca Polytechnic in Toronto. I work at the intersection of systems engineering and web development — comfortable automating infrastructure with Ansible, configuring VMs in VMware, and building React interfaces in VS Code.",
+  "Outside of tech: swimming, running, and cooking. They're how I stay grounded — a counterweight to the kind of focused work that absorbs everything else.",
+];
+ 
+const SKILLS = [
   {
     icon: Code,
     title: "Web Development",
-    description: "Creating responsive websites and web applications with modern frameworks.",
+    description: "Responsive interfaces built with React, Vite, and Tailwind. Comfortable from layout to state management.",
   },
   {
     icon: User,
     title: "UI/UX Design",
-    description: "Designing intuitive user interfaces and seamless user experiences.",
+    description: "Designing interfaces that feel intentional — clear hierarchy, motion that serves the content, no decoration for its own sake.",
   },
   {
     icon: Briefcase,
     title: "Project Management",
-    description: "Leading projects from conception to completion with agile methodologies.",
+    description: "Leading projects from concept to delivery with agile methodologies and clear, written communication.",
   },
   {
     icon: Rocket,
     title: "Systems & Networking",
-    description: "Managing and troubleshooting Windows, Linux, and macOS systems and networks.",
+    description: "Linux, Windows, macOS administration. Networking with Cisco and Aruba. Automation with Ansible and Docker.",
   },
 ];
-
-const staggerVariants = {
-  initial: { opacity: 0, y: 50 },
-  animate: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.6,
-      ease: "easeOut",
-    },
-  }),
-};
-
-const SkillCard = ({ skill, index }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
-  const [isHovered, setIsHovered] = useState(false);
-  const spring = useSpring(0, { stiffness: 300, damping: 20 });
-  const rotateX = useTransform(spring, [0, 1], [0, -10]);
-  const rotateY = useTransform(spring, [0, 1], [0, 10]);
-
+ 
+const STATS = [
+  { value: 3.7, suffix: "/4.0", label: "GPA at Seneca" },
+  { value: 2,   suffix: "+",    label: "Years in IT support" },
+  { value: 6,   suffix: "",     label: "Semesters of systems work" },
+];
+ 
+const AUTOPLAY_MS = 6000;
+const SWIPE_THRESHOLD = 80;
+const EASE_OUT = [0.22, 1, 0.36, 1];
+ 
+/* ─────────────────────────── Stat counter ─────────────────────────── */
+ 
+const StatCounter = ({ value, suffix, label, inView, delay = 0 }) => {
+  const motionValue = useMotionValue(0);
+  const spring = useSpring(motionValue, { damping: 30, stiffness: 80 });
+  const isFloat = value % 1 !== 0;
+  const display = useTransform(spring, (latest) =>
+    isFloat ? latest.toFixed(1) : Math.round(latest).toString()
+  );
+ 
   useEffect(() => {
-    spring.set(isHovered ? 1 : 0);
-  }, [spring, isHovered]);
-
+    if (inView) {
+      const t = setTimeout(() => motionValue.set(value), delay);
+      return () => clearTimeout(t);
+    }
+  }, [inView, value, delay, motionValue]);
+ 
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: delay / 1000, duration: 0.5 }}
+      className="text-center"
+    >
+      <div className="flex items-baseline justify-center gap-0.5">
+        <motion.span className="text-2xl md:text-3xl font-bold tabular-nums">
+          {display}
+        </motion.span>
+        <span className="text-base md:text-lg text-primary font-semibold">
+          {suffix}
+        </span>
+      </div>
+      <p className="text-xs text-muted-foreground mt-1 leading-tight">{label}</p>
+    </motion.div>
+  );
+};
+ 
+/* ─────────────────────────── Skill card ─────────────────────────── */
+ 
+const SkillCard = ({ skill, index }) => {
+  const reducedMotion = useReducedMotion();
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
+ 
+  // Cursor-tracked motion values (raw pixels for the glow, normalized for tilt)
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const tiltSource = { stiffness: 200, damping: 22 };
+  const rotateX = useSpring(useMotionValue(0), tiltSource);
+  const rotateY = useSpring(useMotionValue(0), tiltSource);
+ 
+  const handleMouseMove = useCallback(
+    (e) => {
+      if (reducedMotion) return;
+      const rect = ref.current?.getBoundingClientRect();
+      if (!rect) return;
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      mouseX.set(px);
+      mouseY.set(py);
+      // Normalized [-0.5, 0.5] → tilt range ±7deg
+      const nx = px / rect.width - 0.5;
+      const ny = py / rect.height - 0.5;
+      rotateX.set(-ny * 14);
+      rotateY.set(nx * 14);
+    },
+    [mouseX, mouseY, rotateX, rotateY, reducedMotion]
+  );
+ 
+  const handleMouseLeave = useCallback(() => {
+    rotateX.set(0);
+    rotateY.set(0);
+  }, [rotateX, rotateY]);
+ 
+  const glow = useMotionTemplate`radial-gradient(220px circle at ${mouseX}px ${mouseY}px, hsl(var(--primary) / 0.18), transparent 65%)`;
+ 
+  const Icon = skill.icon;
+ 
   return (
     <motion.div
       ref={ref}
-      variants={staggerVariants}
-      custom={index}
-      initial="initial"
-      animate={inView ? "animate" : "initial"}
-      className="relative p-6 gradient-border-hover card-hover transform transition-all duration-300 overflow-hidden"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.08, duration: 0.6, ease: EASE_OUT }}
       style={{
-        rotateX,
-        rotateY,
+        rotateX: reducedMotion ? 0 : rotateX,
+        rotateY: reducedMotion ? 0 : rotateY,
         transformStyle: "preserve-3d",
+        perspective: 1000,
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-card/50 p-6 backdrop-blur-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-primary/5"
       role="listitem"
     >
-      <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="absolute inset-0 z-0 bg-primary/20 blur-xl"></div>
-      </div>
-      <div className="relative z-10 flex items-start gap-4">
-        <div className="p-3 rounded-full bg-primary/10">
-          <skill.icon className="h-6 w-6 text-primary" />
+      {/* Cursor-following glow */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: glow }}
+      />
+ 
+      <div
+        className="relative z-10 flex items-start gap-4"
+        style={{ transform: "translateZ(20px)" }}
+      >
+        <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3 ring-1 ring-primary/20">
+          <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
         </div>
         <div className="text-left">
-          <h4 className="font-semibold text-lg">{skill.title}</h4>
-          <p className="text-muted-foreground">{skill.description}</p>
+          <h4 className="mb-1 font-semibold">{skill.title}</h4>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {skill.description}
+          </p>
         </div>
       </div>
     </motion.div>
   );
 };
-
-const CreativePhotoGallery = () => {
+ 
+/* ─────────────────────────── Photo gallery ─────────────────────────── */
+ 
+const PhotoGallery = () => {
   const { photos, currentPhotoIndex, setNextPhoto, setPrevPhoto } = usePhotoStore();
-
-  const handleNextPhoto = () => {
+  const reducedMotion = useReducedMotion();
+  const [direction, setDirection] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
+  const containerRef = useRef(null);
+ 
+  const next = useCallback(() => {
+    setDirection(1);
     setNextPhoto();
-  };
-
-  const handlePrevPhoto = () => {
+  }, [setNextPhoto]);
+ 
+  const prev = useCallback(() => {
+    setDirection(-1);
     setPrevPhoto();
+  }, [setPrevPhoto]);
+ 
+  // Autoplay (pause on hover, focus, or reduced motion)
+  useEffect(() => {
+    if (isPaused || reducedMotion || photos.length <= 1) return;
+    const id = setInterval(next, AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [isPaused, reducedMotion, photos.length, next]);
+ 
+  // Keyboard nav — only when the gallery has focus within
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const onKey = (e) => {
+      if (!node.contains(document.activeElement)) return;
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [next, prev]);
+ 
+  if (!photos.length) return null;
+ 
+  const current = photos[currentPhotoIndex];
+ 
+  const slideVariants = {
+    enter: (dir) => ({ x: dir > 0 ? 60 : -60, opacity: 0, scale: 0.96 }),
+    center: { x: 0, opacity: 1, scale: 1 },
+    exit:  (dir) => ({ x: dir > 0 ? -60 : 60, opacity: 0, scale: 0.96 }),
   };
-
+ 
   return (
-    <div className="pt-4 mx-auto md:mx-0 relative w-full max-w-sm aspect-square">
-      <div className="w-full h-full relative" style={{ perspective: '1000px' }}>
-        <AnimatePresence>
-          {photos.map((photo, index) => {
-            const isVisible = index === currentPhotoIndex;
-            const rotation = (index - currentPhotoIndex) * 20;
-            const zIndex = isVisible ? 10 : 0;
-            const scale = isVisible ? 1.05 : 0.95;
-            const y = (index - currentPhotoIndex) * -15;
-
-            return (
-              <motion.img
-                key={photo}
-                src={photo}
-                alt={`Personal photo ${index + 1}`}
-                className="absolute inset-0 w-full h-full object-cover rounded-xl shadow-lg border-4 border-primary/20"
-                style={{ zIndex, rotateY: rotation, scale, y }}
-                initial={{ opacity: 0, x: -100 }}
-                animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1, y: 0 }}
-                exit={{ opacity: 0, x: 100, rotateY: -20 }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              />
-            );
-          })}
+    <div
+      ref={containerRef}
+      className="group relative mx-auto aspect-square w-full max-w-sm md:mx-0"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Photos of Santiago"
+    >
+      {/* Soft backdrop glow */}
+      <div
+        aria-hidden
+        className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-violet-500/20 to-fuchsia-500/20 opacity-70 blur-2xl"
+      />
+ 
+      <div className="relative h-full w-full overflow-hidden rounded-2xl shadow-2xl ring-1 ring-primary/20">
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
+          <motion.img
+            key={current.src ?? current}
+            src={current.src ?? current}
+            alt={current.alt ?? `Photo ${currentPhotoIndex + 1}`}
+            draggable={false}
+            className="absolute inset-0 h-full w-full select-none object-cover"
+            variants={slideVariants}
+            custom={direction}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.5, ease: EASE_OUT }}
+            drag={photos.length > 1 && !reducedMotion ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(_, info) => {
+              if (info.offset.x > SWIPE_THRESHOLD) prev();
+              else if (info.offset.x < -SWIPE_THRESHOLD) next();
+            }}
+          />
         </AnimatePresence>
+ 
+        {/* Gradient overlay for control legibility */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"
+        />
+ 
+        {/* Controls */}
+        <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Previous photo"
+            className="rounded-full bg-black/40 p-1.5 text-white backdrop-blur transition-colors hover:bg-black/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          >
+            <ChevronLeft size={16} />
+          </button>
+ 
+          <div
+            className="flex items-center gap-1.5 rounded-full bg-black/30 px-2 py-1 backdrop-blur"
+            role="tablist"
+            aria-label="Photo indicators"
+          >
+            {photos.map((_, i) => (
+              <span
+                key={i}
+                role="tab"
+                aria-current={i === currentPhotoIndex}
+                aria-label={`Photo ${i + 1} of ${photos.length}`}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  i === currentPhotoIndex
+                    ? "w-5 bg-white"
+                    : "w-1.5 bg-white/40"
+                )}
+              />
+            ))}
+          </div>
+ 
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Next photo"
+            className="rounded-full bg-black/40 p-1.5 text-white backdrop-blur transition-colors hover:bg-black/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
       </div>
-      <div className="absolute inset-0 z-20 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4">
-        <motion.button
-          onClick={handlePrevPhoto}
-          className="p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur transition-colors"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <ChevronLeft size={24} className="text-white" />
-        </motion.button>
-        <span className="bg-white/20 px-3 py-1 rounded-full text-white font-semibold">{currentPhotoIndex + 1} / {photos.length}</span>
-        <motion.button
-          onClick={handleNextPhoto}
-          className="p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur transition-colors"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <ChevronRight size={24} className="text-white" />
-        </motion.button>
-      </div>
+ 
+      {/* Screen-reader announcement on slide change */}
+      <span className="sr-only" aria-live="polite" aria-atomic="true">
+        Photo {currentPhotoIndex + 1} of {photos.length}
+      </span>
     </div>
   );
 };
-
+ 
+/* ─────────────────────────── Main section ─────────────────────────── */
+ 
 export const AboutSection = () => {
   const { setPhotos } = usePhotoStore();
-  const [isLoading, setIsLoading] = useState(true);
-  const ref = useRef(null);
-
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, amount: 0.2 });
+ 
+  // Populate the photo store on mount. Synchronous — no fake loading delay.
   useEffect(() => {
-    setTimeout(() => {
-      setPhotos(mockPhotos);
-      setIsLoading(false);
-    }, 1500);
+    setPhotos(PHOTOS);
   }, [setPhotos]);
-
-  const introVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8 } },
-  };
-
-  const buttonVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { delay: 0.5, duration: 0.8 } },
-  };
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-  const introY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
-
+ 
   return (
-    <section id="about" className="py-24 px-4 relative overflow-hidden" ref={ref}>
+    <section
+      id="about"
+      ref={sectionRef}
+      className="relative overflow-hidden px-4 py-24"
+      aria-labelledby="about-heading"
+    >
       <div className="container mx-auto max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-          About <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Me</span>
-        </h2>
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center animate-pulse"
-            >
-              <div className="space-y-6">
-                <div className="w-full aspect-square max-w-sm rounded-xl bg-gray-300 mx-auto"></div>
-                <div className="h-4 bg-gray-200 rounded-lg w-full"></div>
-                <div className="h-4 bg-gray-200 rounded-lg w-11/12"></div>
-                <div className="h-4 bg-gray-200 rounded-lg w-full"></div>
-                <div className="h-4 bg-gray-200 rounded-lg w-10/12"></div>
-                <div className="flex gap-4 pt-4 justify-center md:justify-start">
-                  <div className="h-10 w-32 bg-gray-300 rounded-full"></div>
-                  <div className="h-10 w-32 bg-gray-300 rounded-full"></div>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-6">
-                {mockSkillsData.map((_, index) => (
-                  <div key={index} className="p-6 bg-gray-300 rounded-lg h-24"></div>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
-            >
-              <motion.div
-                style={{ y: introY }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-                className="space-y-6"
-              >
-                <CreativePhotoGallery />
-                <p className="text-muted-foreground leading-relaxed">
-                  I'm Santiago Delgado, a passionate Computer Systems Technology student at Seneca Polytechnic. My expertise lies in systems engineering and web development, with a strong foundation in managing and troubleshooting hardware and networks. My skills span various operating systems, including Windows, Linux, and macOS, and I'm proficient in virtualization technologies like VirtualBox and VMware.
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  When I'm not immersed in tech, you'll often find me swimming, running or cooking. It’s my way of clearing my mind and staying active, balancing the technical demands of my studies with a healthy lifestyle.
-                </p>
-                <motion.div
-                  variants={buttonVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start"
+        <motion.h2
+          id="about-heading"
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: EASE_OUT }}
+          className="mb-12 text-center text-3xl font-bold md:text-4xl"
+        >
+          About{" "}
+          <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
+            Me
+          </span>
+        </motion.h2>
+ 
+        <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+          {/* Left: photos, bio, stats, buttons */}
+          <div className="space-y-6">
+            <PhotoGallery />
+ 
+            <div className="space-y-4">
+              {BIO.map((paragraph, i) => (
+                <motion.p
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.2 + i * 0.1, duration: 0.6 }}
+                  className="leading-relaxed text-muted-foreground"
                 >
-                  <a href="#contact" className="cosmic-button" aria-label="Get in touch">
-                    Get In Touch
-                  </a>
-                  <a
-                    href="/your-cv.pdf"
-                    download
-                    className="px-6 py-2 rounded-full border border-primary text-primary hover:bg-primary/10 transition-colors duration-300"
-                    aria-label="Download CV"
-                  >
-                    Download CV
-                  </a>
-                </motion.div>
-              </motion.div>
-              <div className="grid grid-cols-1 gap-6">
-                {mockSkillsData.map((skill, index) => (
-                  <SkillCard key={index} skill={skill} index={index} />
-                ))}
-              </div>
+                  {paragraph}
+                </motion.p>
+              ))}
+            </div>
+ 
+            {/* Stats row */}
+            <div
+              className="grid grid-cols-3 gap-2 rounded-2xl border border-primary/10 bg-card/40 px-2 py-4 backdrop-blur-sm"
+              role="list"
+              aria-label="Quick stats"
+            >
+              {STATS.map((stat, i) => (
+                <StatCounter
+                  key={stat.label}
+                  {...stat}
+                  inView={inView}
+                  delay={400 + i * 120}
+                />
+              ))}
+            </div>
+ 
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-center md:justify-start"
+            >
+              <a href="#contact" className="cosmic-button" aria-label="Get in touch">
+                Get In Touch
+              </a>
+              <a
+                href="/your-cv.pdf"
+                download
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-primary px-6 py-2 text-primary transition-colors duration-300 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                aria-label="Download CV (PDF)"
+              >
+                <Download size={16} aria-hidden="true" />
+                Download CV
+              </a>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+ 
+          {/* Right: skill cards */}
+          <div className="grid grid-cols-1 gap-4" role="list" aria-label="Areas of expertise">
+            {SKILLS.map((skill, i) => (
+              <SkillCard key={skill.title} skill={skill} index={i} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
 };
+ 
+export default AboutSection;
