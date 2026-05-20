@@ -138,7 +138,7 @@ santi-portafolio/
 └── package.json
 ```
 
----------------------------------------------------------  ### Made with ⚛️ React ---------------------------------------------------------
+---------------------------------------------------------  Signature by Santiago ---------------------------------------------------------
 
 <sub>© Santiago Delgado · Computer Systems Technology Graduate · Seneca Polytechnic</sub>
 
