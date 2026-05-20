@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🌐 Santiago Delgado — Portfolio
+# Santiago Delgado — Portfolio
 
-### *Computer Systems Technology · Toronto, Canada*
+### *Computer Systems Technology · Toronto, Ontario, Canada*
 
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -23,7 +23,7 @@ A dynamic personal portfolio that showcases my skills, projects, and passion for
 ```
  ┌──────────────────────────────────────────────┐
  │   React + Vite · Tailwind · Framer Motion    │
- │   Designed in Toronto · Built with care 🛠️   │
+ │                                              |
  └──────────────────────────────────────────────┘
 ```
 
@@ -155,7 +155,7 @@ santi-portafolio/
 
 <div align="center">
 
-### Made with ⚛️ React + ❤️ in Toronto
+### Made with ⚛️ React 
 
 <sub>© Santiago Delgado · Computer Systems Technology Graduate · Seneca Polytechnic</sub>
 
