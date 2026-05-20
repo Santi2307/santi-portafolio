@@ -30,8 +30,7 @@ const PHOTOS = [
 ];
  
 const BIO = [
-  "I'm Santiago Delgado, a recent Computer Systems Technology graduate from Seneca Polytechnic in Toronto. I work at the intersection of systems engineering and web development — comfortable automating infrastructure with Ansible, configuring VMs in VMware, and building React interfaces in VS Code.",
-  "Outside of tech: swimming, running, and cooking. They're how I stay grounded — a counterweight to the kind of focused work that absorbs everything else.",
+  "I'm Santiago Delgado, a recent Computer Systems Technology graduate from Seneca Polytechnic in Toronto. I troubleshoot and automate systems with Linux, Ansible, and Docker, and I build clean React interfaces on top of them. My goal: make the environments people work in feel quieter, faster, and more reliable.
 ];
  
 const SKILLS = [
