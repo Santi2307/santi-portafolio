@@ -26,7 +26,7 @@ const SKILLS = [
   { name: "Cisco IOS",             category: "networking", level: 3, courses: ["CSN305", "CPO520"] },
   { name: "Aruba AOS-CX",          category: "networking", level: 3, courses: ["APL701"] },
   { name: "VLANs & Trunking",      category: "networking", level: 4, courses: ["CSN205", "CSN305"] },
-  { name: "OSPF & DHCP",           category: "networking", level: 3, courses: ["CSN305","CSN405","CSN505" "APL701"] },
+  { name: "OSPF & DHCP",           category: "networking", level: 3, courses: ["CSN305","CSN405","CSN505", "APL701"] },
   { name: "Wireless & RF",         category: "networking", level: 3, courses: ["CSN405"], note: "Link budget, Fresnel zone, EIRP" },
   { name: "Packet Tracer",         category: "networking", level: 4, courses: ["CSN105", "CSN205", "CSN305"] },
  
