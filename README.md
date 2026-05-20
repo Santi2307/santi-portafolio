@@ -1,43 +1,162 @@
-Santiago Delgado's Portfolio
-Welcome to my personal portfolio! This project showcases my skills, projects, and passion for technology. Built with modern web development tools, this portfolio is designed to be a dynamic and engaging representation of my work as a Computer Systems Technology student.
+<div align="center">
 
-✨ Features
-Interactive Hero Section: A dynamic welcome screen with a self-typing effect and subtle parallax animations.
+# 🌐 Santiago Delgado — Portfolio
 
-Creative About Me Section: An interactive 3D photo gallery and skill cards with advanced hover effects.
+### *Computer Systems Technology · Toronto, Canada*
 
-Dynamic Skills Display: Skills are organized by category with a unique, animated visualization and a creative filter interface.
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![Zustand](https://img.shields.io/badge/Zustand-2D3748?style=for-the-badge&logo=react&logoColor=white)](https://zustand-demo.pmnd.rs/)
 
-Filterable Projects: A professional and filterable project gallery featuring interactive card animations and hover effects.
+[**Live Demo**](#) · [**Report Bug**](https://github.com/Santi2307/santi-portafolio/issues) · [**LinkedIn**](https://linkedin.com/in/santiagodelgado23)
 
-Fully Responsive Design: The entire site is optimized for a seamless experience on all devices, from mobile phones to desktops.
+</div>
 
-Automatic Copyright Update: The footer's copyright year automatically updates to the current year, requiring no manual changes.
+---
 
-Smooth Navigation: The back-to-top button and internal links provide a fluid and easy navigation experience.
+## 📌 About the Project
 
-🚀 Technologies
-This project is built using a modern stack to ensure high performance, a great developer experience, and a visually stunning UI.
+A dynamic personal portfolio that showcases my skills, projects, and passion for technology. Built with a modern, performance-first stack and crafted to feel as much like a product as it does a resume.
 
-React: The core JavaScript library for building the user interface.
+```
+ ┌──────────────────────────────────────────────┐
+ │   React + Vite · Tailwind · Framer Motion    │
+ │   Designed in Toronto · Built with care 🛠️   │
+ └──────────────────────────────────────────────┘
+```
 
-Vite: A fast and lightweight build tool that provides an instant development server and optimizes the production build.
+---
 
-Tailwind CSS: A utility-first CSS framework for rapid and consistent styling.
+## ✨ Features
 
-Framer Motion: A powerful animation library for creating fluid, declarative, and interactive animations.
+| | Feature | Description |
+|---|---|---|
+| 🎬 | **Interactive Hero** | Dynamic welcome screen with self-typing effect and subtle parallax |
+| 🧩 | **Creative About Me** | Interactive 3D photo gallery and skill cards with advanced hover states |
+| 📊 | **Dynamic Skills Display** | Skills grouped by category with animated visualization and creative filters |
+| 🗂️ | **Filterable Projects** | Professional project gallery with interactive card animations |
+| 📱 | **Fully Responsive** | Optimized for every device — mobile, tablet, and desktop |
+| 🔄 | **Auto Copyright** | Footer year updates automatically — zero manual maintenance |
+| ⬆️ | **Smooth Navigation** | Back-to-top button and fluid internal anchor links |
 
-Zustand: A small, fast, and scalable state-management solution used for handling the application's global state.
+---
 
-Lucide React: An open-source icon library for the clean and customizable icons used throughout the site.
+## 🚀 Tech Stack
 
-⚙️ Setup and Installation
-Follow these steps to get a copy of the project up and running on your local machine.
+<table>
+  <tr>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="40" height="40" /><br>
+      <b>React</b><br>
+      <sub>UI Library</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="40" height="40" /><br>
+      <b>Vite</b><br>
+      <sub>Build Tool</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="40" height="40" /><br>
+      <b>Tailwind</b><br>
+      <sub>Styling</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/framermotion/framermotion-original.svg" width="40" height="40" /><br>
+      <b>Framer Motion</b><br>
+      <sub>Animations</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="40" height="40" /><br>
+      <b>Zustand</b><br>
+      <sub>State</sub>
+    </td>
+    <td align="center" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="40" height="40" /><br>
+      <b>Lucide</b><br>
+      <sub>Icons</sub>
+    </td>
+  </tr>
+</table>
 
-Prerequisites
+> **React** powers the UI · **Vite** delivers near-instant HMR · **Tailwind** keeps styling consistent · **Framer Motion** handles every animation · **Zustand** manages global state with minimal boilerplate · **Lucide React** provides the icon set.
 
-You must have Node.js and npm (or yarn/pnpm) installed on your machine.
+---
 
-sudo npm install 
+## ⚙️ Setup & Installation
 
-sudo npm run dev
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) **v18+**
+- npm, yarn, or pnpm
+
+### Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Santi2307/santi-portafolio.git
+
+# 2. Enter the project directory
+cd santi-portafolio
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the development server
+npm run dev
+```
+
+Then open **http://localhost:5173** in your browser. 🚀
+
+> ⚠️ **Note:** Avoid running `npm install` with `sudo` — it can cause permission issues. If you hit `EACCES` errors, fix npm's global directory permissions instead.
+
+### Build for Production
+
+```bash
+npm run build      # bundle for production
+npm run preview    # locally preview the production build
+```
+
+---
+
+## 📂 Project Structure
+
+```
+santi-portafolio/
+├── public/              # Static assets
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── sections/        # Hero, About, Skills, Projects, Footer
+│   ├── store/           # Zustand state slices
+│   ├── data/            # Skills, projects, content
+│   ├── hooks/           # Custom React hooks
+│   ├── App.jsx          # Root component
+│   └── main.jsx         # Entry point
+├── index.html
+├── tailwind.config.js
+├── vite.config.js
+└── package.json
+```
+
+---
+
+## 📬 Contact
+
+<div align="center">
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/santiagodelgado23)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Santi2307)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/santidelgado2004)
+
+</div>
+
+---
+
+<div align="center">
+
+### Made with ⚛️ React + ❤️ in Toronto
+
+<sub>© Santiago Delgado · Computer Systems Technology Graduate · Seneca Polytechnic</sub>
+
+</div>
