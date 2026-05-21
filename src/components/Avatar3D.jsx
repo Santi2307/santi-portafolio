@@ -1,9 +1,14 @@
 // =============================================================================
-// Avatar3D.jsx — Particle portrait that reacts to the cursor
+// Avatar3D.jsx — Particle portrait with custom shaders + spring physics
 // -----------------------------------------------------------------------------
 // Place in src/components/Avatar3D.jsx
-// Requires: npm install three @react-three/fiber @react-three/drei
-// Requires an image at /public/me.jpg (or change IMAGE_SRC below)
+// Requires: three @^0.169  ·  @react-three/fiber @^8.17  ·  /public/me.jpg
+//
+// Architecture:
+//   1. Image is sampled to extract dark-pixel candidates → particle attributes
+//   2. JS runs per-particle physics each frame (springs + damping + repulsion)
+//   3. Custom GLSL shaders render soft circular particles with depth + assembly
+//   4. Pointer events drive a smoothed mouse position with fade in/out
 // =============================================================================
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -11,28 +16,111 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 const IMAGE_SRC = "/me.jpg";
-const TARGET_PARTICLES = 1200;
-const REPULSION_RADIUS = 0.5;
-const REPULSION_STRENGTH = 0.35;
-const RETURN_SPEED = 0.08;
 
-/* ─────────────────────────── Image → particle positions ─────────────────────────── */
+/* ─────────────────────────── Tunables ─────────────────────────── */
+
+const TARGET_PARTICLES = 1200;
+const BRIGHTNESS_THRESHOLD = 110; // lower = stricter (only very dark pixels)
+const IMAGE_DOWNSCALE = 140;      // max width/height in px for pixel scan
+
+const REPULSION_RADIUS = 0.38;    // world units
+const REPULSION_STRENGTH = 0.012; // per-frame force scalar
+const RETURN_SPRING = 0.05;       // pull toward original position
+const VELOCITY_DAMPING = 0.86;    // 0..1, higher = more momentum
+
+const POINTER_LERP = 0.18;        // mouse smoothing
+const ACTIVITY_LERP = 0.08;       // hover-strength fade in/out
+
+const DEPTH_RANGE = 0.18;         // how much darker pixels pop forward
+const SIZE_VARIATION = 0.7;       // per-particle size variation by darkness
+const BASE_SIZE = 14;             // base point size multiplier
+
+const ASSEMBLY_DURATION_S = 1.8;  // seconds for fly-in
+const ASSEMBLY_SPREAD = 2.4;      // how far particles start before assembling
+
+/* ─────────────────────────── GLSL Shaders ─────────────────────────── */
+
+const vertexShader = /* glsl */ `
+  attribute vec3 aAssemblyOrigin;
+  attribute float aSize;
+  attribute float aSeed;
+
+  uniform float uTime;
+  uniform float uAssembly;
+  uniform float uPixelRatio;
+
+  varying float vAlpha;
+  varying float vSeed;
+
+  // Smooth ease-out — particles decelerate as they reach their target
+  float easeOutQuart(float t) {
+    return 1.0 - pow(1.0 - t, 4.0);
+  }
+
+  void main() {
+    float assembly = easeOutQuart(clamp(uAssembly, 0.0, 1.0));
+
+    // Interpolate from scattered origin → live simulated position.
+    // The 'position' attribute is updated each frame by the JS physics loop.
+    vec3 pos = mix(aAssemblyOrigin, position, assembly);
+
+    vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPos;
+
+    // Perspective-correct point sizing: 1/-mvPos.z shrinks particles with distance.
+    gl_PointSize = aSize * ${BASE_SIZE.toFixed(1)} * uPixelRatio * (1.0 / -mvPos.z);
+
+    vAlpha = assembly;
+    vSeed = aSeed;
+  }
+`;
+
+const fragmentShader = /* glsl */ `
+  varying float vAlpha;
+  varying float vSeed;
+
+  void main() {
+    // gl_PointCoord: (0,0) top-left to (1,1) bottom-right within each point.
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv);
+
+    // Soft circular falloff: opaque core, smooth edge fade.
+    float alpha = smoothstep(0.5, 0.32, d);
+
+    // Discard fully transparent fragments — saves fillrate on overlap.
+    if (alpha < 0.01) discard;
+
+    // Tiny per-particle brightness variation so it doesn't look mechanical.
+    float brightness = 0.92 + vSeed * 0.08;
+
+    gl_FragColor = vec4(vec3(brightness), alpha * vAlpha);
+  }
+`;
+
+/* ─────────────────────────── Image → particle data ─────────────────────────── */
 
 /**
- * Loads the image, draws it to an offscreen canvas, reads the pixels,
- * and returns an array of 3D positions for each "dark enough" pixel.
- * The total is capped at TARGET_PARTICLES by random sampling.
+ * Loads the image, samples its dark pixels, returns typed-array buffers
+ * ready to feed into BufferGeometry.
+ *
+ * Encoding:
+ *   - x, y           — normalized image coords (centered around origin)
+ *   - z              — darkness-encoded depth (darker pixels pop forward)
+ *   - size           — proportional to darkness
+ *   - assemblyOrigin — random scattered position for fly-in animation
  */
-const loadParticlePositions = (src, target) =>
+const loadParticleData = (src, target, threshold) =>
   new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      // Downscale to keep the pixel scan cheap. ~120px wide is plenty.
-      const maxDim = 140;
-      const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
-      const w = Math.floor(img.width * scale);
-      const h = Math.floor(img.height * scale);
+      const scale = Math.min(
+        IMAGE_DOWNSCALE / img.width,
+        IMAGE_DOWNSCALE / img.height,
+        1
+      );
+      const w = Math.max(1, Math.floor(img.width * scale));
+      const h = Math.max(1, Math.floor(img.height * scale));
 
       const canvas = document.createElement("canvas");
       canvas.width = w;
@@ -42,22 +130,22 @@ const loadParticlePositions = (src, target) =>
 
       const { data } = ctx.getImageData(0, 0, w, h);
       const candidates = [];
+      const aspect = w / h;
 
-      // Collect every dark-enough pixel as a candidate.
-      // brightness = (R + G + B) / 3 ; we want dark pixels = subject.
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const idx = (y * w + x) * 4;
           const brightness = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
-          // Threshold tweak: lower = stricter (only very dark pixels become particles)
-          if (brightness < 110) {
-            // Map pixel coords to a centered 3D space (-aspect/2..+aspect/2, -1..+1)
-            const aspect = w / h;
-            const nx = (x / w - 0.5) * aspect * 2;
-            const ny = -(y / h - 0.5) * 2; // flip Y so the image isn't upside-down
-            const nz = (Math.random() - 0.5) * 0.05; // tiny depth for life
-            candidates.push([nx, ny, nz]);
-          }
+          if (brightness >= threshold) continue;
+
+          // 0 = at threshold (lightest accepted), 1 = pitch black
+          const darkness = 1 - brightness / threshold;
+
+          const nx = (x / w - 0.5) * aspect * 2;
+          const ny = -(y / h - 0.5) * 2;
+          const nz = darkness * DEPTH_RANGE - DEPTH_RANGE * 0.4;
+
+          candidates.push({ x: nx, y: ny, z: nz, darkness });
         }
       }
 
@@ -66,7 +154,7 @@ const loadParticlePositions = (src, target) =>
         return;
       }
 
-      // Random sample down to the target count (Fisher–Yates partial shuffle).
+      // Partial Fisher–Yates shuffle: random sample without sorting full array.
       const sampleSize = Math.min(target, candidates.length);
       for (let i = 0; i < sampleSize; i++) {
         const j = i + Math.floor(Math.random() * (candidates.length - i));
@@ -74,156 +162,271 @@ const loadParticlePositions = (src, target) =>
       }
       const sampled = candidates.slice(0, sampleSize);
 
-      // Flatten into a Float32Array for THREE.BufferGeometry.
-      const positions = new Float32Array(sampled.length * 3);
-      sampled.forEach(([x, y, z], i) => {
-        positions[i * 3 + 0] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = z;
+      const positions = new Float32Array(sampleSize * 3);
+      const originals = new Float32Array(sampleSize * 3);
+      const assemblyOrigins = new Float32Array(sampleSize * 3);
+      const sizes = new Float32Array(sampleSize);
+      const seeds = new Float32Array(sampleSize);
+
+      sampled.forEach((p, i) => {
+        positions[i * 3 + 0] = p.x;
+        positions[i * 3 + 1] = p.y;
+        positions[i * 3 + 2] = p.z;
+        originals[i * 3 + 0] = p.x;
+        originals[i * 3 + 1] = p.y;
+        originals[i * 3 + 2] = p.z;
+
+        // Assembly origin: random point on a sphere around the face,
+        // squashed in Z so particles fly in mostly from the sides.
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = ASSEMBLY_SPREAD * (0.7 + Math.random() * 0.5);
+        assemblyOrigins[i * 3 + 0] = Math.sin(phi) * Math.cos(theta) * r;
+        assemblyOrigins[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r;
+        assemblyOrigins[i * 3 + 2] = Math.cos(phi) * r * 0.3;
+
+        sizes[i] = 0.55 + p.darkness * SIZE_VARIATION;
+        seeds[i] = Math.random();
       });
 
-      resolve(positions);
+      resolve({ positions, originals, assemblyOrigins, sizes, seeds });
     };
     img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
     img.src = src;
   });
 
-/* ─────────────────────────── Particle cloud ─────────────────────────── */
+/* ─────────────────────────── Particle field component ─────────────────────────── */
 
-const ParticleFace = ({ positions }) => {
+const ParticleField = ({ data }) => {
   const pointsRef = useRef(null);
-  const mouse3D = useRef(new THREE.Vector3(999, 999, 0));
-  const { viewport, mouse } = useThree();
+  const matRef = useRef(null);
 
-  // Keep the original positions so we can spring back to them.
-  const original = useMemo(() => positions.slice(), [positions]);
-  // The current animated positions (mutated each frame).
-  const current = useMemo(() => positions.slice(), [positions]);
+  const startTime = useRef(performance.now());
+  const velocities = useRef(new Float32Array(data.positions.length));
+  const mouseTarget = useRef(new THREE.Vector2(999, 999));
+  const mouseSmooth = useRef(new THREE.Vector2(999, 999));
+  const activity = useRef(0);
+  const activityTarget = useRef(0);
 
+  const { viewport, gl } = useThree();
+
+  // ─── Pointer events on the WebGL canvas ───────────────────────────────
+  useEffect(() => {
+    const canvas = gl.domElement;
+
+    const setFromClient = (clientX, clientY) => {
+      const rect = canvas.getBoundingClientRect();
+      const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const ndcY = -((clientY - rect.top) / rect.height) * 2 + 1;
+      mouseTarget.current.set(
+        (ndcX * viewport.width) / 2,
+        (ndcY * viewport.height) / 2
+      );
+    };
+
+    const onPointerMove = (e) => {
+      setFromClient(e.clientX, e.clientY);
+      activityTarget.current = 1;
+    };
+    const onPointerLeave = () => { activityTarget.current = 0; };
+    const onPointerEnter = () => { activityTarget.current = 1; };
+    const onTouchMove = (e) => {
+      const t = e.touches[0];
+      if (!t) return;
+      setFromClient(t.clientX, t.clientY);
+      activityTarget.current = 1;
+    };
+    const onTouchEnd = () => { activityTarget.current = 0; };
+
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+    canvas.addEventListener("pointerenter", onPointerEnter);
+    canvas.addEventListener("touchmove", onTouchMove, { passive: true });
+    canvas.addEventListener("touchend", onTouchEnd);
+    canvas.addEventListener("touchcancel", onTouchEnd);
+
+    return () => {
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
+      canvas.removeEventListener("pointerenter", onPointerEnter);
+      canvas.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("touchend", onTouchEnd);
+      canvas.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [gl, viewport]);
+
+  // ─── Uniforms (memoized — never recreated, just mutated) ──────────────
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uAssembly: { value: 0 },
+      uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
+    }),
+    []
+  );
+
+  // ─── Per-frame physics simulation ─────────────────────────────────────
   useFrame(() => {
-    // Convert NDC mouse (-1..+1) into our world space.
-    mouse3D.current.set(
-      (mouse.x * viewport.width) / 2,
-      (mouse.y * viewport.height) / 2,
-      0
-    );
+    const elapsedS = (performance.now() - startTime.current) / 1000;
+    const assembly = Math.min(elapsedS / ASSEMBLY_DURATION_S, 1);
+
+    mouseSmooth.current.x +=
+      (mouseTarget.current.x - mouseSmooth.current.x) * POINTER_LERP;
+    mouseSmooth.current.y +=
+      (mouseTarget.current.y - mouseSmooth.current.y) * POINTER_LERP;
+
+    activity.current +=
+      (activityTarget.current - activity.current) * ACTIVITY_LERP;
+
+    // Mute mouse interaction during assembly so they don't clash.
+    const effectiveActivity = activity.current * assembly;
 
     const geom = pointsRef.current?.geometry;
     if (!geom) return;
-    const arr = geom.attributes.position.array;
+    const posArr = geom.attributes.position.array;
+    const vels = velocities.current;
+    const originals = data.originals;
 
-    const mx = mouse3D.current.x;
-    const my = mouse3D.current.y;
+    const mx = mouseSmooth.current.x;
+    const my = mouseSmooth.current.y;
     const r2 = REPULSION_RADIUS * REPULSION_RADIUS;
+    const active = effectiveActivity;
 
-    for (let i = 0; i < arr.length; i += 3) {
-      const ox = original[i];
-      const oy = original[i + 1];
-      const oz = original[i + 2];
+    // Tight inner loop — typed arrays, no per-frame allocations.
+    const len = posArr.length;
+    for (let i = 0; i < len; i += 3) {
+      const ox = originals[i];
+      const oy = originals[i + 1];
+      const oz = originals[i + 2];
+      const px = posArr[i];
+      const py = posArr[i + 1];
+      const pz = posArr[i + 2];
 
-      // Distance from current particle to cursor (XY plane).
-      const dx = current[i] - mx;
-      const dy = current[i + 1] - my;
-      const d2 = dx * dx + dy * dy;
+      // Spring force toward original position.
+      let fx = (ox - px) * RETURN_SPRING;
+      let fy = (oy - py) * RETURN_SPRING;
+      let fz = (oz - pz) * RETURN_SPRING;
 
-      // Inside repulsion zone? Push particle outward, scaled by closeness.
-      if (d2 < r2 && d2 > 0.00001) {
-        const force = (1 - d2 / r2) * REPULSION_STRENGTH;
-        const d = Math.sqrt(d2);
-        current[i] += (dx / d) * force;
-        current[i + 1] += (dy / d) * force;
+      // Cursor repulsion (only when pointer is engaged).
+      if (active > 0.005) {
+        const dx = px - mx;
+        const dy = py - my;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < r2 && d2 > 0.0001) {
+          const d = Math.sqrt(d2);
+          const falloff = 1 - d2 / r2;
+          const force = falloff * REPULSION_STRENGTH * active;
+          fx += (dx / d) * force;
+          fy += (dy / d) * force;
+        }
       }
 
-      // Spring back toward original position every frame.
-      current[i] += (ox - current[i]) * RETURN_SPEED;
-      current[i + 1] += (oy - current[i + 1]) * RETURN_SPEED;
-      current[i + 2] += (oz - current[i + 2]) * RETURN_SPEED;
+      // Verlet-style integration: velocity accumulates and damps over time.
+      vels[i]     = (vels[i]     + fx) * VELOCITY_DAMPING;
+      vels[i + 1] = (vels[i + 1] + fy) * VELOCITY_DAMPING;
+      vels[i + 2] = (vels[i + 2] + fz) * VELOCITY_DAMPING;
 
-      arr[i] = current[i];
-      arr[i + 1] = current[i + 1];
-      arr[i + 2] = current[i + 2];
+      posArr[i]     = px + vels[i];
+      posArr[i + 1] = py + vels[i + 1];
+      posArr[i + 2] = pz + vels[i + 2];
     }
 
     geom.attributes.position.needsUpdate = true;
+
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value = elapsedS;
+      matRef.current.uniforms.uAssembly.value = assembly;
+    }
   });
 
+  const count = data.positions.length / 3;
+
   return (
-    <points ref={pointsRef}>
+    <points ref={pointsRef} frustumCulled={false}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
+          count={count}
+          array={data.positions}
+          itemSize={3}
+          usage={THREE.DynamicDrawUsage}
+        />
+        <bufferAttribute
+          attach="attributes-aAssemblyOrigin"
+          count={count}
+          array={data.assemblyOrigins}
           itemSize={3}
         />
+        <bufferAttribute
+          attach="attributes-aSize"
+          count={count}
+          array={data.sizes}
+          itemSize={1}
+        />
+        <bufferAttribute
+          attach="attributes-aSeed"
+          count={count}
+          array={data.seeds}
+          itemSize={1}
+        />
       </bufferGeometry>
-      <pointsMaterial
-        size={0.018}
-        color="#ffffff"
-        sizeAttenuation
+      <shaderMaterial
+        ref={matRef}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
+        uniforms={uniforms}
         transparent
-        opacity={0.95}
         depthWrite={false}
       />
     </points>
   );
 };
 
-/* ─────────────────────────── Loader wrapper ─────────────────────────── */
+/* ─────────────────────────── Async image loader ─────────────────────────── */
 
-const ParticleFaceLoader = () => {
-  const [positions, setPositions] = useState(null);
+const ParticleLoader = () => {
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let mounted = true;
-    loadParticlePositions(IMAGE_SRC, TARGET_PARTICLES)
-      .then((p) => mounted && setPositions(p))
+    loadParticleData(IMAGE_SRC, TARGET_PARTICLES, BRIGHTNESS_THRESHOLD)
+      .then((d) => mounted && setData(d))
       .catch((e) => mounted && setError(e.message));
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
-  if (error) {
-    return (
-      <mesh>
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial color="red" wireframe />
-      </mesh>
-    );
-  }
-
-  if (!positions) return null;
-  return <ParticleFace positions={positions} />;
+  if (error || !data) return null;
+  return <ParticleField data={data} />;
 };
 
-/* ─────────────────────────── Main exported component ─────────────────────────── */
+/* ─────────────────────────── Public component ─────────────────────────── */
 
 export const Avatar3D = ({ className = "" }) => {
   const [supportsWebGL, setSupportsWebGL] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
-  // Detect WebGL availability once on mount (for graceful fallback).
   useEffect(() => {
     try {
-      const canvas = document.createElement("canvas");
-      const gl =
-        canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      const c = document.createElement("canvas");
+      const gl = c.getContext("webgl2") || c.getContext("webgl");
       setSupportsWebGL(!!gl);
     } catch {
       setSupportsWebGL(false);
     }
   }, []);
 
-  if (!supportsWebGL) {
+  // Graceful fallback: WebGL unavailable or image failed to load.
+  if (!supportsWebGL || imageError) {
     return (
       <div
-        className={`flex aspect-square items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 ${className}`}
+        className={`flex aspect-square items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-indigo-500/10 to-fuchsia-500/10 ${className}`}
       >
         <img
           src={IMAGE_SRC}
           alt="Santiago"
-          className="h-full w-full rounded-full object-cover opacity-90"
+          className="h-full w-full object-cover opacity-90"
+          onError={() => setImageError(true)}
         />
       </div>
     );
@@ -232,12 +435,16 @@ export const Avatar3D = ({ className = "" }) => {
   return (
     <div className={`relative aspect-square w-full ${className}`}>
       <Canvas
-        camera={{ position: [0, 0, 2.4], fov: 50 }}
+        camera={{ position: [0, 0, 2.4], fov: 50, near: 0.1, far: 10 }}
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
       >
         <Suspense fallback={null}>
-          <ParticleFaceLoader />
+          <ParticleLoader />
         </Suspense>
       </Canvas>
     </div>
