@@ -2,8 +2,6 @@
 // ContactSection.jsx — Santiago Delgado's portfolio
 // -----------------------------------------------------------------------------
 // REPLACE your existing src/components/ContactSection.jsx with this entire file.
-// Dependencies (already in your project): react-hook-form, zod, framer-motion,
-// lucide-react, @hookform/resolvers/zod, your useToast hook, and `cn` utility.
 // =============================================================================
 
 import { useEffect, useState } from "react";
@@ -19,14 +17,9 @@ import {
   Linkedin,
   Github,
   Instagram,
-  Briefcase,
-  Users,
-  HelpCircle,
-  Sparkles,
+  CheckCircle2,
   Copy,
   Check,
-  CheckCircle2,
-  Clock,
   Loader2,
   ArrowLeft,
 } from "lucide-react";
@@ -35,93 +28,134 @@ import { useToast } from "@/hooks/use-toast";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xldwapjy";
 
-/* ─────────────────────────── Intent options ─────────────────────────── */
+/* ─────────────────────────── Status definitions ──────────────────────────
+   Each entry maps a Toronto-local hour range [start, end) to a vibe.
+   Tailwind classes are written as literal strings so the JIT scanner
+   picks them up at build time. */
 
-const INTENTS = [
+const STATUSES = [
   {
-    id: "hiring",
-    icon: Briefcase,
-    title: "Hiring",
-    description: "IT Support · Systems · Networking roles",
-    accent: "from-emerald-500/20 to-teal-500/10",
-    border: "hover:border-emerald-500/40",
-    extras: ["company", "role"],
+    range: [0, 7],
+    key: "sleeping",
+    emoji: "😴",
+    label: "Sleeping",
+    classes: {
+      border: "border-violet-500/30",
+      bg: "bg-violet-500/10",
+      pulse: "bg-violet-500/30",
+      text: "text-violet-300",
+    },
   },
   {
-    id: "collab",
-    icon: Users,
-    title: "Collaboration",
-    description: "Project, freelance, or open-source",
-    accent: "from-sky-500/20 to-indigo-500/10",
-    border: "hover:border-sky-500/40",
-    extras: ["company"],
+    range: [7, 9],
+    key: "morning",
+    emoji: "☕",
+    label: "Morning coffee",
+    classes: {
+      border: "border-amber-500/30",
+      bg: "bg-amber-500/10",
+      pulse: "bg-amber-500/30",
+      text: "text-amber-300",
+    },
   },
   {
-    id: "question",
-    icon: HelpCircle,
-    title: "Question",
-    description: "Quick technical or career question",
-    accent: "from-violet-500/20 to-fuchsia-500/10",
-    border: "hover:border-violet-500/40",
-    extras: [],
+    range: [9, 12],
+    key: "available",
+    emoji: "💼",
+    label: "Available",
+    classes: {
+      border: "border-emerald-500/30",
+      bg: "bg-emerald-500/10",
+      pulse: "bg-emerald-500/30",
+      text: "text-emerald-300",
+    },
   },
   {
-    id: "hi",
-    icon: Sparkles,
-    title: "Just Saying Hi",
-    description: "Networking, hello, or random thoughts",
-    accent: "from-amber-500/20 to-rose-500/10",
-    border: "hover:border-amber-500/40",
-    extras: [],
+    range: [12, 13],
+    key: "lunch",
+    emoji: "🍽️",
+    label: "Lunch break",
+    classes: {
+      border: "border-orange-500/30",
+      bg: "bg-orange-500/10",
+      pulse: "bg-orange-500/30",
+      text: "text-orange-300",
+    },
+  },
+  {
+    range: [13, 17],
+    key: "building",
+    emoji: "💻",
+    label: "Building",
+    classes: {
+      border: "border-indigo-500/30",
+      bg: "bg-indigo-500/10",
+      pulse: "bg-indigo-500/30",
+      text: "text-indigo-300",
+    },
+  },
+  {
+    range: [17, 18],
+    key: "exercising",
+    emoji: "🏋️",
+    label: "At the gym",
+    classes: {
+      border: "border-rose-500/30",
+      bg: "bg-rose-500/10",
+      pulse: "bg-rose-500/30",
+      text: "text-rose-300",
+    },
+  },
+  {
+    range: [18, 20],
+    key: "studying",
+    emoji: "📚",
+    label: "Studying",
+    classes: {
+      border: "border-sky-500/30",
+      bg: "bg-sky-500/10",
+      pulse: "bg-sky-500/30",
+      text: "text-sky-300",
+    },
+  },
+  {
+    range: [20, 22],
+    key: "off-duty",
+    emoji: "🎮",
+    label: "Off-duty",
+    classes: {
+      border: "border-fuchsia-500/30",
+      bg: "bg-fuchsia-500/10",
+      pulse: "bg-fuchsia-500/30",
+      text: "text-fuchsia-300",
+    },
+  },
+  {
+    range: [22, 24],
+    key: "winding-down",
+    emoji: "🌙",
+    label: "Winding down",
+    classes: {
+      border: "border-purple-500/30",
+      bg: "bg-purple-500/10",
+      pulse: "bg-purple-500/30",
+      text: "text-purple-300",
+    },
   },
 ];
 
-const SOCIAL_LINKS = [
-  {
-    icon: Linkedin,
-    href: "https://www.linkedin.com/in/santiagodelgado23",
-    label: "LinkedIn",
-  },
-  { icon: Github, href: "https://github.com/Santi2307", label: "GitHub" },
-  {
-    icon: Instagram,
-    href: "https://www.instagram.com/santidelgado2004",
-    label: "Instagram",
-  },
-];
+const getStatusForHour = (hour) =>
+  STATUSES.find((s) => hour >= s.range[0] && hour < s.range[1]) || STATUSES[0];
 
 /* ─────────────────────────── Hooks ─────────────────────────── */
 
-/** Live clock in Toronto, updates every second. */
-const useTorontoTime = () => {
-  const [time, setTime] = useState(() => formatTorontoTime());
-  useEffect(() => {
-    const id = setInterval(() => setTime(formatTorontoTime()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return time;
-};
+const useCurrentStatus = () => {
+  const [status, setStatus] = useState(() =>
+    getStatusForHour(new Date().getHours()),
+  );
 
-const formatTorontoTime = () => {
-  try {
-    return new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Toronto",
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-      timeZoneName: "short",
-    }).format(new Date());
-  } catch {
-    return "—";
-  }
-};
-
-/** Availability based on Toronto local hour. */
-const useAvailability = () => {
-  const [status, setStatus] = useState("online");
   useEffect(() => {
-    const check = () => {
+    const update = () => {
       try {
         const hour = parseInt(
           new Intl.DateTimeFormat("en-US", {
@@ -131,20 +165,19 @@ const useAvailability = () => {
           }).format(new Date()),
           10,
         );
-        // Online roughly 8am–11pm Toronto
-        setStatus(hour >= 8 && hour < 23 ? "online" : "away");
+        setStatus(getStatusForHour(hour));
       } catch {
-        setStatus("online");
+        setStatus(getStatusForHour(new Date().getHours()));
       }
     };
-    check();
-    const id = setInterval(check, 60 * 1000);
+    update();
+    const id = setInterval(update, 60 * 1000);
     return () => clearInterval(id);
   }, []);
+
   return status;
 };
 
-/** Copy text to clipboard with a temporary "copied" flag. */
 const useCopy = (resetMs = 1500) => {
   const [copied, setCopied] = useState(false);
   const copy = async (text) => {
@@ -153,58 +186,100 @@ const useCopy = (resetMs = 1500) => {
       setCopied(true);
       setTimeout(() => setCopied(false), resetMs);
     } catch {
-      // Clipboard unavailable — silent fail
+      // silent fail — clipboard API unavailable
     }
   };
   return { copied, copy };
 };
 
-/* ─────────────────────────── Live status header ─────────────────────────── */
+/* ─────────────────────────── Sleeping Zzz animation ─────────────────────────── */
+
+const SleepingZzz = () => (
+  <div
+    aria-hidden
+    className="pointer-events-none absolute -right-3 -top-2 h-6 w-6"
+  >
+    {[0, 1, 2].map((i) => (
+      <motion.span
+        key={i}
+        className="absolute left-0 top-0 font-mono text-[9px] font-bold text-violet-200"
+        animate={{
+          y: [2, -10, -18],
+          x: [0, 3, 7],
+          opacity: [0, 1, 0],
+          scale: [0.5, 1, 1.15],
+          rotate: [0, 6, 14],
+        }}
+        transition={{
+          duration: 2.8,
+          repeat: Infinity,
+          delay: i * 0.85,
+          ease: "easeOut",
+        }}
+      >
+        z
+      </motion.span>
+    ))}
+  </div>
+);
+
+/* ─────────────────────────── Status bar ─────────────────────────── */
 
 const LiveStatusBar = () => {
-  const time = useTorontoTime();
-  const status = useAvailability();
-  const isOnline = status === "online";
+  const status = useCurrentStatus();
+  const isSleeping = status.key === "sleeping";
 
   return (
-    <div className="mx-auto mb-12 inline-flex flex-wrap items-center justify-center gap-3 rounded-full border border-border/60 bg-card/60 px-4 py-2 text-xs backdrop-blur-sm">
-      {/* Availability */}
-      <div className="flex items-center gap-2">
-        <span className="relative inline-flex h-2 w-2">
-          <motion.span
-            aria-hidden
-            className={cn(
-              "absolute inset-0 rounded-full",
-              isOnline ? "bg-emerald-500" : "bg-amber-500",
+    <motion.div
+      layout
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "mx-auto mb-12 inline-flex items-center gap-3 rounded-full border px-4 py-2 text-xs backdrop-blur-sm transition-colors",
+        status.classes.border,
+        status.classes.bg,
+      )}
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={status.key}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center gap-2.5"
+        >
+          <span className="relative inline-flex h-5 w-5 items-center justify-center">
+            {!isSleeping && (
+              <motion.span
+                aria-hidden
+                className={cn(
+                  "absolute inset-0 rounded-full",
+                  status.classes.pulse,
+                )}
+                animate={{ scale: [1, 1.8], opacity: [0.55, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+              />
             )}
-            animate={{ scale: [1, 2.4], opacity: [0.55, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-          />
-          <span
-            className={cn(
-              "relative inline-block h-full w-full rounded-full",
-              isOnline ? "bg-emerald-500" : "bg-amber-500",
-            )}
-          />
-        </span>
-        <span className="font-medium">{isOnline ? "Available" : "Away"}</span>
-      </div>
+            <span
+              className="relative text-base leading-none"
+              role="img"
+              aria-label={status.label}
+            >
+              {status.emoji}
+            </span>
+            {isSleeping && <SleepingZzz />}
+          </span>
+
+          <span className={cn("font-medium", status.classes.text)}>
+            {status.label}
+          </span>
+        </motion.div>
+      </AnimatePresence>
 
       <span className="h-3 w-px bg-border" aria-hidden />
 
-      {/* Live time */}
-      <div className="flex items-center gap-1.5 text-muted-foreground">
-        <Clock size={12} aria-hidden />
-        <span className="font-mono tabular-nums">{time}</span>
-      </div>
-
-      <span className="h-3 w-px bg-border" aria-hidden />
-
-      {/* Response time */}
-      <span className="text-muted-foreground">
-        I will be respond to shortly to your message. :){" "}
-      </span>
-    </div>
+      <span className="text-muted-foreground">Usually replies within 24h</span>
+    </motion.div>
   );
 };
 
@@ -275,80 +350,20 @@ const LocationChannel = () => (
   </div>
 );
 
-/* ─────────────────────────── Intent card ─────────────────────────── */
-
-const IntentCard = ({ intent, isActive, onSelect }) => {
-  const Icon = intent.icon;
-
-  return (
-    <motion.button
-      type="button"
-      onClick={() => onSelect(intent.id)}
-      whileTap={{ scale: 0.97 }}
-      className={cn(
-        "group relative flex flex-col items-start gap-1.5 overflow-hidden rounded-xl border-2 bg-card/50 p-4 text-left backdrop-blur-sm transition-all",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-        isActive
-          ? "border-primary shadow-lg shadow-primary/10"
-          : cn("border-border/40", intent.border),
-      )}
-      aria-pressed={isActive}
-    >
-      {/* Gradient backdrop */}
-      <div
-        className={cn(
-          "absolute inset-0 -z-10 bg-gradient-to-br opacity-0 transition-opacity",
-          intent.accent,
-          (isActive || "group-hover:opacity-100") && "group-hover:opacity-100",
-          isActive && "opacity-100",
-        )}
-      />
-
-      <Icon
-        className={cn(
-          "h-5 w-5 transition-colors",
-          isActive ? "text-primary" : "text-foreground/70",
-        )}
-        aria-hidden="true"
-      />
-      <div className="font-semibold text-sm">{intent.title}</div>
-      <div className="text-xs text-muted-foreground">{intent.description}</div>
-
-      {isActive && (
-        <motion.span
-          layoutId="intent-indicator"
-          aria-hidden
-          className="absolute right-3 top-3 inline-flex h-2 w-2 rounded-full bg-primary"
-        />
-      )}
-    </motion.button>
-  );
-};
-
 /* ─────────────────────────── Form ─────────────────────────── */
 
 const contactFormSchema = z.object({
-  intent: z.string().min(1, "Please choose what you're reaching out about."),
   name: z.string().min(1, "Name is required."),
   email: z.string().email("Please enter a valid email."),
-  company: z.string().optional(),
-  role: z.string().optional(),
   message: z
     .string()
     .min(10, "Message should be at least 10 characters.")
     .max(2000, "Message is too long."),
 });
 
-const Field = ({ label, error, children, optional }) => (
+const Field = ({ label, error, children }) => (
   <div>
-    <label className="mb-1.5 flex items-center gap-2 text-sm font-medium">
-      {label}
-      {optional && (
-        <span className="text-[10px] font-normal uppercase tracking-wider text-muted-foreground">
-          Optional
-        </span>
-      )}
-    </label>
+    <label className="mb-1.5 block text-sm font-medium">{label}</label>
     {children}
     {error && (
       <p role="alert" className="mt-1 text-xs text-destructive">
@@ -365,29 +380,20 @@ const inputClasses = (hasError) =>
     hasError ? "border-destructive focus:ring-destructive/40" : "border-input",
   );
 
-const SmartContactForm = ({ onSent }) => {
+const ContactForm = ({ onSent }) => {
   const { toast } = useToast();
-  const [intent, setIntent] = useState(null);
-
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
+    watch,
     reset,
   } = useForm({
     resolver: zodResolver(contactFormSchema),
-    defaultValues: { intent: "" },
   });
 
-  const handleIntentSelect = (id) => {
-    setIntent(id);
-    setValue("intent", id, { shouldValidate: true });
-  };
-
-  const selectedIntent = INTENTS.find((i) => i.id === intent);
-  const showCompany = selectedIntent?.extras.includes("company");
-  const showRole = selectedIntent?.extras.includes("role");
+  const messageValue = watch("message", "");
+  const messageCount = messageValue?.length ?? 0;
 
   const onSubmit = async (data) => {
     try {
@@ -396,13 +402,12 @@ const SmartContactForm = ({ onSent }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          _subject: `[${data.intent.toUpperCase()}] New message from ${data.name}`,
+          _subject: `New message from ${data.name}`,
         }),
       });
 
       if (response.ok) {
         reset();
-        setIntent(null);
         onSent();
       } else {
         toast({
@@ -422,139 +427,65 @@ const SmartContactForm = ({ onSent }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Step 1: Intent */}
-      <div>
-        <div className="mb-3 flex items-center gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-primary">
-            01 / Intent
-          </span>
-          <div className="h-px flex-1 bg-border/60" />
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {INTENTS.map((i) => (
-            <IntentCard
-              key={i.id}
-              intent={i}
-              isActive={intent === i.id}
-              onSelect={handleIntentSelect}
-            />
-          ))}
-        </div>
-        {errors.intent && (
-          <p role="alert" className="mt-2 text-xs text-destructive">
-            {errors.intent.message}
-          </p>
-        )}
-        {/* Hidden field so RHF/Zod see the intent value */}
-        <input type="hidden" {...register("intent")} />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Name" error={errors.name?.message}>
+          <input
+            type="text"
+            placeholder="Your name"
+            {...register("name")}
+            className={inputClasses(!!errors.name)}
+          />
+        </Field>
+
+        <Field label="Email" error={errors.email?.message}>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            {...register("email")}
+            className={inputClasses(!!errors.email)}
+          />
+        </Field>
       </div>
 
-      {/* Step 2: Details */}
-      <AnimatePresence initial={false}>
-        {intent && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-wider text-primary">
-                02 / Details
-              </span>
-              <div className="h-px flex-1 bg-border/60" />
-            </div>
+      <Field label="Message" error={errors.message?.message}>
+        <textarea
+          rows={6}
+          placeholder="What's on your mind? Hiring, collaboration, a question, or just saying hi — all good."
+          {...register("message")}
+          className={cn(
+            inputClasses(!!errors.message),
+            "resize-y min-h-[140px]",
+          )}
+        />
+        <div className="mt-1 flex justify-end text-[10px] tabular-nums text-muted-foreground">
+          {messageCount} / 2000
+        </div>
+      </Field>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Name" error={errors.name?.message}>
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  {...register("name")}
-                  className={inputClasses(!!errors.name)}
-                />
-              </Field>
-
-              <Field label="Email" error={errors.email?.message}>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  {...register("email")}
-                  className={inputClasses(!!errors.email)}
-                />
-              </Field>
-
-              {showCompany && (
-                <Field label="Company" optional>
-                  <input
-                    type="text"
-                    placeholder="Company or organization"
-                    {...register("company")}
-                    className={inputClasses(false)}
-                  />
-                </Field>
-              )}
-
-              {showRole && (
-                <Field label="Role" optional>
-                  <input
-                    type="text"
-                    placeholder="e.g. IT Support Analyst"
-                    {...register("role")}
-                    className={inputClasses(false)}
-                  />
-                </Field>
-              )}
-            </div>
-
-            <Field label="Message" error={errors.message?.message}>
-              <textarea
-                rows={5}
-                placeholder={
-                  intent === "hiring"
-                    ? "Tell me about the role, team, and what you're looking for…"
-                    : intent === "collab"
-                      ? "What kind of project? What's the timeline?"
-                      : intent === "question"
-                        ? "What's on your mind?"
-                        : "Say hi 👋"
-                }
-                {...register("message")}
-                className={cn(
-                  inputClasses(!!errors.message),
-                  "resize-y min-h-[120px]",
-                )}
-              />
-            </Field>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={cn(
-                "group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
-                isSubmitting && "cursor-not-allowed opacity-70",
-              )}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Sending…
-                </>
-              ) : (
-                <>
-                  Send Message
-                  <Send
-                    size={16}
-                    className="transition-transform group-hover:translate-x-0.5"
-                  />
-                </>
-              )}
-            </button>
-          </motion.div>
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={cn(
+          "group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
+          isSubmitting && "cursor-not-allowed opacity-70",
         )}
-      </AnimatePresence>
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            Sending…
+          </>
+        ) : (
+          <>
+            Send Message
+            <Send
+              size={16}
+              className="transition-transform group-hover:translate-x-0.5"
+            />
+          </>
+        )}
+      </button>
     </form>
   );
 };
@@ -601,6 +532,20 @@ const SuccessState = ({ onReset }) => (
 
 /* ─────────────────────────── Main section ─────────────────────────── */
 
+const SOCIAL_LINKS = [
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/in/santiagodelgado23",
+    label: "LinkedIn",
+  },
+  { icon: Github, href: "https://github.com/Santi2307", label: "GitHub" },
+  {
+    icon: Instagram,
+    href: "https://www.instagram.com/santidelgado2004",
+    label: "Instagram",
+  },
+];
+
 export const ContactSection = () => {
   const [sent, setSent] = useState(false);
 
@@ -612,7 +557,6 @@ export const ContactSection = () => {
     >
       <div className="container mx-auto max-w-5xl">
         <div className="text-center">
-          {/* Terminal-style preheader */}
           <p className="mb-3 font-mono text-xs text-muted-foreground">
             <span className="text-primary">~ </span>
             <span className="text-foreground/80">sys.contact</span>
@@ -639,7 +583,6 @@ export const ContactSection = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
-          {/* Channels — left column */}
           <aside className="space-y-3 lg:col-span-2">
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Direct Channels
@@ -683,7 +626,6 @@ export const ContactSection = () => {
             </div>
           </aside>
 
-          {/* Form — right column */}
           <div className="rounded-2xl border border-border/60 bg-card/60 p-6 backdrop-blur-sm md:p-8 lg:col-span-3">
             <AnimatePresence mode="wait">
               {sent ? (
@@ -696,7 +638,7 @@ export const ContactSection = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
                 >
-                  <SmartContactForm onSent={() => setSent(true)} />
+                  <ContactForm onSent={() => setSent(true)} />
                 </motion.div>
               )}
             </AnimatePresence>
