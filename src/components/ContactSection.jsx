@@ -203,7 +203,6 @@ const LiveStatusBar = () => {
       {/* Response time */}
       <span className="text-muted-foreground">
         I will be respond to shortly to your message. :){" "}
-        <span className="font-medium text-foreground">24h</span>
       </span>
     </div>
   );
