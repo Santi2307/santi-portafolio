@@ -543,7 +543,7 @@ const SOCIAL_LINKS = [
   { icon: Github, href: "https://github.com/Santi2307", label: "GitHub" },
   {
     icon: Instagram,
-    href: "https://www.instagram.com/santidelgado2004",
+    href: "https://www.instagram.com/santiagodelgadosanchez",
     label: "Instagram",
   },
 ];
