@@ -522,10 +522,7 @@ export const ProjectsSection = () => {
             transition={{ delay: 0.15, duration: 0.5 }}
             className="mx-auto max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base"
           >
-            A curated selection of substantive work — my capstone, the systems
-            and cloud projects from Seneca's Computer Systems Technology program,
-            a production platform I built for my family's business in Colombia,
-            and the design system behind this site.
+            A Selection of things I've built in such as Systems Administration, Cloud Infrastructure, Automation with Ansible, Web Development and a Enterprise Network Automation. 
           </motion.p>
         </header>
 
