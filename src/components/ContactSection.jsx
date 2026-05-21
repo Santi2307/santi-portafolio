@@ -278,7 +278,9 @@ const LiveStatusBar = () => {
 
       <span className="h-3 w-px bg-border" aria-hidden />
 
-      <span className="text-muted-foreground">Usually replies within 24h</span>
+      <span className="text-muted-foreground">
+        I will get back asap. Have a great day!
+      </span>
     </motion.div>
   );
 };
