@@ -12,6 +12,9 @@ const navItems = [
   { name: "Contact",  href: "#contact",  icon: Mail },
 ];
 
+// Alias para evitar bug de parsing con motion.li en algunos setups de esbuild
+const MotionLi = motion.li;
+
 const spring = { type: "spring", stiffness: 380, damping: 30 };
 
 // ─── Borde de gradiente cónico animado ──────────────────────────────────
@@ -81,7 +84,7 @@ const mobileItemVariants = {
 const MobileNavLink = ({ item, isActive, onClick }) => {
   const Icon = item.icon;
   return (
-    <motion.li variants={mobileItemVariants} className="px-2">
+    <MotionLi variants={mobileItemVariants} className="px-2">
 
         href={item.href}
         onClick={onClick}
@@ -103,7 +106,7 @@ const MobileNavLink = ({ item, isActive, onClick }) => {
         <Icon size={18} className="relative z-10" strokeWidth={2.25} />
         <span className="relative z-10 font-medium">{item.name}</span>
       </a>
-    </motion.li>
+    </MotionLi>
   );
 };
 
