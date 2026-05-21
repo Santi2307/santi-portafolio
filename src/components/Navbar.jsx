@@ -423,7 +423,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
                   const Icon = item.icon;
                   const isSelected = i === selectedIdx;
                   return (
-
+                      <a
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
