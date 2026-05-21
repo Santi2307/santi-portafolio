@@ -22,6 +22,7 @@ import {
   Check,
   Loader2,
   ArrowLeft,
+  Twitter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -546,6 +547,11 @@ const SOCIAL_LINKS = [
     href: "https://www.instagram.com/santiagodelgadosanchez",
     label: "Instagram",
   },
+  {
+    icon: Twitter,
+    href: "https://x.com/Santiagodelga23",
+    label: "Twitter",
+  }
 ];
 
 export const ContactSection = () => {
