@@ -3,7 +3,6 @@ import { Menu, X, Home, User, Lightbulb, Briefcase, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
-import { LiveIndicator } from "./LiveIndicator";
 
 const navItems = [
   { name: "Home",     href: "#hero",     icon: Home },
@@ -13,54 +12,69 @@ const navItems = [
   { name: "Contact",  href: "#contact",  icon: Mail },
 ];
 
-// Shared variants — declared once, parent triggers child animations
-const linkVariants = {
-  rest:  { y: 0 },
-  hover: { y: -2, transition: { type: "spring", stiffness: 400, damping: 14 } },
-};
-const iconVariants = {
-  rest:  { scale: 1, rotate: 0 },
-  hover: { scale: 1.18, rotate: -8, transition: { type: "spring", stiffness: 500, damping: 12 } },
-};
+const spring = { type: "spring", stiffness: 380, damping: 30 };
 
-// ─── Desktop link ─────────────────────────────────────────────────────────
-const DesktopNavLink = ({ item, isActive }) => {
+// ─── Borde de gradiente cónico animado ──────────────────────────────────
+const AnimatedRing = ({ className }) => (
+  <motion.span
+    aria-hidden
+    className={cn("pointer-events-none absolute -inset-px rounded-full opacity-70", className)}
+    style={{
+      background:
+        "conic-gradient(from 0deg, transparent 0deg, rgba(99,102,241,0.55) 50deg, rgba(217,70,239,0.45) 110deg, transparent 180deg, transparent 360deg)",
+      WebkitMask:
+        "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+      WebkitMaskComposite: "xor",
+      maskComposite: "exclude",
+      padding: 1,
+    }}
+    animate={{ rotate: 360 }}
+    transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+  />
+);
+
+// ─── Link desktop ───────────────────────────────────────────────────────
+const DesktopNavLink = ({ item, isActive, onClick }) => {
   const Icon = item.icon;
   return (
     <motion.a
       href={item.href}
+      onClick={onClick}
       initial="rest"
       whileHover="hover"
-      whileTap={{ scale: 0.95 }}
-      variants={linkVariants}
+      animate="rest"
+      whileTap={{ scale: 0.94 }}
       aria-current={isActive ? "location" : undefined}
       className={cn(
-        "relative inline-flex items-center rounded-full px-3 py-1.5 font-medium transition-colors",
-        isActive
-          ? "text-indigo-600 dark:text-indigo-400"
-          : "text-foreground hover:text-indigo-600 dark:hover:text-indigo-400"
+        "relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300",
+        isActive ? "text-white" : "text-foreground/60 hover:text-foreground"
       )}
     >
       {isActive && (
         <motion.span
           layoutId="nav-active-pill"
-          className="absolute inset-0 rounded-full bg-indigo-500/10 dark:bg-indigo-400/15 ring-1 ring-indigo-500/20 dark:ring-indigo-400/20"
-          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+          transition={spring}
+          className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 shadow-lg shadow-indigo-500/40"
         />
       )}
-      <span className="relative z-10 inline-flex items-center gap-1.5">
-        <motion.span variants={iconVariants} className="inline-flex">
-          <Icon size={18} />
-        </motion.span>
-        {item.name}
-      </span>
+      <motion.span
+        variants={{
+          rest:  { scale: 1, rotate: 0, y: 0 },
+          hover: { scale: 1.18, rotate: -8, y: -1 },
+        }}
+        transition={{ type: "spring", stiffness: 500, damping: 14 }}
+        className="relative z-10 inline-flex"
+      >
+        <Icon size={15} strokeWidth={2.25} />
+      </motion.span>
+      <span className="relative z-10">{item.name}</span>
     </motion.a>
   );
 };
 
-// ─── Mobile link ──────────────────────────────────────────────────────────
+// ─── Link mobile ────────────────────────────────────────────────────────
 const mobileItemVariants = {
-  hidden:  { opacity: 0, x: 24 },
+  hidden:  { opacity: 0, x: 28 },
   visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 380, damping: 28 } },
 };
 
@@ -73,30 +87,30 @@ const MobileNavLink = ({ item, isActive, onClick }) => {
         onClick={onClick}
         aria-current={isActive ? "location" : undefined}
         className={cn(
-          "relative flex items-center gap-3 rounded-xl px-3 py-3 transition-colors",
+          "relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3.5 transition-colors",
           isActive
-            ? "text-indigo-600 dark:text-indigo-400 font-semibold"
-            : "text-foreground hover:bg-black/[0.04] dark:hover:bg-white/5"
+            ? "text-white"
+            : "text-foreground/80 hover:bg-white/5"
         )}
       >
         {isActive && (
           <motion.span
             layoutId="nav-active-mobile"
-            className="absolute inset-0 rounded-xl bg-indigo-500/10 dark:bg-indigo-400/15"
-            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            transition={spring}
+            className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/90 to-violet-500/90 shadow-lg shadow-indigo-500/30"
           />
         )}
-        <Icon size={20} className="relative z-10" />
-        <span className="relative z-10">{item.name}</span>
+        <Icon size={18} className="relative z-10" strokeWidth={2.25} />
+        <span className="relative z-10 font-medium">{item.name}</span>
       </a>
     </motion.li>
   );
 };
 
-// ─── Mobile drawer ────────────────────────────────────────────────────────
+// ─── Drawer mobile ──────────────────────────────────────────────────────
 const listVariants = {
   hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.08 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
 };
 
 const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
@@ -114,35 +128,42 @@ const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="md:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-md"
+            className="md:hidden fixed inset-0 z-40 bg-background/70 backdrop-blur-md"
           />
           <motion.aside
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            initial={{ x: "100%", opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 34 }}
             role="dialog"
             aria-modal="true"
-            className="md:hidden fixed top-0 right-0 z-50 h-full w-[80%] max-w-sm bg-card border-l border-border shadow-2xl"
+            className="md:hidden fixed top-4 right-4 bottom-4 z-50 w-[82%] max-w-sm overflow-hidden rounded-3xl border border-white/10 bg-card/95 backdrop-blur-2xl shadow-2xl shadow-indigo-500/10"
           >
-            <div className="flex items-center justify-between px-5 py-4">
-              <span className="text-base font-semibold text-foreground">Menu</span>
+            {/* Glow decorativo */}
+            <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-fuchsia-500/15 blur-3xl" />
+
+            <div className="relative flex items-center justify-between px-6 pt-6 pb-4">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/60">
+                Navigation
+              </span>
               <motion.button
                 onClick={onClose}
                 aria-label="Close menu"
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                className="rounded-xl p-2 hover:bg-black/[0.04] dark:hover:bg-white/5 transition"
+                className="rounded-full p-2 ring-1 ring-white/10 hover:bg-white/5 transition"
               >
-                <X size={20} className="text-foreground" />
+                <X size={18} />
               </motion.button>
             </div>
-            <nav className="px-2 pb-8">
+
+            <nav className="relative px-2 pb-8">
               <motion.ul
                 variants={listVariants}
                 initial="hidden"
                 animate="visible"
-                className="space-y-1"
+                className="space-y-1.5"
               >
                 {navItems.map((item) => (
                   <MobileNavLink
@@ -161,7 +182,7 @@ const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
   );
 };
 
-// ─── Navbar ───────────────────────────────────────────────────────────────
+// ─── Navbar ─────────────────────────────────────────────────────────────
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -169,15 +190,13 @@ export const Navbar = () => {
   const scrollDirection = useScrollDirection();
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
-  // Background style based on scroll position (separate concern from hide-on-scroll)
   useEffect(() => {
-    const onScroll = () => setScrolledPast(window.scrollY > 8);
+    const onScroll = () => setScrolledPast(window.scrollY > 12);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Active-section tracking via IntersectionObserver
   useEffect(() => {
     const sections = navItems
       .map((i) => document.getElementById(i.href.substring(1)))
@@ -194,93 +213,102 @@ export const Navbar = () => {
     return () => observer.disconnect();
   }, []);
 
-  const isHidden = scrollDirection === "down" && scrolledPast;
+  // Solo se oculta si: bajando + ya pasamos el threshold + menú cerrado
+  const isHidden = scrollDirection === "down" && scrolledPast && !isMenuOpen;
 
   return (
     <>
-      <motion.nav
-        animate={{ y: isHidden ? -100 : 0 }}
-        transition={{ type: "tween", duration: 0.3 }}
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-[background,backdrop-filter,border,padding] duration-300",
-          scrolledPast
-            ? "bg-background/70 backdrop-blur-xl border-b border-border shadow-sm py-2"
-            : "bg-transparent py-4"
-        )}
+      <motion.header
+        animate={{ y: isHidden ? -120 : 0 }}
+        transition={{ type: "tween", duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+        className="fixed inset-x-0 top-0 z-50"
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <motion.a
-                href="#hero"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.98 }}
-                className="relative text-xl font-extrabold tracking-wide"
-              >
-                <motion.span
-                  className="bg-gradient-to-r from-indigo-600 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent"
-                  style={{ backgroundSize: "200% auto" }}
-                  animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                >
-                  Santiago’s
-                </motion.span>
-                <span className="text-foreground"> Portfolio</span>
-              </motion.a>
-              <LiveIndicator />
-            </div>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pt-4 sm:px-6 lg:px-8">
 
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-1 text-sm">
-              {navItems.map((item) => (
-                <DesktopNavLink
-                  key={item.href}
-                  item={item}
-                  isActive={activeSection === item.href.substring(1)}
-                />
-              ))}
-            </div>
+          {/* ── Logo ── */}
+          <motion.a
+            href="#hero"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="group relative inline-flex items-center gap-2 rounded-full px-1 text-lg font-extrabold tracking-tight"
+          >
+            <span className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white shadow-lg shadow-indigo-500/40">
+              <span className="text-xs font-black">S</span>
+              <motion.span
+                aria-hidden
+                className="absolute inset-0 rounded-lg bg-gradient-to-br from-indigo-400 to-fuchsia-400 opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-80"
+              />
+            </span>
+            <motion.span
+              className="bg-gradient-to-r from-indigo-400 via-violet-300 to-fuchsia-400 bg-clip-text text-transparent"
+              style={{ backgroundSize: "200% auto" }}
+              animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+            >
+              Santiago
+            </motion.span>
+          </motion.a>
 
-            {/* Mobile controls */}
-            <div className="md:hidden flex items-center gap-3">
-              <LiveIndicator />
-              <motion.button
-                onClick={() => setIsMenuOpen((v) => !v)}
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={isMenuOpen}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.92 }}
-                className="inline-flex items-center justify-center rounded-xl p-2 ring-1 ring-border hover:bg-black/[0.04] dark:hover:bg-white/5 transition"
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  {isMenuOpen ? (
-                    <motion.span
-                      key="x"
-                      initial={{ rotate: -90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <X size={22} className="text-foreground" />
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="menu"
-                      initial={{ rotate: 90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Menu size={22} className="text-foreground" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            </div>
+          {/* ── Floating pill (desktop) ── */}
+          <div className="hidden md:block relative">
+            <motion.div
+              animate={{
+                backgroundColor: scrolledPast ? "rgba(15, 15, 20, 0.6)" : "rgba(15, 15, 20, 0.35)",
+              }}
+              transition={{ duration: 0.4 }}
+              className="relative rounded-full border border-white/10 backdrop-blur-2xl shadow-xl shadow-black/20"
+            >
+              <AnimatedRing />
+              <div className="relative flex items-center gap-1 p-1.5">
+                {navItems.map((item) => (
+                  <DesktopNavLink
+                    key={item.href}
+                    item={item}
+                    isActive={activeSection === item.href.substring(1)}
+                  />
+                ))}
+              </div>
+            </motion.div>
           </div>
+
+          {/* ── Botón mobile ── */}
+          <motion.button
+            onClick={() => setIsMenuOpen((v) => !v)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            className="md:hidden relative inline-flex items-center justify-center rounded-full border border-white/10 bg-card/60 p-2.5 backdrop-blur-xl"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {isMenuOpen ? (
+                <motion.span
+                  key="x"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={20} />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={20} />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+          {/* Spacer invisible para balancear el grid en desktop */}
+          <div className="hidden md:block w-[120px]" aria-hidden />
         </div>
-      </motion.nav>
+      </motion.header>
 
       <MobileDrawer
         isOpen={isMenuOpen}
