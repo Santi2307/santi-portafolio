@@ -34,9 +34,9 @@ export const Footer = () => {
         <p className="text-sm text-muted-foreground">
           © {year}{" "}
           <span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text font-medium text-transparent">
-            Santiago Delgado
+
           </span>
-          . Built in Toronto.
+          Built and Designed by Santiago Delgado. All Rights Reserved.
         </p>
       </div>
     </footer>
