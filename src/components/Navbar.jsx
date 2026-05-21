@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Menu,
   X,
@@ -36,11 +30,41 @@ const MotionLi = motion.li;
    ═══════════════════════════════════════════════════════════════════════ */
 
 const navItems = [
-  { name: "Home",     href: "#hero",     icon: Home,      shortcut: "1", description: "Welcome page" },
-  { name: "About",    href: "#about",    icon: User,      shortcut: "2", description: "My story" },
-  { name: "Skills",   href: "#skills",   icon: Lightbulb, shortcut: "3", description: "Tech stack" },
-  { name: "Projects", href: "#projects", icon: Briefcase, shortcut: "4", description: "Selected work" },
-  { name: "Contact",  href: "#contact",  icon: Mail,      shortcut: "5", description: "Get in touch" },
+  {
+    name: "Home",
+    href: "#hero",
+    icon: Home,
+    shortcut: "1",
+    description: "Welcome page",
+  },
+  {
+    name: "About",
+    href: "#about",
+    icon: User,
+    shortcut: "2",
+    description: "My story",
+  },
+  {
+    name: "Skills",
+    href: "#skills",
+    icon: Lightbulb,
+    shortcut: "3",
+    description: "Tech stack",
+  },
+  {
+    name: "Projects",
+    href: "#projects",
+    icon: Briefcase,
+    shortcut: "4",
+    description: "Selected work",
+  },
+  {
+    name: "Contact",
+    href: "#contact",
+    icon: Mail,
+    shortcut: "5",
+    description: "Get in touch",
+  },
 ];
 
 const SPRING_FAST = { type: "spring", stiffness: 400, damping: 30 };
@@ -78,7 +102,7 @@ const useActiveSection = (items) => {
       (entries) => {
         entries.forEach((e) => e.isIntersecting && setActive(e.target.id));
       },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
     );
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
@@ -144,7 +168,7 @@ const CursorSpotlight = ({ containerRef }) => {
   const background = useTransform(
     [mouseX, mouseY],
     ([x, y]) =>
-      `radial-gradient(200px circle at ${x}px ${y}px, rgba(139,92,246,0.22), transparent 65%)`
+      `radial-gradient(200px circle at ${x}px ${y}px, rgba(139,92,246,0.22), transparent 65%)`,
   );
 
   return (
@@ -277,7 +301,7 @@ const DesktopNavLink = ({ item, isActive }) => {
         aria-current={isActive ? "location" : undefined}
         className={cn(
           "relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300",
-          isActive ? "text-white" : "text-foreground/60 hover:text-foreground"
+          isActive ? "text-white" : "text-foreground/60 hover:text-foreground",
         )}
       >
         {isActive && (
@@ -289,7 +313,7 @@ const DesktopNavLink = ({ item, isActive }) => {
         )}
         <motion.span
           variants={{
-            rest:  { scale: 1, rotate: 0, y: 0 },
+            rest: { scale: 1, rotate: 0, y: 0 },
             hover: { scale: 1.2, rotate: -8, y: -1 },
           }}
           transition={{ type: "spring", stiffness: 500, damping: 14 }}
@@ -339,7 +363,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
     return navItems.filter(
       (i) =>
         i.name.toLowerCase().includes(q) ||
-        i.description.toLowerCase().includes(q)
+        i.description.toLowerCase().includes(q),
     );
   }, [query]);
 
@@ -423,7 +447,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
                   const Icon = item.icon;
                   const isSelected = i === selectedIdx;
                   return (
-                      <a
+                    <a
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
@@ -432,7 +456,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
                         "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
                         isSelected
                           ? "bg-white/10 text-foreground"
-                          : "text-foreground/70 hover:bg-white/5"
+                          : "text-foreground/70 hover:bg-white/5",
                       )}
                     >
                       {isSelected && (
@@ -443,7 +467,9 @@ const CommandPalette = ({ isOpen, onClose }) => {
                         />
                       )}
                       <Icon size={16} className="relative z-10" />
-                      <span className="relative z-10 font-medium">{item.name}</span>
+                      <span className="relative z-10 font-medium">
+                        {item.name}
+                      </span>
                       <span className="relative z-10 text-xs text-foreground/40">
                         {item.description}
                       </span>
@@ -465,11 +491,15 @@ const CommandPalette = ({ isOpen, onClose }) => {
             <div className="relative flex items-center justify-between border-t border-white/10 px-4 py-2 text-[10px] text-foreground/40">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
-                  <kbd className="rounded bg-white/10 px-1 py-0.5 font-mono">↑↓</kbd>
+                  <kbd className="rounded bg-white/10 px-1 py-0.5 font-mono">
+                    ↑↓
+                  </kbd>
                   navigate
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="rounded bg-white/10 px-1 py-0.5 font-mono">↵</kbd>
+                  <kbd className="rounded bg-white/10 px-1 py-0.5 font-mono">
+                    ↵
+                  </kbd>
                   open
                 </span>
               </div>
@@ -490,7 +520,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
    ═══════════════════════════════════════════════════════════════════════ */
 
 const mobileItemVariants = {
-  hidden:  { opacity: 0, x: 28 },
+  hidden: { opacity: 0, x: 28 },
   visible: { opacity: 1, x: 0, transition: SPRING_SOFT },
 };
 
@@ -498,13 +528,13 @@ const MobileNavLink = ({ item, isActive, onClick }) => {
   const Icon = item.icon;
   return (
     <MotionLi variants={mobileItemVariants} className="px-2">
-
+      <a
         href={item.href}
         onClick={onClick}
         aria-current={isActive ? "location" : undefined}
         className={cn(
           "relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3.5 transition-colors",
-          isActive ? "text-white" : "text-foreground/80 hover:bg-white/5"
+          isActive ? "text-white" : "text-foreground/80 hover:bg-white/5",
         )}
       >
         {isActive && (
@@ -525,14 +555,19 @@ const MobileNavLink = ({ item, isActive, onClick }) => {
 };
 
 const listVariants = {
-  hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.1 },
+  },
 };
 
 const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   return (
@@ -667,10 +702,7 @@ export const Navbar = () => {
   }, []);
 
   const isHidden =
-    scrollDirection === "down" &&
-    scrolledPast &&
-    !isMenuOpen &&
-    !isPaletteOpen;
+    scrollDirection === "down" && scrolledPast && !isMenuOpen && !isPaletteOpen;
 
   return (
     <>
@@ -680,7 +712,6 @@ export const Navbar = () => {
         className="fixed inset-x-0 top-0 z-50"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 pt-4 sm:px-6 lg:px-8">
-
           {/* ─── LOGO con scroll-progress ring ─── */}
           <Magnetic strength={0.15}>
             <motion.a
@@ -698,7 +729,9 @@ export const Navbar = () => {
               <motion.span
                 className="hidden sm:inline bg-gradient-to-r from-indigo-400 via-violet-300 to-fuchsia-400 bg-clip-text text-transparent"
                 style={{ backgroundSize: "200% auto" }}
-                animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
                 transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               >
                 Santiago
@@ -792,7 +825,9 @@ export const Navbar = () => {
         activeSection={activeSection}
       />
       <CommandPalette isOpen={isPaletteOpen} onClose={closePalette} />
-      <BackToTop visible={scrollProgress > 0.3 && !isMenuOpen && !isPaletteOpen} />
+      <BackToTop
+        visible={scrollProgress > 0.3 && !isMenuOpen && !isPaletteOpen}
+      />
     </>
   );
 };
