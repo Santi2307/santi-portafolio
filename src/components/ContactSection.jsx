@@ -453,7 +453,7 @@ const ContactForm = ({ onSent }) => {
       <Field label="Message" error={errors.message?.message}>
         <textarea
           rows={6}
-          placeholder="What's on your mind? Hiring, collaboration, a question, or just saying hi — all good."
+          placeholder="Send me a message. In Colombia, we say 'Escribeme, Parcero'"
           {...register("message")}
           className={cn(
             inputClasses(!!errors.message),
