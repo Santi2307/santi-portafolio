@@ -1,20 +1,15 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useInView,
-  useReducedMotion,
-} from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
-  ExternalLink,
+  ArrowUpRight,
   Github,
-  Network,
-  MessagesSquare,
-  LayoutTemplate,
-  Radio,
-  Terminal,
+  ExternalLink,
+  Workflow,
+  ServerCog,
   Cloud,
+  MessagesSquare,
+  Sparkles,
   Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,265 +18,438 @@ import { cn } from "@/lib/utils";
  
 const PROJECTS = [
   {
-    id: "aruba-ansible",
-    title: "Aruba Switch Automation with Ansible",
+    id: "network-automation",
+    featured: true,
+    title: "Enterprise Network Automation Platform",
+    tagline: "Capstone — APL701 Applied Integration",
     summary:
-      "Capstone project: built Ansible roles to configure Aruba AOS-CX 6300 and 2530 switches end-to-end — VLAN provisioning, DHCP, OSPF adjacencies, and LAG/LACP link aggregation. Reproducible, idempotent, version-controlled in Git.",
-    icon: Network,
-    category: "automation",
-    tags: ["Ansible", "Aruba AOS-CX", "YAML", "Jinja2", "OSPF", "VLAN", "LACP"],
-    courses: ["APL701"],
+      "Multi-vendor switch provisioning automated end-to-end with Ansible. Builds a repeatable, version-controlled foundation for production networks.",
+    description:
+      "For my capstone, I built Ansible roles and playbooks to fully automate the configuration of Aruba AOS-CX 6300 and 2530 switches. What used to require dozens of manual CLI sessions now executes idempotently from a single playbook — covering VLAN provisioning, DHCP scopes, OSPF dynamic routing, and LAG/LACP link aggregation across multiple switch models.",
+    icon: Workflow,
+    category: "networking",
+    courses: ["APL701", "CSN305", "CPO520"],
     year: "2026",
     status: "capstone",
+    outcomes: [
+      "Reduced multi-switch provisioning from hours of CLI work to a single playbook run",
+      "Designed reusable Ansible roles supporting Aruba AOS-CX 6300 and 2530 platforms",
+      "Implemented OSPF dynamic routing, VLAN trunking, and LAG/LACP across the topology",
+      "Fully Git-versioned with a role-based architecture for environment promotion",
+    ],
+    tags: ["Ansible", "YAML", "Jinja2", "Aruba AOS-CX", "Cisco IOS", "OSPF", "VLAN", "LACP", "Git"],
     githubUrl: "https://github.com/Santi2307",
-    featured: true,
+    demoUrl: null,
   },
+ 
   {
-    id: "marsupial-whatsapp",
-    title: "Calzado Marsupial — WhatsApp Self-Service",
+    id: "linux-infrastructure",
+    title: "Hardened Linux Infrastructure",
+    tagline: "OPS445 · RHT524 · SEC220",
     summary:
-      "Customer self-service purchasing flow for my family's footwear business, built on Treble.ai. Handles city-based routing, CRM verification, product catalog menus, and order tracking — directly through WhatsApp.",
+      "Multi-server RHEL environment configured to RHCSA-exam standards, hardened with SELinux, and containerized with Podman.",
+    description:
+      "Built across the Open System Administration and Red Hat Certification courses. Covers the full RHCSA blueprint — LVM-based storage, NFS file sharing with autofs, custom SELinux policies, Podman container deployments, and centralized authentication.",
+    icon: ServerCog,
+    category: "systems",
+    courses: ["OPS445", "RHT524", "OPS635", "SEC220"],
+    year: "2025",
+    status: "coursework",
+    outcomes: [
+      "Configured LVM volume groups, NFS exports, and autofs maps across multiple hosts",
+      "Implemented SELinux mandatory access controls with custom policy modules",
+      "Deployed containerized services with Podman, rootless mode",
+      "Aligned with RHCSA (EX200) exam objectives",
+    ],
+    tags: ["RHEL", "Bash", "LVM", "NFS", "SELinux", "Podman", "autofs", "Systemd"],
+    githubUrl: null,
+    demoUrl: null,
+  },
+ 
+  {
+    id: "azure-cloud-workspace",
+    title: "Azure Hybrid Cloud Workspace",
+    tagline: "MST400 · CPO550 Azure Administrator Track",
+    summary:
+      "End-to-end Azure Virtual Desktop deployment with hybrid identity, profile management, and conditional access — aligned to the AZ-104 certification path.",
+    description:
+      "Designed and deployed a production-ready AVD environment in Microsoft Azure. Includes session host pools, FSLogix profile containers, hybrid identity through Microsoft Entra ID, and conditional access policies for security.",
+    icon: Cloud,
+    category: "cloud",
+    courses: ["MST400", "CPO550", "MST300"],
+    year: "2026",
+    status: "coursework",
+    outcomes: [
+      "Architected a multi-session AVD host pool with FSLogix profile containers",
+      "Configured hybrid identity via Microsoft Entra ID",
+      "Applied conditional access policies and MFA enforcement for security",
+      "Coursework aligned with Microsoft AZ-104 (Azure Administrator) objectives",
+    ],
+    tags: ["Microsoft Azure", "AVD", "Entra ID", "FSLogix", "PowerShell", "ARM"],
+    githubUrl: null,
+    demoUrl: null,
+  },
+ 
+  {
+    id: "marsupial-platform",
+    title: "Calzado Marsupial — Customer Self-Service",
+    tagline: "Production system for my family's footwear business",
+    summary:
+      "End-to-end WhatsApp purchasing platform integrated with the company's existing ERP. Replaces manual customer-service workflows with a guided self-service experience.",
+    description:
+      "Engineered the conversation flow, integrations, and routing logic for a customer self-service platform on WhatsApp Business. Connects directly to the company's Cuenti ERP, with city-based order routing, CRM verification, dynamic product catalogs, and order tracking.",
     icon: MessagesSquare,
     category: "automation",
-    tags: ["Treble.ai", "WhatsApp Business API", "Cuenti ERP", "CRM"],
     courses: [],
     year: "2026",
     status: "in-progress",
-    demoUrl: null,
+    outcomes: [
+      "Designed conversation flows from initial greeting through order confirmation",
+      "Integrated with the company's existing Cuenti ERP and CRM systems",
+      "Implemented city-based routing logic for nationwide order fulfillment",
+      "Mid-implementation: serving real customers in Bucaramanga, Colombia",
+    ],
+    tags: ["Treble.ai", "WhatsApp Business API", "Cuenti ERP", "HSM Templates", "CRM"],
     githubUrl: null,
+    demoUrl: null,
   },
+ 
   {
-    id: "portfolio",
-    title: "This Portfolio",
+    id: "portfolio-design-system",
+    title: "Interactive Portfolio & Design System",
+    tagline: "The site you're reading",
     summary:
-      "The site you're reading. React + Vite, styled with Tailwind, animated with Framer Motion, state managed with Zustand. Designed and built end-to-end — every component is mine.",
-    icon: LayoutTemplate,
+      "Custom-designed single-page application built from scratch — no UI kit, no template. Every animation, component, and interaction is mine.",
+    description:
+      "React + Vite single-page application with a custom design system, fluid Framer Motion animations, and Zustand-managed global state. Built mobile-first, fully responsive, and accessibility-conscious throughout.",
+    icon: Sparkles,
     category: "web",
-    tags: ["React", "Vite", "Tailwind CSS", "Framer Motion", "Zustand"],
     courses: [],
     year: "2026",
     status: "live",
-    demoUrl: "/",
+    outcomes: [
+      "Custom design system — no template, no UI kit, no shortcuts",
+      "Fluid Framer Motion animations across hero, photo gallery, and project cards",
+      "Zustand-managed state for photo gallery, theme, and navigation",
+      "Mobile-first responsive design tested across breakpoints",
+    ],
+    tags: ["React", "Vite", "Tailwind CSS", "Framer Motion", "Zustand", "Lucide"],
     githubUrl: "https://github.com/Santi2307/santi-portafolio",
-  },
-  {
-    id: "piedecuesta-wireless",
-    title: "Rural Wireless Network — Piedecuesta",
-    summary:
-      "Designed wireless infrastructure for an underserved community in Santander, Colombia, during my internship at Tigo. Team of four engineers — I handled RF calculations including EIRP, Fresnel zone clearance, and link budget analysis.",
-    icon: Radio,
-    category: "networking",
-    tags: ["RF Engineering", "Link Budget", "Google Earth Pro", "Network Design"],
-    courses: [],
-    year: "2023",
-    status: "internship",
-    githubUrl: null,
-  },
-  {
-    id: "ops445-labs",
-    title: "Linux Server Administration Labs",
-    summary:
-      "Four comprehensive review labs covering LVM and storage management, NFS file sharing, SELinux policy configuration, Podman container deployment, and autofs automounting on RHEL. RHCSA preparation.",
-    icon: Terminal,
-    category: "systems",
-    tags: ["RHEL", "Bash", "LVM", "SELinux", "NFS", "Podman", "autofs"],
-    courses: ["OPS445", "RHT524"],
-    year: "2025",
-    status: "coursework",
-    githubUrl: null,
-  },
-  {
-    id: "avd-deployment",
-    title: "Azure Virtual Desktop Deployment",
-    summary:
-      "Designed and deployed an Azure Virtual Desktop environment with Microsoft Entra ID identity, session hosts, and user assignments — including the configuration and policy work needed for production readiness.",
-    icon: Cloud,
-    category: "cloud",
-    tags: ["Microsoft Azure", "AVD", "Entra ID", "PowerShell"],
-    courses: ["MST400", "CPO550"],
-    year: "2026",
-    status: "coursework",
-    githubUrl: null,
+    demoUrl: "/",
   },
 ];
  
-const CATEGORIES = [
-  { id: "all",        label: "All" },
-  { id: "automation", label: "Automation" },
-  { id: "networking", label: "Networking" },
-  { id: "systems",    label: "Systems" },
-  { id: "cloud",      label: "Cloud" },
-  { id: "web",        label: "Web" },
-];
+/* ─────────────────────────── Theme maps ─────────────────────────── */
  
 const STATUS_CONFIG = {
-  capstone:      { label: "Capstone",    dot: "bg-violet-500",  text: "text-violet-500",  bg: "bg-violet-500/10"  },
-  internship:    { label: "Internship",  dot: "bg-amber-500",   text: "text-amber-500",   bg: "bg-amber-500/10"   },
-  live:          { label: "Live",        dot: "bg-emerald-500", text: "text-emerald-500", bg: "bg-emerald-500/10" },
-  "in-progress": { label: "In Progress", dot: "bg-sky-500",     text: "text-sky-500",     bg: "bg-sky-500/10"     },
-  coursework:    { label: "Coursework",  dot: "bg-slate-400",   text: "text-slate-400",   bg: "bg-slate-400/10"   },
+  capstone:      { label: "Capstone",    dot: "bg-violet-500",  text: "text-violet-400",  bg: "bg-violet-500/10",  ring: "ring-violet-500/20"  },
+  internship:    { label: "Internship",  dot: "bg-amber-500",   text: "text-amber-400",   bg: "bg-amber-500/10",   ring: "ring-amber-500/20"   },
+  live:          { label: "Live",        dot: "bg-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/10", ring: "ring-emerald-500/20" },
+  "in-progress": { label: "In Progress", dot: "bg-sky-500",     text: "text-sky-400",     bg: "bg-sky-500/10",     ring: "ring-sky-500/20"     },
+  coursework:    { label: "Coursework",  dot: "bg-slate-400",   text: "text-slate-400",   bg: "bg-slate-500/10",   ring: "ring-slate-500/20"   },
 };
  
 const CATEGORY_GRADIENT = {
-  automation: "from-emerald-500/30 via-emerald-500/10 to-transparent",
-  networking: "from-sky-500/30 via-sky-500/10 to-transparent",
-  systems:    "from-amber-500/30 via-amber-500/10 to-transparent",
-  cloud:      "from-violet-500/30 via-violet-500/10 to-transparent",
-  web:        "from-rose-500/30 via-rose-500/10 to-transparent",
+  networking: "from-sky-500/25 via-indigo-500/10 to-transparent",
+  systems:    "from-amber-500/25 via-orange-500/10 to-transparent",
+  cloud:      "from-violet-500/25 via-fuchsia-500/10 to-transparent",
+  automation: "from-emerald-500/25 via-teal-500/10 to-transparent",
+  web:        "from-rose-500/25 via-pink-500/10 to-transparent",
+};
+ 
+const CATEGORY_LABEL = {
+  networking: "Networking",
+  systems:    "Systems Administration",
+  cloud:      "Cloud Infrastructure",
+  automation: "Automation",
+  web:        "Web Development",
 };
  
 const EASE_OUT = [0.22, 1, 0.36, 1];
  
-/* ─────────────────────────── Status badge ─────────────────────────── */
+/* ─────────────────────────── Tiny presentation primitives ─────────────────────────── */
  
 const StatusBadge = ({ status }) => {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.coursework;
   const isPulsing = status === "live" || status === "in-progress";
+  const reducedMotion = useReducedMotion();
  
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 backdrop-blur-sm",
         cfg.bg,
-        cfg.text
+        cfg.text,
+        cfg.ring
       )}
     >
       <span className="relative inline-flex h-1.5 w-1.5">
-        {isPulsing && (
+        {isPulsing && !reducedMotion && (
           <motion.span
             aria-hidden
             className={cn("absolute inset-0 rounded-full", cfg.dot)}
             animate={{ scale: [1, 2.2], opacity: [0.6, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
           />
         )}
-        <span className={cn("relative inline-block h-full w-full rounded-full", cfg.dot)} />
+        <span className={cn("relative h-full w-full rounded-full", cfg.dot)} />
       </span>
       {cfg.label}
     </span>
   );
 };
  
-/* ─────────────────────────── Project card ─────────────────────────── */
+const CourseChip = ({ code }) => (
+  <span className="rounded border border-border/60 bg-background/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+    {code}
+  </span>
+);
  
-const ProjectCard = ({ project, index }) => {
+const TechTag = ({ children }) => (
+  <span className="rounded-full border border-border/60 bg-background/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80">
+    {children}
+  </span>
+);
+ 
+const Cover = ({ icon: Icon, category, featured = false }) => {
+  const gradient = CATEGORY_GRADIENT[category] ?? CATEGORY_GRADIENT.systems;
   const reducedMotion = useReducedMotion();
-  const Icon = project.icon;
-  const gradient = CATEGORY_GRADIENT[project.category] ?? CATEGORY_GRADIENT.systems;
+ 
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden bg-gradient-to-br",
+        gradient,
+        featured ? "h-full min-h-[260px]" : "h-40"
+      )}
+    >
+      {/* Technical grid pattern overlay */}
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+ 
+      {/* Centered icon container */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <motion.div
+          whileHover={reducedMotion ? {} : { scale: 1.05, rotate: -2 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className={cn(
+            "rounded-2xl bg-background/40 ring-1 ring-primary/20 backdrop-blur-md",
+            featured ? "p-6" : "p-4"
+          )}
+        >
+          <Icon
+            size={featured ? 48 : 32}
+            className="text-primary"
+            aria-hidden="true"
+            strokeWidth={1.5}
+          />
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+ 
+/* ─────────────────────────── Featured project (case study layout) ─────────────────────────── */
+ 
+const FeaturedProject = ({ project }) => {
+  const reducedMotion = useReducedMotion();
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.15 });
  
   return (
     <motion.article
-      layout
+      ref={ref}
       initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
-      transition={{
-        delay: reducedMotion ? 0 : Math.min(index * 0.06, 0.4),
-        duration: 0.5,
-        ease: EASE_OUT,
-        layout: { duration: 0.3 },
-      }}
-      whileHover={reducedMotion ? {} : { y: -4 }}
-      className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-primary/10 bg-card/60 backdrop-blur-sm",
-        "transition-shadow duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5",
-        project.featured && "lg:col-span-2"
-      )}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, ease: EASE_OUT }}
+      className="relative mb-10 overflow-hidden rounded-2xl border border-primary/15 bg-card/60 shadow-xl shadow-primary/5 backdrop-blur-sm"
     >
-      {/* Cover with gradient + icon */}
-      <div
-        className={cn(
-          "relative flex items-center justify-center overflow-hidden border-b border-primary/10 bg-gradient-to-br",
-          gradient,
-          project.featured ? "h-44 lg:h-56" : "h-36"
-        )}
-      >
-        {/* Subtle moving glow on hover */}
-        <motion.div
-          aria-hidden
-          className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.15), transparent 60%)",
-          }}
-        />
+      {/* Featured ribbon */}
+      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-yellow-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-yellow-500 ring-1 ring-yellow-500/30 backdrop-blur-sm">
+        <Star size={10} fill="currentColor" aria-hidden="true" />
+        Featured Project
+      </div>
  
-        <motion.div
-          className="relative z-10 rounded-2xl bg-background/50 p-4 ring-1 ring-primary/20 backdrop-blur-sm"
-          whileHover={reducedMotion ? {} : { scale: 1.06, rotate: -3 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        >
-          <Icon
-            size={project.featured ? 36 : 28}
-            className="text-primary"
-            aria-hidden="true"
-          />
-        </motion.div>
- 
-        {/* Top-left: featured star */}
-        {project.featured && (
-          <span
-            className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-yellow-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-yellow-500 ring-1 ring-yellow-500/30"
-            aria-label="Featured project"
-          >
-            <Star size={10} fill="currentColor" /> Featured
-          </span>
-        )}
- 
-        {/* Top-right: status */}
-        <div className="absolute right-3 top-3">
-          <StatusBadge status={project.status} />
-        </div>
- 
-        {/* Bottom-right: year */}
-        <span className="absolute bottom-3 right-3 rounded bg-background/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground backdrop-blur-sm">
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+        <StatusBadge status={project.status} />
+        <span className="rounded bg-background/60 px-2 py-1 font-mono text-[10px] text-muted-foreground backdrop-blur-sm">
           {project.year}
         </span>
       </div>
  
-      {/* Body */}
-      <div className="flex flex-1 flex-col p-5">
-        <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-primary">
-          <span>{project.category}</span>
-          {project.courses?.length > 0 && (
+      <div className="grid grid-cols-1 md:grid-cols-5">
+        {/* Visual */}
+        <div className="md:col-span-2">
+          <Cover icon={project.icon} category={project.category} featured />
+        </div>
+ 
+        {/* Content */}
+        <div className="flex flex-col gap-4 p-6 md:col-span-3 md:p-8">
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
+            <span className="text-primary">{CATEGORY_LABEL[project.category]}</span>
+            <span className="text-muted-foreground/40">·</span>
+            <div className="flex flex-wrap gap-1">
+              {project.courses.map((c) => (
+                <CourseChip key={c} code={c} />
+              ))}
+            </div>
+          </div>
+ 
+          <div>
+            <h3 className="mb-1 text-2xl font-bold leading-tight md:text-3xl">
+              {project.title}
+            </h3>
+            <p className="text-sm italic text-muted-foreground">{project.tagline}</p>
+          </div>
+ 
+          <p className="leading-relaxed text-foreground/90">{project.description}</p>
+ 
+          <div>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">
+              Key Outcomes
+            </p>
+            <ul className="space-y-1.5 text-sm text-muted-foreground">
+              {project.outcomes.map((outcome, i) => (
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{
+                    delay: reducedMotion ? 0 : 0.3 + i * 0.08,
+                    duration: 0.4,
+                  }}
+                  className="flex items-start gap-2"
+                >
+                  <ArrowUpRight
+                    size={14}
+                    className="mt-1 flex-shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <span>{outcome}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+ 
+          <div className="flex flex-wrap gap-1.5">
+            {project.tags.map((tag) => (
+              <TechTag key={tag}>{tag}</TechTag>
+            ))}
+          </div>
+ 
+          {(project.githubUrl || project.demoUrl) && (
+            <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4">
+              {project.demoUrl && (
+                <a
+                  href={project.demoUrl}
+                  target={project.demoUrl.startsWith("/") ? "_self" : "_blank"}
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                >
+                  <ExternalLink size={14} aria-hidden="true" />
+                  View Live
+                </a>
+              )}
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                >
+                  <Github size={14} aria-hidden="true" />
+                  View Code
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.article>
+  );
+};
+ 
+/* ─────────────────────────── Regular project card ─────────────────────────── */
+ 
+const ProjectCard = ({ project, index }) => {
+  const reducedMotion = useReducedMotion();
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.2 });
+ 
+  return (
+    <motion.article
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{
+        duration: 0.5,
+        ease: EASE_OUT,
+        delay: reducedMotion ? 0 : Math.min(index * 0.08, 0.32),
+      }}
+      whileHover={reducedMotion ? {} : { y: -4 }}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-primary/10 bg-card/60 backdrop-blur-sm transition-shadow duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5"
+    >
+      <div className="relative">
+        <Cover icon={project.icon} category={project.category} />
+        <div className="absolute right-3 top-3 flex items-center gap-2">
+          <StatusBadge status={project.status} />
+        </div>
+        <span className="absolute bottom-3 right-3 rounded bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground backdrop-blur-sm">
+          {project.year}
+        </span>
+      </div>
+ 
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
+          <span className="text-primary">{CATEGORY_LABEL[project.category]}</span>
+          {project.courses.length > 0 && (
             <>
-              <span className="text-muted-foreground/50">·</span>
-              <span className="flex gap-1">
+              <span className="text-muted-foreground/40">·</span>
+              <div className="flex flex-wrap gap-1">
                 {project.courses.map((c) => (
-                  <span
-                    key={c}
-                    className="rounded border border-border/60 bg-background/60 px-1.5 py-0 font-mono normal-case tracking-normal text-muted-foreground"
-                  >
-                    {c}
-                  </span>
+                  <CourseChip key={c} code={c} />
                 ))}
-              </span>
+              </div>
             </>
           )}
         </div>
  
-        <h3
-          className={cn(
-            "mb-2 font-semibold leading-tight",
-            project.featured ? "text-xl md:text-2xl" : "text-lg"
-          )}
-        >
-          {project.title}
-        </h3>
+        <div>
+          <h3 className="text-lg font-bold leading-tight">{project.title}</h3>
+          <p className="mt-0.5 text-xs italic text-muted-foreground">
+            {project.tagline}
+          </p>
+        </div>
  
-        <p className="mb-4 flex-1 text-sm leading-relaxed text-muted-foreground">
+        <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
           {project.summary}
         </p>
  
-        <div className="mb-4 flex flex-wrap gap-1.5">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-border/60 bg-background/60 px-2 py-0.5 text-[11px] font-medium text-foreground/80"
-            >
-              {tag}
-            </span>
+        <ul className="space-y-1 text-xs text-muted-foreground/90">
+          {project.outcomes.slice(0, 3).map((outcome, i) => (
+            <li key={i} className="flex items-start gap-1.5">
+              <span className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-primary" />
+              <span>{outcome}</span>
+            </li>
           ))}
+        </ul>
+ 
+        <div className="flex flex-wrap gap-1">
+          {project.tags.slice(0, 5).map((tag) => (
+            <TechTag key={tag}>{tag}</TechTag>
+          ))}
+          {project.tags.length > 5 && (
+            <span className="px-1 py-0.5 text-[10px] text-muted-foreground/60">
+              +{project.tags.length - 5}
+            </span>
+          )}
         </div>
  
         <div className="flex items-center gap-3 border-t border-border/40 pt-3">
@@ -290,10 +458,9 @@ const ProjectCard = ({ project, index }) => {
               href={project.demoUrl}
               target={project.demoUrl.startsWith("/") ? "_self" : "_blank"}
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded text-sm text-foreground/80 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-              aria-label={`View ${project.title} demo`}
+              className="inline-flex items-center gap-1 rounded text-xs font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              <ExternalLink size={14} aria-hidden="true" />
+              <ExternalLink size={12} aria-hidden="true" />
               <span>Live</span>
             </a>
           )}
@@ -302,16 +469,15 @@ const ProjectCard = ({ project, index }) => {
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded text-sm text-foreground/80 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-              aria-label={`${project.title} GitHub repository`}
+              className="inline-flex items-center gap-1 rounded text-xs font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              <Github size={14} aria-hidden="true" />
+              <Github size={12} aria-hidden="true" />
               <span>Code</span>
             </a>
           )}
           {!project.demoUrl && !project.githubUrl && (
-            <span className="text-xs italic text-muted-foreground/70">
-              Private — available on request
+            <span className="text-[11px] italic text-muted-foreground/60">
+              Available on request
             </span>
           )}
         </div>
@@ -320,176 +486,72 @@ const ProjectCard = ({ project, index }) => {
   );
 };
  
-/* ─────────────────────────── Filter tabs ─────────────────────────── */
- 
-const FilterTabs = ({ categories, activeFilter, setActiveFilter, counts }) => (
-  <div
-    className="flex flex-wrap justify-center gap-2"
-    role="tablist"
-    aria-label="Filter projects by category"
-  >
-    {categories.map((cat) => {
-      const isActive = activeFilter === cat.id;
-      return (
-        <motion.button
-          key={cat.id}
-          onClick={() => setActiveFilter(cat.id)}
-          className={cn(
-            "relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
-            isActive
-              ? "text-primary-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-          whileTap={{ scale: 0.96 }}
-          role="tab"
-          aria-selected={isActive}
-        >
-          {isActive && (
-            <motion.span
-              layoutId="projects-filter-pill"
-              className="absolute inset-0 rounded-full bg-primary shadow-md shadow-primary/20"
-              transition={{ type: "spring", stiffness: 380, damping: 32 }}
-            />
-          )}
-          <span className="relative z-10 flex items-center gap-1.5">
-            {cat.label}
-            <span
-              className={cn(
-                "rounded-full px-1.5 py-0 text-[10px] font-semibold transition-colors",
-                isActive
-                  ? "bg-primary-foreground/20 text-primary-foreground"
-                  : "bg-primary/10 text-primary"
-              )}
-            >
-              {counts[cat.id] ?? 0}
-            </span>
-          </span>
-        </motion.button>
-      );
-    })}
-  </div>
-);
- 
 /* ─────────────────────────── Main section ─────────────────────────── */
  
 export const ProjectsSection = () => {
-  const [activeFilter, setActiveFilter] = useState("all");
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.1 });
+  const headerRef = useRef(null);
+  const headerInView = useInView(headerRef, { once: true, amount: 0.5 });
  
-  const counts = useMemo(() => {
-    const result = { all: PROJECTS.length };
-    for (const cat of CATEGORIES) if (cat.id !== "all") result[cat.id] = 0;
-    for (const p of PROJECTS) result[p.category] = (result[p.category] ?? 0) + 1;
-    return result;
-  }, []);
- 
-  const filteredProjects = useMemo(() => {
-    const list =
-      activeFilter === "all"
-        ? PROJECTS
-        : PROJECTS.filter((p) => p.category === activeFilter);
-    // Featured projects float to the top
-    return [...list].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-  }, [activeFilter]);
- 
-  const resetFilter = useCallback(() => setActiveFilter("all"), []);
+  const featured = PROJECTS.find((p) => p.featured);
+  const others = PROJECTS.filter((p) => !p.featured);
  
   return (
     <section
       id="projects"
-      ref={ref}
       className="relative px-4 py-24"
       aria-labelledby="projects-heading"
     >
-      <div className="container mx-auto max-w-5xl">
-        <motion.h2
-          id="projects-heading"
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: EASE_OUT }}
-          className="mb-3 text-center text-3xl font-bold md:text-4xl"
-        >
-          Featured{" "}
-          <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
-            Projects
-          </span>
-        </motion.h2>
+      <div className="container mx-auto max-w-6xl">
+        <header ref={headerRef} className="mb-12 text-center">
+          <motion.h2
+            id="projects-heading"
+            initial={{ opacity: 0, y: 20 }}
+            animate={headerInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: EASE_OUT }}
+            className="mb-3 text-3xl font-bold md:text-4xl"
+          >
+            Featured{" "}
+            <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
+              Projects
+            </span>
+          </motion.h2>
  
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.15, duration: 0.5 }}
-          className="mx-auto mb-10 max-w-2xl text-center text-sm text-muted-foreground"
-        >
-          A mix of capstone work, coursework from Seneca's Computer Systems
-          Technology program, an internship in Colombia, and things I've built
-          on the side. Each one taught me something different.
-        </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={headerInView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.15, duration: 0.5 }}
+            className="mx-auto max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base"
+          >
+            A curated selection of substantive work — my capstone, the systems
+            and cloud projects from Seneca's Computer Systems Technology program,
+            a production platform I built for my family's business in Colombia,
+            and the design system behind this site.
+          </motion.p>
+        </header>
  
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.25, duration: 0.5 }}
-          className="mb-10 flex justify-center"
-        >
-          <FilterTabs
-            categories={CATEGORIES}
-            activeFilter={activeFilter}
-            setActiveFilter={setActiveFilter}
-            counts={counts}
-          />
-        </motion.div>
+        {featured && <FeaturedProject project={featured} />}
  
-        <motion.div
-          layout
-          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, i) => (
-              <ProjectCard key={project.id} project={project} index={i} />
-            ))}
-          </AnimatePresence>
-        </motion.div>
- 
-        <AnimatePresence>
-          {filteredProjects.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mx-auto mt-8 max-w-md rounded-xl border border-dashed border-border bg-background/50 p-8 text-center"
-            >
-              <p className="font-medium">Nothing here yet.</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try{" "}
-                <button
-                  className="text-primary underline-offset-2 hover:underline"
-                  onClick={resetFilter}
-                >
-                  resetting filters
-                </button>
-                .
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {others.map((project, i) => (
+            <ProjectCard key={project.id} project={project} index={i} />
+          ))}
+        </div>
  
         <motion.div
           initial={{ opacity: 0, y: 10 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.5 }}
           className="mt-12 text-center"
         >
           <a
             href="https://github.com/Santi2307"
             target="_blank"
             rel="noopener noreferrer"
-            className="cosmic-button inline-flex items-center gap-2"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-6 py-2.5 font-medium text-primary transition-all hover:scale-105 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
             aria-label="View all projects on GitHub"
           >
-            See more on GitHub
+            See More on GitHub
             <ArrowRight size={16} aria-hidden="true" />
           </a>
         </motion.div>
