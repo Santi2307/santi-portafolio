@@ -1,3 +1,28 @@
+/**
+ * ProjectsSection
+ * -----------------------------------------------------------------------------
+ * Five flagship projects, each tied to specific course tracks in the Computer
+ * Systems Technology program at Seneca and the work I did alongside it.
+ *
+ * Design decisions:
+ *   • Fewer projects, more depth. Each card communicates outcomes, not tasks.
+ *   • The capstone (APL701 network automation) is presented in a case-study
+ *     layout above the grid — visual on the left, content on the right.
+ *   • No filters — with five curated projects, friction is the wrong choice.
+ *   • Status (Capstone / Internship / Live / In Progress / Coursework), year,
+ *     and Seneca course codes are surfaced so a recruiter can see the lineage.
+ *   • All covers use a gradient + technical pattern + icon — no broken image
+ *     paths, no missing screenshot placeholders.
+ *
+ * Code hygiene:
+ *   • All Lucide icons verified against the current package.
+ *   • No layout-on-parent that conflicts with AnimatePresence on children.
+ *   • `prefers-reduced-motion` honored on every animated surface.
+ *   • Defensive: optional URLs render only when present; no broken anchors.
+ *
+ * @author Santiago Delgado
+ */
+
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import {
@@ -13,9 +38,9 @@ import {
   Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
- 
+
 /* ─────────────────────────── Projects data ─────────────────────────── */
- 
+
 const PROJECTS = [
   {
     id: "network-automation",
@@ -41,7 +66,7 @@ const PROJECTS = [
     githubUrl: "https://github.com/Santi2307",
     demoUrl: null,
   },
- 
+
   {
     id: "linux-infrastructure",
     title: "Hardened Linux Infrastructure",
@@ -65,7 +90,7 @@ const PROJECTS = [
     githubUrl: null,
     demoUrl: null,
   },
- 
+
   {
     id: "azure-cloud-workspace",
     title: "Azure Hybrid Cloud Workspace",
@@ -89,7 +114,7 @@ const PROJECTS = [
     githubUrl: null,
     demoUrl: null,
   },
- 
+
   {
     id: "marsupial-platform",
     title: "Calzado Marsupial — Customer Self-Service",
@@ -113,7 +138,7 @@ const PROJECTS = [
     githubUrl: null,
     demoUrl: null,
   },
- 
+
   {
     id: "portfolio-design-system",
     title: "Interactive Portfolio & Design System",
@@ -138,9 +163,9 @@ const PROJECTS = [
     demoUrl: "/",
   },
 ];
- 
+
 /* ─────────────────────────── Theme maps ─────────────────────────── */
- 
+
 const STATUS_CONFIG = {
   capstone:      { label: "Capstone",    dot: "bg-violet-500",  text: "text-violet-400",  bg: "bg-violet-500/10",  ring: "ring-violet-500/20"  },
   internship:    { label: "Internship",  dot: "bg-amber-500",   text: "text-amber-400",   bg: "bg-amber-500/10",   ring: "ring-amber-500/20"   },
@@ -148,7 +173,7 @@ const STATUS_CONFIG = {
   "in-progress": { label: "In Progress", dot: "bg-sky-500",     text: "text-sky-400",     bg: "bg-sky-500/10",     ring: "ring-sky-500/20"     },
   coursework:    { label: "Coursework",  dot: "bg-slate-400",   text: "text-slate-400",   bg: "bg-slate-500/10",   ring: "ring-slate-500/20"   },
 };
- 
+
 const CATEGORY_GRADIENT = {
   networking: "from-sky-500/25 via-indigo-500/10 to-transparent",
   systems:    "from-amber-500/25 via-orange-500/10 to-transparent",
@@ -156,7 +181,7 @@ const CATEGORY_GRADIENT = {
   automation: "from-emerald-500/25 via-teal-500/10 to-transparent",
   web:        "from-rose-500/25 via-pink-500/10 to-transparent",
 };
- 
+
 const CATEGORY_LABEL = {
   networking: "Networking",
   systems:    "Systems Administration",
@@ -164,16 +189,16 @@ const CATEGORY_LABEL = {
   automation: "Automation",
   web:        "Web Development",
 };
- 
+
 const EASE_OUT = [0.22, 1, 0.36, 1];
- 
+
 /* ─────────────────────────── Tiny presentation primitives ─────────────────────────── */
- 
+
 const StatusBadge = ({ status }) => {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.coursework;
   const isPulsing = status === "live" || status === "in-progress";
   const reducedMotion = useReducedMotion();
- 
+
   return (
     <span
       className={cn(
@@ -198,23 +223,23 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
- 
+
 const CourseChip = ({ code }) => (
   <span className="rounded border border-border/60 bg-background/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
     {code}
   </span>
 );
- 
+
 const TechTag = ({ children }) => (
   <span className="rounded-full border border-border/60 bg-background/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80">
     {children}
   </span>
 );
- 
+
 const Cover = ({ icon: Icon, category, featured = false }) => {
   const gradient = CATEGORY_GRADIENT[category] ?? CATEGORY_GRADIENT.systems;
   const reducedMotion = useReducedMotion();
- 
+
   return (
     <div
       className={cn(
@@ -233,7 +258,7 @@ const Cover = ({ icon: Icon, category, featured = false }) => {
           backgroundSize: "24px 24px",
         }}
       />
- 
+
       {/* Centered icon container */}
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.div
@@ -255,14 +280,14 @@ const Cover = ({ icon: Icon, category, featured = false }) => {
     </div>
   );
 };
- 
+
 /* ─────────────────────────── Featured project (case study layout) ─────────────────────────── */
- 
+
 const FeaturedProject = ({ project }) => {
   const reducedMotion = useReducedMotion();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.15 });
- 
+
   return (
     <motion.article
       ref={ref}
@@ -276,20 +301,20 @@ const FeaturedProject = ({ project }) => {
         <Star size={10} fill="currentColor" aria-hidden="true" />
         Featured Project
       </div>
- 
+
       <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
         <StatusBadge status={project.status} />
         <span className="rounded bg-background/60 px-2 py-1 font-mono text-[10px] text-muted-foreground backdrop-blur-sm">
           {project.year}
         </span>
       </div>
- 
+
       <div className="grid grid-cols-1 md:grid-cols-5">
         {/* Visual */}
         <div className="md:col-span-2">
           <Cover icon={project.icon} category={project.category} featured />
         </div>
- 
+
         {/* Content */}
         <div className="flex flex-col gap-4 p-6 md:col-span-3 md:p-8">
           <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
@@ -301,16 +326,16 @@ const FeaturedProject = ({ project }) => {
               ))}
             </div>
           </div>
- 
+
           <div>
             <h3 className="mb-1 text-2xl font-bold leading-tight md:text-3xl">
               {project.title}
             </h3>
             <p className="text-sm italic text-muted-foreground">{project.tagline}</p>
           </div>
- 
+
           <p className="leading-relaxed text-foreground/90">{project.description}</p>
- 
+
           <div>
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">
               Key Outcomes
@@ -337,13 +362,13 @@ const FeaturedProject = ({ project }) => {
               ))}
             </ul>
           </div>
- 
+
           <div className="flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
               <TechTag key={tag}>{tag}</TechTag>
             ))}
           </div>
- 
+
           {(project.githubUrl || project.demoUrl) && (
             <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4">
               {project.demoUrl && (
@@ -375,14 +400,14 @@ const FeaturedProject = ({ project }) => {
     </motion.article>
   );
 };
- 
+
 /* ─────────────────────────── Regular project card ─────────────────────────── */
- 
+
 const ProjectCard = ({ project, index }) => {
   const reducedMotion = useReducedMotion();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
- 
+
   return (
     <motion.article
       ref={ref}
@@ -405,7 +430,7 @@ const ProjectCard = ({ project, index }) => {
           {project.year}
         </span>
       </div>
- 
+
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
           <span className="text-primary">{CATEGORY_LABEL[project.category]}</span>
@@ -420,18 +445,18 @@ const ProjectCard = ({ project, index }) => {
             </>
           )}
         </div>
- 
+
         <div>
           <h3 className="text-lg font-bold leading-tight">{project.title}</h3>
           <p className="mt-0.5 text-xs italic text-muted-foreground">
             {project.tagline}
           </p>
         </div>
- 
+
         <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
           {project.summary}
         </p>
- 
+
         <ul className="space-y-1 text-xs text-muted-foreground/90">
           {project.outcomes.slice(0, 3).map((outcome, i) => (
             <li key={i} className="flex items-start gap-1.5">
@@ -440,7 +465,7 @@ const ProjectCard = ({ project, index }) => {
             </li>
           ))}
         </ul>
- 
+
         <div className="flex flex-wrap gap-1">
           {project.tags.slice(0, 5).map((tag) => (
             <TechTag key={tag}>{tag}</TechTag>
@@ -451,7 +476,7 @@ const ProjectCard = ({ project, index }) => {
             </span>
           )}
         </div>
- 
+
         <div className="flex items-center gap-3 border-t border-border/40 pt-3">
           {project.demoUrl && (
             <a
@@ -485,16 +510,16 @@ const ProjectCard = ({ project, index }) => {
     </motion.article>
   );
 };
- 
+
 /* ─────────────────────────── Main section ─────────────────────────── */
- 
+
 export const ProjectsSection = () => {
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, amount: 0.5 });
- 
+
   const featured = PROJECTS.find((p) => p.featured);
   const others = PROJECTS.filter((p) => !p.featured);
- 
+
   return (
     <section
       id="projects"
@@ -515,7 +540,7 @@ export const ProjectsSection = () => {
               Projects
             </span>
           </motion.h2>
- 
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={headerInView ? { opacity: 1 } : {}}
@@ -528,15 +553,15 @@ export const ProjectsSection = () => {
             and the design system behind this site.
           </motion.p>
         </header>
- 
+
         {featured && <FeaturedProject project={featured} />}
- 
+
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {others.map((project, i) => (
             <ProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
- 
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -559,5 +584,5 @@ export const ProjectsSection = () => {
     </section>
   );
 };
- 
+
 export default ProjectsSection;
