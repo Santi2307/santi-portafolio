@@ -1,27 +1,11 @@
-/**
- * ProjectsSection
- * -----------------------------------------------------------------------------
- * Five flagship projects, each tied to specific course tracks in the Computer
- * Systems Technology program at Seneca and the work I did alongside it.
- *
- * Design decisions:
- *   • Fewer projects, more depth. Each card communicates outcomes, not tasks.
- *   • The capstone (APL701 network automation) is presented in a case-study
- *     layout above the grid — visual on the left, content on the right.
- *   • No filters — with five curated projects, friction is the wrong choice.
- *   • Status (Capstone / Internship / Live / In Progress / Coursework), year,
- *     and Seneca course codes are surfaced so a recruiter can see the lineage.
- *   • All covers use a gradient + technical pattern + icon — no broken image
- *     paths, no missing screenshot placeholders.
- *
- * Code hygiene:
- *   • All Lucide icons verified against the current package.
- *   • No layout-on-parent that conflicts with AnimatePresence on children.
- *   • `prefers-reduced-motion` honored on every animated surface.
- *   • Defensive: optional URLs render only when present; no broken anchors.
- *
- * @author Santiago Delgado
- */
+// =============================================================================
+// ProjectsSection.jsx — Santiago Delgado's portfolio
+// -----------------------------------------------------------------------------
+// IMPORTANT: This is the COMPLETE file. Replace your existing
+// src/components/ProjectsSection.jsx with this entire content. Do not paste
+// only a portion — the components below depend on the imports and constants
+// at the top of this file.
+// =============================================================================
 
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
@@ -30,10 +14,10 @@ import {
   ArrowUpRight,
   Github,
   ExternalLink,
-  Workflow,
-  ServerCog,
+  Network,
+  Server,
   Cloud,
-  MessagesSquare,
+  MessageSquare,
   Sparkles,
   Star,
 } from "lucide-react";
@@ -51,7 +35,7 @@ const PROJECTS = [
       "Multi-vendor switch provisioning automated end-to-end with Ansible. Builds a repeatable, version-controlled foundation for production networks.",
     description:
       "For my capstone, I built Ansible roles and playbooks to fully automate the configuration of Aruba AOS-CX 6300 and 2530 switches. What used to require dozens of manual CLI sessions now executes idempotently from a single playbook — covering VLAN provisioning, DHCP scopes, OSPF dynamic routing, and LAG/LACP link aggregation across multiple switch models.",
-    icon: Workflow,
+    icon: Network,
     category: "networking",
     courses: ["APL701", "CSN305", "CPO520"],
     year: "2026",
@@ -66,16 +50,15 @@ const PROJECTS = [
     githubUrl: "https://github.com/Santi2307",
     demoUrl: null,
   },
-
   {
     id: "linux-infrastructure",
     title: "Hardened Linux Infrastructure",
     tagline: "OPS445 · RHT524 · SEC220",
     summary:
-      "Multi-server RHEL environment configured to RHCSA-exam standards, hardened with SELinux, and containerized with Podman.",
+      "Multi-server RHEL environment configured to RHCSA exam standards, hardened with SELinux, and containerized with Podman.",
     description:
       "Built across the Open System Administration and Red Hat Certification courses. Covers the full RHCSA blueprint — LVM-based storage, NFS file sharing with autofs, custom SELinux policies, Podman container deployments, and centralized authentication.",
-    icon: ServerCog,
+    icon: Server,
     category: "systems",
     courses: ["OPS445", "RHT524", "OPS635", "SEC220"],
     year: "2025",
@@ -83,14 +66,13 @@ const PROJECTS = [
     outcomes: [
       "Configured LVM volume groups, NFS exports, and autofs maps across multiple hosts",
       "Implemented SELinux mandatory access controls with custom policy modules",
-      "Deployed containerized services with Podman, rootless mode",
+      "Deployed containerized services with Podman in rootless mode",
       "Aligned with RHCSA (EX200) exam objectives",
     ],
     tags: ["RHEL", "Bash", "LVM", "NFS", "SELinux", "Podman", "autofs", "Systemd"],
     githubUrl: null,
     demoUrl: null,
   },
-
   {
     id: "azure-cloud-workspace",
     title: "Azure Hybrid Cloud Workspace",
@@ -107,14 +89,13 @@ const PROJECTS = [
     outcomes: [
       "Architected a multi-session AVD host pool with FSLogix profile containers",
       "Configured hybrid identity via Microsoft Entra ID",
-      "Applied conditional access policies and MFA enforcement for security",
-      "Coursework aligned with Microsoft AZ-104 (Azure Administrator) objectives",
+      "Applied conditional access policies and MFA enforcement",
+      "Coursework aligned with Microsoft AZ-104 objectives",
     ],
     tags: ["Microsoft Azure", "AVD", "Entra ID", "FSLogix", "PowerShell", "ARM"],
     githubUrl: null,
     demoUrl: null,
   },
-
   {
     id: "marsupial-platform",
     title: "Calzado Marsupial — Customer Self-Service",
@@ -123,7 +104,7 @@ const PROJECTS = [
       "End-to-end WhatsApp purchasing platform integrated with the company's existing ERP. Replaces manual customer-service workflows with a guided self-service experience.",
     description:
       "Engineered the conversation flow, integrations, and routing logic for a customer self-service platform on WhatsApp Business. Connects directly to the company's Cuenti ERP, with city-based order routing, CRM verification, dynamic product catalogs, and order tracking.",
-    icon: MessagesSquare,
+    icon: MessageSquare,
     category: "automation",
     courses: [],
     year: "2026",
@@ -138,7 +119,6 @@ const PROJECTS = [
     githubUrl: null,
     demoUrl: null,
   },
-
   {
     id: "portfolio-design-system",
     title: "Interactive Portfolio & Design System",
@@ -164,7 +144,7 @@ const PROJECTS = [
   },
 ];
 
-/* ─────────────────────────── Theme maps ─────────────────────────── */
+/* ─────────────────────────── Theme constants ─────────────────────────── */
 
 const STATUS_CONFIG = {
   capstone:      { label: "Capstone",    dot: "bg-violet-500",  text: "text-violet-400",  bg: "bg-violet-500/10",  ring: "ring-violet-500/20"  },
@@ -192,7 +172,7 @@ const CATEGORY_LABEL = {
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
 
-/* ─────────────────────────── Tiny presentation primitives ─────────────────────────── */
+/* ─────────────────────────── Presentation primitives ─────────────────────────── */
 
 const StatusBadge = ({ status }) => {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.coursework;
@@ -248,7 +228,6 @@ const Cover = ({ icon: Icon, category, featured = false }) => {
         featured ? "h-full min-h-[260px]" : "h-40"
       )}
     >
-      {/* Technical grid pattern overlay */}
       <div
         aria-hidden
         className="absolute inset-0 opacity-40"
@@ -259,7 +238,6 @@ const Cover = ({ icon: Icon, category, featured = false }) => {
         }}
       />
 
-      {/* Centered icon container */}
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.div
           whileHover={reducedMotion ? {} : { scale: 1.05, rotate: -2 }}
@@ -281,7 +259,7 @@ const Cover = ({ icon: Icon, category, featured = false }) => {
   );
 };
 
-/* ─────────────────────────── Featured project (case study layout) ─────────────────────────── */
+/* ─────────────────────────── Featured project ─────────────────────────── */
 
 const FeaturedProject = ({ project }) => {
   const reducedMotion = useReducedMotion();
@@ -296,7 +274,6 @@ const FeaturedProject = ({ project }) => {
       transition={{ duration: 0.7, ease: EASE_OUT }}
       className="relative mb-10 overflow-hidden rounded-2xl border border-primary/15 bg-card/60 shadow-xl shadow-primary/5 backdrop-blur-sm"
     >
-      {/* Featured ribbon */}
       <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-yellow-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-yellow-500 ring-1 ring-yellow-500/30 backdrop-blur-sm">
         <Star size={10} fill="currentColor" aria-hidden="true" />
         Featured Project
@@ -310,12 +287,10 @@ const FeaturedProject = ({ project }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5">
-        {/* Visual */}
         <div className="md:col-span-2">
           <Cover icon={project.icon} category={project.category} featured />
         </div>
 
-        {/* Content */}
         <div className="flex flex-col gap-4 p-6 md:col-span-3 md:p-8">
           <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
             <span className="text-primary">{CATEGORY_LABEL[project.category]}</span>

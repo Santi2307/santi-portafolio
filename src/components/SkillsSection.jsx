@@ -7,7 +7,7 @@ import {
 } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
- 
+
 /* ─────────────────────────── Skills data ───────────────────────────
  * Each skill includes:
  *   level   — 1: Familiar, 2: Working knowledge, 3: Comfortable, 4: Proficient
@@ -21,7 +21,7 @@ const SKILLS = [
   { name: "Windows Server",        category: "systems",    level: 3, courses: ["MST100", "MST200", "MST400", "CPO550"] },
   { name: "LVM & Storage",         category: "systems",    level: 3, courses: ["OPS635"] },
   { name: "PowerShell",            category: "systems",    level: 2, courses: ["MST200", "MST300", "MST400", "CPO550" ] },
- 
+
   /* Networking */
   { name: "Cisco IOS",             category: "networking", level: 3, courses: ["CSN305", "CPO520"] },
   { name: "Aruba AOS-CX",          category: "networking", level: 3, courses: ["APL701"] },
@@ -29,7 +29,7 @@ const SKILLS = [
   { name: "OSPF & DHCP",           category: "networking", level: 3, courses: ["CSN305","CSN405","CSN505", "APL701"] },
   { name: "Wireless & RF",         category: "networking", level: 3, courses: ["CSN405"], note: "Link budget, Fresnel zone, EIRP" },
   { name: "Packet Tracer",         category: "networking", level: 4, courses: ["CSN105", "CSN205", "CSN305"] },
- 
+
   /* Cloud & Automation */
   { name: "Ansible",               category: "cloud",      level: 4, courses: ["APL701"], note: "Aruba switch automation capstone" },
   { name: "Docker / Podman",       category: "cloud",      level: 3, courses: ["OPS445"] },
@@ -37,23 +37,23 @@ const SKILLS = [
   { name: "Microsoft Azure",       category: "cloud",      level: 3, courses: ["MST200","MST300", "MST400", "CPO550"] },
   { name: "Azure Virtual Desktop", category: "cloud",      level: 3, courses: ["MST400"] },
   { name: "GlusterFS",             category: "cloud",      level: 2, courses: ["OPS635"] },
- 
+
   /* Security */
   { name: "Incident Response",     category: "security",   level: 3, courses: ["SEC320"] },
   { name: "Security Analysis",     category: "security",   level: 2, courses: ["SEC400"] },
   { name: "SELinux & Hardening",   category: "security",   level: 3, courses: ["OPS445", "SEC220"] },
- 
+
   /* Databases */
   { name: "PostgreSQL / SQL",      category: "databases",  level: 3, courses: ["DAT330"] },
- 
+
   /* Web Development */
-  { name: "React",                 category: "web",        level: 4, courses: [], note: "Santi's Portfolio },
+  { name: "React", category: "web", level: 4, courses: [], note: "Santi's Portfolio" },
   { name: "JavaScript (ES6+)",     category: "web",        level: 4 },
   { name: "HTML / CSS",            category: "web",        level: 4 },
   { name: "Tailwind CSS",          category: "web",        level: 4 },
   { name: "Git / GitHub",          category: "web",        level: 4 },
 ];
- 
+
 const CATEGORIES = [
   { id: "all",        label: "All" },
   { id: "systems",    label: "Systems" },
@@ -63,18 +63,18 @@ const CATEGORIES = [
   { id: "databases",  label: "Databases" },
   { id: "web",        label: "Web Dev" },
 ];
- 
+
 const LEVEL_LABELS = {
   1: "Familiar",
   2: "Working knowledge",
   3: "Comfortable",
   4: "Proficient",
 };
- 
+
 const EASE_OUT = [0.22, 1, 0.36, 1];
- 
+
 /* ─────────────────────────── Proficiency bar ─────────────────────────── */
- 
+
 const ProficiencyBar = ({ level, animate = true }) => {
   return (
     <div
@@ -101,14 +101,14 @@ const ProficiencyBar = ({ level, animate = true }) => {
     </div>
   );
 };
- 
+
 /* ─────────────────────────── Skill card ─────────────────────────── */
- 
+
 const SkillCard = ({ skill, index }) => {
   const reducedMotion = useReducedMotion();
   const tooltipId = `skill-${skill.name.replace(/\W+/g, "-").toLowerCase()}-info`;
   const hasContext = (skill.courses?.length ?? 0) > 0 || skill.note;
- 
+
   return (
     <motion.div
       layout
@@ -132,9 +132,9 @@ const SkillCard = ({ skill, index }) => {
           {skill.category}
         </span>
       </div>
- 
+
       <ProficiencyBar level={skill.level} />
- 
+
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
         {skill.courses?.slice(0, 3).map((code) => (
           <span
@@ -151,7 +151,7 @@ const SkillCard = ({ skill, index }) => {
           <span className="text-[10px] italic opacity-80">— {skill.note}</span>
         )}
       </div>
- 
+
       {/* Hidden description for screen readers */}
       {hasContext && (
         <span id={tooltipId} className="sr-only">
@@ -163,9 +163,9 @@ const SkillCard = ({ skill, index }) => {
     </motion.div>
   );
 };
- 
+
 /* ─────────────────────────── Filter tabs ─────────────────────────── */
- 
+
 const FilterTabs = ({ categories, activeCategory, setActiveCategory, counts }) => {
   return (
     <div
@@ -217,9 +217,9 @@ const FilterTabs = ({ categories, activeCategory, setActiveCategory, counts }) =
     </div>
   );
 };
- 
+
 /* ─────────────────────────── Search input ─────────────────────────── */
- 
+
 const SearchInput = ({ value, onChange }) => (
   <div className="relative mx-auto w-full max-w-sm">
     <Search
@@ -252,22 +252,22 @@ const SearchInput = ({ value, onChange }) => (
     </AnimatePresence>
   </div>
 );
- 
+
 /* ─────────────────────────── Main section ─────────────────────────── */
- 
+
 export const SkillsSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.1 });
- 
+
   // Debounce search input by 150ms — feels instant but skips noisy keystrokes
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(t);
   }, [search]);
- 
+
   // Live counts per category (after search filter is applied)
   const counts = useMemo(() => {
     const term = debouncedSearch.trim().toLowerCase();
@@ -276,10 +276,10 @@ export const SkillsSection = () => {
       s.name.toLowerCase().includes(term) ||
       s.courses?.some((c) => c.toLowerCase().includes(term)) ||
       s.note?.toLowerCase().includes(term);
- 
+
     const result = { all: 0 };
     for (const cat of CATEGORIES) if (cat.id !== "all") result[cat.id] = 0;
- 
+
     for (const skill of SKILLS) {
       if (!matchesSearch(skill)) continue;
       result.all += 1;
@@ -287,7 +287,7 @@ export const SkillsSection = () => {
     }
     return result;
   }, [debouncedSearch]);
- 
+
   // Filtered + sorted skills
   const filteredSkills = useMemo(() => {
     const term = debouncedSearch.trim().toLowerCase();
@@ -301,12 +301,12 @@ export const SkillsSection = () => {
       )
       .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
   }, [activeCategory, debouncedSearch]);
- 
+
   const resetFilters = useCallback(() => {
     setActiveCategory("all");
     setSearch("");
   }, []);
- 
+
   return (
     <section
       id="skills"
@@ -324,7 +324,7 @@ export const SkillsSection = () => {
         >
           My <span className="text-primary">Skills</span>
         </motion.h2>
- 
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
@@ -334,7 +334,7 @@ export const SkillsSection = () => {
           {SKILLS.length} skills from six semesters of Computer Systems Technology
           coursework, capstone projects, and personal builds.
         </motion.p>
- 
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -349,13 +349,13 @@ export const SkillsSection = () => {
           />
           <SearchInput value={search} onChange={setSearch} />
         </motion.div>
- 
+
         {/* Result count */}
         <div className="mb-4 text-center text-xs text-muted-foreground" aria-live="polite">
           Showing {filteredSkills.length} of {SKILLS.length} skills
           {debouncedSearch && <> matching "<span className="text-foreground">{debouncedSearch}</span>"</>}
         </div>
- 
+
         {/* Skills grid */}
         <motion.div
           id="skills-grid"
@@ -370,7 +370,7 @@ export const SkillsSection = () => {
             ))}
           </AnimatePresence>
         </motion.div>
- 
+
         {/* Empty state */}
         <AnimatePresence>
           {filteredSkills.length === 0 && (
@@ -412,5 +412,5 @@ export const SkillsSection = () => {
     </section>
   );
 };
- 
+
 export default SkillsSection;
