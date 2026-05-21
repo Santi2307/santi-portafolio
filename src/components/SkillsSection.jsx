@@ -331,8 +331,7 @@ export const SkillsSection = () => {
           transition={{ delay: 0.15, duration: 0.5 }}
           className="mx-auto mb-10 max-w-xl text-center text-sm text-muted-foreground"
         >
-          {SKILLS.length} skills from six semesters of Computer Systems Technology
-          coursework, capstone projects, and personal builds.
+          Some Tools and Technologies I work with.
         </motion.p>
 
         <motion.div
