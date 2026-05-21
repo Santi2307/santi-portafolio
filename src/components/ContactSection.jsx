@@ -347,7 +347,7 @@ const LocationChannel = () => (
     </div>
     <div>
       <p className="text-xs font-medium text-muted-foreground">Location</p>
-      <p className="text-sm font-medium">Toronto, ON · Canada</p>
+      <p className="text-sm font-medium">Toronto, Ontario · Canada</p>
     </div>
   </div>
 );
@@ -577,8 +577,8 @@ export const ContactSection = () => {
           </h2>
 
           <p className="mx-auto mb-8 max-w-xl text-sm text-muted-foreground md:text-base">
-            Hiring for IT support, systems, or networking? Want to collaborate?
-            Just curious? Drop a line — I read every message.
+            Want to collaborate?
+            Just curious? Drop a line — I will respond to every message.
           </p>
 
           <LiveStatusBar />
