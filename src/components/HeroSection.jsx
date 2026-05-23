@@ -59,9 +59,7 @@ export const HeroSection = () => {
               className="text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl"
             >
               Hi, I'm Santiago. <br className="hidden sm:block" />
-              <span className="text-muted-foreground">
-                IT &amp; Systems Specialist.
-              </span>
+
             </motion.h1>
 
             {/* Bio */}
@@ -125,14 +123,6 @@ export const HeroSection = () => {
                   size={14}
                   className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
-              </a>
-              <a
-                href="/Santiago_Delgado_Resume.pdf"
-                download
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-transparent px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
-              >
-                <Download size={14} aria-hidden="true" />
-                Download CV
               </a>
             </motion.div>
           </div>
