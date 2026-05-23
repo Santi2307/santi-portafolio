@@ -1,14 +1,8 @@
-// =============================================================================
-// ContactSection.jsx — Santiago Delgado's portfolio
-// -----------------------------------------------------------------------------
-// REPLACE your existing src/components/ContactSection.jsx with this entire file.
-// =============================================================================
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Mail,
   Phone,
@@ -22,133 +16,37 @@ import {
   Check,
   Loader2,
   ArrowLeft,
+  ArrowUpRight,
   Twitter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xldwapjy";
+const EASE_OUT = [0.22, 1, 0.36, 1];
 
-/* ─────────────────────────── Status definitions ──────────────────────────
-   Each entry maps a Toronto-local hour range [start, end) to a vibe.
-   Tailwind classes are written as literal strings so the JIT scanner
-   picks them up at build time. */
+/* ═══════════════════════════════════════════════════════════════════════
+   STATUS — time-of-day-aware
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const STATUSES = [
-  {
-    range: [0, 7],
-    key: "sleeping",
-    emoji: "😴",
-    label: "Sleeping",
-    classes: {
-      border: "border-violet-500/30",
-      bg: "bg-violet-500/10",
-      pulse: "bg-violet-500/30",
-      text: "text-violet-300",
-    },
-  },
-  {
-    range: [7, 9],
-    key: "morning",
-    emoji: "☕",
-    label: "Morning coffee",
-    classes: {
-      border: "border-amber-500/30",
-      bg: "bg-amber-500/10",
-      pulse: "bg-amber-500/30",
-      text: "text-amber-300",
-    },
-  },
-  {
-    range: [9, 12],
-    key: "available",
-    emoji: "💼",
-    label: "Available",
-    classes: {
-      border: "border-emerald-500/30",
-      bg: "bg-emerald-500/10",
-      pulse: "bg-emerald-500/30",
-      text: "text-emerald-300",
-    },
-  },
-  {
-    range: [12, 13],
-    key: "lunch",
-    emoji: "🍽️",
-    label: "Lunch break",
-    classes: {
-      border: "border-orange-500/30",
-      bg: "bg-orange-500/10",
-      pulse: "bg-orange-500/30",
-      text: "text-orange-300",
-    },
-  },
-  {
-    range: [13, 17],
-    key: "building",
-    emoji: "💻",
-    label: "Building",
-    classes: {
-      border: "border-indigo-500/30",
-      bg: "bg-indigo-500/10",
-      pulse: "bg-indigo-500/30",
-      text: "text-indigo-300",
-    },
-  },
-  {
-    range: [17, 18],
-    key: "exercising",
-    emoji: "🏋️",
-    label: "At the gym",
-    classes: {
-      border: "border-rose-500/30",
-      bg: "bg-rose-500/10",
-      pulse: "bg-rose-500/30",
-      text: "text-rose-300",
-    },
-  },
-  {
-    range: [18, 20],
-    key: "studying",
-    emoji: "📚",
-    label: "Studying",
-    classes: {
-      border: "border-sky-500/30",
-      bg: "bg-sky-500/10",
-      pulse: "bg-sky-500/30",
-      text: "text-sky-300",
-    },
-  },
-  {
-    range: [20, 22],
-    key: "off-duty",
-    emoji: "🎮",
-    label: "Off-duty",
-    classes: {
-      border: "border-fuchsia-500/30",
-      bg: "bg-fuchsia-500/10",
-      pulse: "bg-fuchsia-500/30",
-      text: "text-fuchsia-300",
-    },
-  },
-  {
-    range: [22, 24],
-    key: "winding-down",
-    emoji: "🌙",
-    label: "Winding down",
-    classes: {
-      border: "border-purple-500/30",
-      bg: "bg-purple-500/10",
-      pulse: "bg-purple-500/30",
-      text: "text-purple-300",
-    },
-  },
+  { range: [0, 7], key: "sleeping", emoji: "😴", label: "Sleeping" },
+  { range: [7, 9], key: "morning", emoji: "☕", label: "Morning coffee" },
+  { range: [9, 12], key: "available", emoji: "💼", label: "Available" },
+  { range: [12, 13], key: "lunch", emoji: "🍽️", label: "Lunch break" },
+  { range: [13, 17], key: "building", emoji: "💻", label: "Building" },
+  { range: [17, 18], key: "exercising", emoji: "🏋️", label: "At the gym" },
+  { range: [18, 20], key: "studying", emoji: "📚", label: "Studying" },
+  { range: [20, 22], key: "off-duty", emoji: "🎮", label: "Off-duty" },
+  { range: [22, 24], key: "winding-down", emoji: "🌙", label: "Winding down" },
 ];
 
 const getStatusForHour = (hour) =>
   STATUSES.find((s) => hour >= s.range[0] && hour < s.range[1]) || STATUSES[0];
 
-/* ─────────────────────────── Hooks ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   HOOKS
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const useCurrentStatus = () => {
   const [status, setStatus] = useState(() =>
@@ -187,13 +85,15 @@ const useCopy = (resetMs = 1500) => {
       setCopied(true);
       setTimeout(() => setCopied(false), resetMs);
     } catch {
-      // silent fail — clipboard API unavailable
+      // silent fail
     }
   };
   return { copied, copy };
 };
 
-/* ─────────────────────────── Sleeping Zzz animation ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   SLEEPING ZZZ
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const SleepingZzz = () => (
   <div
@@ -203,7 +103,7 @@ const SleepingZzz = () => (
     {[0, 1, 2].map((i) => (
       <motion.span
         key={i}
-        className="absolute left-0 top-0 font-mono text-[9px] font-bold text-violet-200"
+        className="absolute left-0 top-0 font-mono text-[9px] font-bold text-foreground/70"
         animate={{
           y: [2, -10, -18],
           x: [0, 3, 7],
@@ -224,45 +124,36 @@ const SleepingZzz = () => (
   </div>
 );
 
-/* ─────────────────────────── Status bar ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   STATUS LINE
+   ═══════════════════════════════════════════════════════════════════════ */
 
-const LiveStatusBar = () => {
+const StatusLine = () => {
   const status = useCurrentStatus();
   const isSleeping = status.key === "sleeping";
 
   return (
-    <motion.div
-      layout
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={cn(
-        "mx-auto mb-12 inline-flex items-center gap-3 rounded-full border px-4 py-2 text-xs backdrop-blur-sm transition-colors",
-        status.classes.border,
-        status.classes.bg,
-      )}
-    >
+    <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/40 px-4 py-2 font-mono text-xs">
       <AnimatePresence mode="wait">
         <motion.div
           key={status.key}
-          initial={{ opacity: 0, y: 4 }}
+          initial={{ opacity: 0, y: 3 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
+          exit={{ opacity: 0, y: -3 }}
           transition={{ duration: 0.3 }}
           className="flex items-center gap-2.5"
         >
-          <span className="relative inline-flex h-5 w-5 items-center justify-center">
+          <span className="relative inline-flex h-4 w-4 items-center justify-center">
             {!isSleeping && (
               <motion.span
                 aria-hidden
-                className={cn(
-                  "absolute inset-0 rounded-full",
-                  status.classes.pulse,
-                )}
-                animate={{ scale: [1, 1.8], opacity: [0.55, 0] }}
+                className="absolute inset-0 rounded-full bg-foreground/40"
+                animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
               />
             )}
             <span
-              className="relative text-base leading-none"
+              className="relative text-sm leading-none"
               role="img"
               aria-label={status.label}
             >
@@ -271,89 +162,94 @@ const LiveStatusBar = () => {
             {isSleeping && <SleepingZzz />}
           </span>
 
-          <span className={cn("font-medium", status.classes.text)}>
-            {status.label}
-          </span>
+          <span className="font-medium text-foreground">{status.label}</span>
         </motion.div>
       </AnimatePresence>
 
       <span className="h-3 w-px bg-border" aria-hidden />
 
       <span className="text-muted-foreground">
-        I will get back asap. Have a great day!
+        I'll get back asap. Have a great day!
       </span>
-    </motion.div>
+    </div>
   );
 };
 
-/* ─────────────────────────── Channel rows ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   CHANNEL ROW — all three rows share the same grid → perfect alignment
+   ═══════════════════════════════════════════════════════════════════════ */
 
-const CopyChannel = ({ icon: Icon, label, value, href }) => {
+const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
   const { copied, copy } = useCopy();
 
-  return (
-    <div className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 p-3 transition-colors hover:border-primary/40">
-      <div className="rounded-lg bg-primary/10 p-2.5">
-        <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-      </div>
+  const Inner = (
+    <>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card/40 text-muted-foreground transition-colors group-hover:text-foreground">
+        <Icon size={15} aria-hidden="true" />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          {label}
+        </span>
+        <span className="truncate text-sm font-medium text-foreground">
+          {value}
+        </span>
+      </span>
+    </>
+  );
 
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+  return (
+    <div className="group relative flex items-center gap-3 border-b border-border py-3.5 last:border-b-0">
+      {href ? (
         <a
           href={href}
-          className="block truncate text-sm font-medium text-foreground transition-colors hover:text-primary"
+          className="flex flex-1 items-center gap-3 transition-colors"
         >
-          {value}
+          {Inner}
         </a>
-      </div>
+      ) : (
+        <div className="flex flex-1 items-center gap-3">{Inner}</div>
+      )}
 
-      <button
-        type="button"
-        onClick={() => copy(value)}
-        className="flex-shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-muted/50 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 group-hover:opacity-100"
-        aria-label={`Copy ${label.toLowerCase()}`}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          {copied ? (
-            <motion.span
-              key="check"
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.6, opacity: 0 }}
-              className="block text-emerald-500"
-            >
-              <Check size={14} />
-            </motion.span>
-          ) : (
-            <motion.span
-              key="copy"
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.6, opacity: 0 }}
-              className="block"
-            >
-              <Copy size={14} />
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </button>
+      {copyable && (
+        <button
+          type="button"
+          onClick={() => copy(value)}
+          aria-label={`Copy ${label.toLowerCase()}`}
+          className="shrink-0 rounded-md p-2 text-muted-foreground opacity-0 transition-all hover:bg-foreground/5 hover:text-foreground focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 group-hover:opacity-100"
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {copied ? (
+              <motion.span
+                key="check"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.6, opacity: 0 }}
+                className="block"
+              >
+                <Check size={13} />
+              </motion.span>
+            ) : (
+              <motion.span
+                key="copy"
+                initial={{ scale: 0.6, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.6, opacity: 0 }}
+                className="block"
+              >
+                <Copy size={13} />
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+      )}
     </div>
   );
 };
 
-const LocationChannel = () => (
-  <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 p-3">
-    <div className="rounded-lg bg-primary/10 p-2.5">
-      <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-    </div>
-    <div>
-      <p className="text-xs font-medium text-muted-foreground">Location</p>
-      <p className="text-sm font-medium">Toronto, Ontario · Canada</p>
-    </div>
-  </div>
-);
-
-/* ─────────────────────────── Form ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   FORM
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
@@ -364,12 +260,21 @@ const contactFormSchema = z.object({
     .max(2000, "Message is too long."),
 });
 
-const Field = ({ label, error, children }) => (
+const Field = ({ label, hint, error, children }) => (
   <div>
-    <label className="mb-1.5 block text-sm font-medium">{label}</label>
+    <div className="mb-1.5 flex items-baseline justify-between">
+      <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </label>
+      {hint && (
+        <span className="font-mono text-[10px] tabular-nums text-muted-foreground/60">
+          {hint}
+        </span>
+      )}
+    </div>
     {children}
     {error && (
-      <p role="alert" className="mt-1 text-xs text-destructive">
+      <p role="alert" className="mt-1.5 font-mono text-[10px] text-destructive">
         {error}
       </p>
     )}
@@ -378,9 +283,9 @@ const Field = ({ label, error, children }) => (
 
 const inputClasses = (hasError) =>
   cn(
-    "w-full rounded-lg border bg-background/70 px-3 py-2.5 text-sm transition-all",
-    "focus:outline-none focus:ring-2 focus:ring-primary/40",
-    hasError ? "border-destructive focus:ring-destructive/40" : "border-input",
+    "w-full rounded-md border bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors",
+    "focus:outline-none focus:border-foreground/40",
+    hasError ? "border-destructive/60" : "border-border",
   );
 
 const ContactForm = ({ onSent }) => {
@@ -451,7 +356,11 @@ const ContactForm = ({ onSent }) => {
         </Field>
       </div>
 
-      <Field label="Message" error={errors.message?.message}>
+      <Field
+        label="Message"
+        hint={`${messageCount} / 2000`}
+        error={errors.message?.message}
+      >
         <textarea
           rows={6}
           placeholder="Send me a message. In Colombia, we say 'Escribeme, Parcero'"
@@ -461,29 +370,26 @@ const ContactForm = ({ onSent }) => {
             "resize-y min-h-[140px]",
           )}
         />
-        <div className="mt-1 flex justify-end text-[10px] tabular-nums text-muted-foreground">
-          {messageCount} / 2000
-        </div>
       </Field>
 
       <button
         type="submit"
         disabled={isSubmitting}
         className={cn(
-          "group inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition-all hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
+          "group inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40",
           isSubmitting && "cursor-not-allowed opacity-70",
         )}
       >
         {isSubmitting ? (
           <>
-            <Loader2 size={16} className="animate-spin" />
+            <Loader2 size={14} className="animate-spin" />
             Sending…
           </>
         ) : (
           <>
-            Send Message
+            Send message
             <Send
-              size={16}
+              size={14}
               className="transition-transform group-hover:translate-x-0.5"
             />
           </>
@@ -493,31 +399,33 @@ const ContactForm = ({ onSent }) => {
   );
 };
 
-/* ─────────────────────────── Success state ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   SUCCESS STATE
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const SuccessState = ({ onReset }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20, scale: 0.96 }}
-    animate={{ opacity: 1, y: 0, scale: 1 }}
-    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-    className="flex flex-col items-center justify-center py-12 text-center"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, ease: EASE_OUT }}
+    className="flex flex-col items-center justify-center py-16 text-center"
   >
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
-      transition={{
-        delay: 0.1,
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
-      }}
-      className="mb-4 rounded-full bg-emerald-500/10 p-4 ring-1 ring-emerald-500/20"
+      transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
+      className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full border border-foreground/20"
     >
-      <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+      <CheckCircle2 className="h-7 w-7 text-foreground" strokeWidth={1.5} />
     </motion.div>
 
-    <h3 className="mb-2 text-xl font-bold">Message received.</h3>
-    <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+      Status — sent
+    </p>
+    <h3 className="mb-3 text-2xl font-semibold tracking-tight">
+      Message received.
+    </h3>
+    <p className="mb-8 max-w-sm text-sm leading-relaxed text-muted-foreground">
       Thank you for reaching out. I'll get back to you within 24 hours — usually
       much sooner.
     </p>
@@ -525,15 +433,17 @@ const SuccessState = ({ onReset }) => (
     <button
       type="button"
       onClick={onReset}
-      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
     >
-      <ArrowLeft size={14} />
+      <ArrowLeft size={13} />
       Send another
     </button>
   </motion.div>
 );
 
-/* ─────────────────────────── Main section ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   SOCIAL LINKS
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const SOCIAL_LINKS = [
   {
@@ -547,109 +457,174 @@ const SOCIAL_LINKS = [
     href: "https://www.instagram.com/santiagodelgadosanchez",
     label: "Instagram",
   },
-  {
-    icon: Twitter,
-    href: "https://x.com/Santiagodelga23",
-    label: "Twitter",
-  }
+  { icon: Twitter, href: "https://x.com/Santiagodelga23", label: "Twitter" },
 ];
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MAIN SECTION
+   ═══════════════════════════════════════════════════════════════════════ */
 
 export const ContactSection = () => {
   const [sent, setSent] = useState(false);
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, amount: 0.1 });
 
   return (
     <section
       id="contact"
-      className="relative bg-secondary/30 px-4 py-24"
+      ref={sectionRef}
+      className="relative overflow-hidden px-4 py-24 md:py-32"
       aria-labelledby="contact-heading"
     >
-      <div className="container mx-auto max-w-5xl">
-        <div className="text-center">
-          <p className="mb-3 font-mono text-xs text-muted-foreground">
-            <span className="text-primary">~ </span>
-            <span className="text-foreground/80">sys.contact</span>
-            <span className="opacity-40">.</span>
-            <span className="text-foreground/80">open()</span>
-          </p>
+      <div className="container mx-auto max-w-6xl">
+        {/* ─── Section header ─── */}
+        <div className="mb-16 flex items-end justify-between gap-8">
+          <div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5 }}
+              className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
+            >
+              <span className="text-primary">§ 05</span>
+              <span className="mx-2 opacity-40">/</span>
+              Contact
+            </motion.p>
+            <motion.h2
+              id="contact-heading"
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, ease: EASE_OUT }}
+              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
+            >
+              Let's build <br className="hidden sm:block" />
+              something together.
+            </motion.h2>
+          </div>
 
-          <h2
-            id="contact-heading"
-            className="mb-4 text-3xl font-bold md:text-4xl"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            Let's{" "}
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
-              build together
-            </span>
-          </h2>
-
-          <p className="mx-auto mb-8 max-w-xl text-sm text-muted-foreground md:text-base">
-            Want to collaborate?
-            Just curious? Drop a line — I will respond to every message.
-          </p>
-
-          <LiveStatusBar />
+            Want to collaborate? Just curious? Drop a line — I respond to every
+            message.
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
-          <aside className="space-y-3 lg:col-span-2">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Direct Channels
-            </h3>
+        {/* ─── Status line ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="mb-16 flex justify-start"
+        >
+          <StatusLine />
+        </motion.div>
 
-            <CopyChannel
-              icon={Mail}
-              label="Email"
-              value="santiagodelgadosanchez9@gmail.com"
-              href="mailto:santiagodelgadosanchez9@gmail.com"
-            />
-            <CopyChannel
-              icon={Phone}
-              label="Phone"
-              value="+1 (437) 661-6843"
-              href="tel:+14376616843"
-            />
-            <LocationChannel />
+        {/* ─── Two-column body ─── */}
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-16">
+          {/* LEFT — channels + socials */}
+          <aside className="md:col-span-5">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="md:sticky md:top-24"
+            >
+              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                Direct channels
+              </p>
 
-            <div className="pt-4">
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Or find me on
-              </h4>
-              <div className="flex gap-2">
-                {SOCIAL_LINKS.map((link) => {
-                  const Icon = link.icon;
-                  return (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={link.label}
-                      className="rounded-xl border border-border/60 bg-card/40 p-3 transition-all hover:scale-105 hover:border-primary/40 hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                    >
-                      <Icon className="h-5 w-5 text-foreground/80" />
-                    </a>
-                  );
-                })}
+              <div className="border-t border-border">
+                <ChannelRow
+                  icon={Mail}
+                  label="Email"
+                  value="santiagodelgadosanchez9@gmail.com"
+                  href="mailto:santiagodelgadosanchez9@gmail.com"
+                  copyable
+                />
+                <ChannelRow
+                  icon={Phone}
+                  label="Phone"
+                  value="+1 (437) 661-6843"
+                  href="tel:+14376616843"
+                  copyable
+                />
+                <ChannelRow
+                  icon={MapPin}
+                  label="Location"
+                  value="Toronto, Ontario · Canada"
+                  href={null}
+                  copyable={false}
+                />
               </div>
-            </div>
+
+              <div className="mt-10">
+                <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Elsewhere
+                </p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {SOCIAL_LINKS.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                      <a
+                        key={link.label}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={link.label}
+                        className="group flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-xs text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Icon size={13} className="text-muted-foreground" />
+                          <span className="font-medium">{link.label}</span>
+                        </span>
+                        <ArrowUpRight
+                          size={11}
+                          className="text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"
+                        />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
           </aside>
 
-          <div className="rounded-2xl border border-border/60 bg-card/60 p-6 backdrop-blur-sm md:p-8 lg:col-span-3">
-            <AnimatePresence mode="wait">
-              {sent ? (
-                <SuccessState key="success" onReset={() => setSent(false)} />
-              ) : (
-                <motion.div
-                  key="form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <ContactForm onSent={() => setSent(true)} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* RIGHT — form */}
+          <div className="md:col-span-7">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
+              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                Send a message
+              </p>
+
+              <div className="border-t border-border pt-6">
+                <AnimatePresence mode="wait">
+                  {sent ? (
+                    <SuccessState
+                      key="success"
+                      onReset={() => setSent(false)}
+                    />
+                  ) : (
+                    <motion.div
+                      key="form"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <ContactForm onSent={() => setSent(true)} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
