@@ -1,41 +1,32 @@
-// =============================================================================
-// ProjectsSection.jsx — Santiago Delgado's portfolio
-// -----------------------------------------------------------------------------
-// IMPORTANT: This is the COMPLETE file. Replace your existing
-// src/components/ProjectsSection.jsx with this entire content. Do not paste
-// only a portion — the components below depend on the imports and constants
-// at the top of this file.
-// =============================================================================
-
-import { useRef } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
 import {
-  ArrowRight,
+  motion,
+  AnimatePresence,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
+import {
   ArrowUpRight,
   Github,
   ExternalLink,
-  Network,
-  Server,
-  Cloud,
-  MessageSquare,
-  Sparkles,
-  Star,
+  Plus,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/* ─────────────────────────── Projects data ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════════════════════ */
 
 const PROJECTS = [
   {
     id: "network-automation",
-    featured: true,
     title: "Enterprise Network Automation Platform",
     tagline: "Capstone — APL701 Applied Integration",
     summary:
       "Multi-vendor switch provisioning automated end-to-end with Ansible. Builds a repeatable, version-controlled foundation for production networks.",
     description:
       "For my capstone, I built Ansible roles and playbooks to fully automate the configuration of Aruba AOS-CX 6300 and 2530 switches. What used to require dozens of manual CLI sessions now executes idempotently from a single playbook — covering VLAN provisioning, DHCP scopes, OSPF dynamic routing, and LAG/LACP link aggregation across multiple switch models.",
-    icon: Network,
     category: "networking",
     courses: ["APL701", "CSN305", "CPO520"],
     year: "2026",
@@ -58,7 +49,6 @@ const PROJECTS = [
       "Multi-server RHEL environment configured to RHCSA exam standards, hardened with SELinux, and containerized with Podman.",
     description:
       "Built across the Open System Administration and Red Hat Certification courses. Covers the full RHCSA blueprint — LVM-based storage, NFS file sharing with autofs, custom SELinux policies, Podman container deployments, and centralized authentication.",
-    icon: Server,
     category: "systems",
     courses: ["OPS445", "RHT524", "OPS635", "SEC220"],
     year: "2025",
@@ -81,7 +71,6 @@ const PROJECTS = [
       "End-to-end Azure Virtual Desktop deployment with hybrid identity, profile management, and conditional access — aligned to the AZ-104 certification path.",
     description:
       "Designed and deployed a production-ready AVD environment in Microsoft Azure. Includes session host pools, FSLogix profile containers, hybrid identity through Microsoft Entra ID, and conditional access policies for security.",
-    icon: Cloud,
     category: "cloud",
     courses: ["MST400", "CPO550", "MST300"],
     year: "2026",
@@ -104,7 +93,6 @@ const PROJECTS = [
       "End-to-end WhatsApp purchasing platform integrated with the company's existing ERP. Replaces manual customer-service workflows with a guided self-service experience.",
     description:
       "Engineered the conversation flow, integrations, and routing logic for a customer self-service platform on WhatsApp Business. Connects directly to the company's Cuenti ERP, with city-based order routing, CRM verification, dynamic product catalogs, and order tracking.",
-    icon: MessageSquare,
     category: "automation",
     courses: [],
     year: "2026",
@@ -127,7 +115,6 @@ const PROJECTS = [
       "Custom-designed single-page application built from scratch — no UI kit, no template. Every animation, component, and interaction is mine.",
     description:
       "React + Vite single-page application with a custom design system, fluid Framer Motion animations, and Zustand-managed global state. Built mobile-first, fully responsive, and accessibility-conscious throughout.",
-    icon: Sparkles,
     category: "web",
     courses: [],
     year: "2026",
@@ -144,25 +131,15 @@ const PROJECTS = [
   },
 ];
 
-/* ─────────────────────────── Theme constants ─────────────────────────── */
-
-const STATUS_CONFIG = {
-  capstone:      { label: "Capstone",    dot: "bg-violet-500",  text: "text-violet-400",  bg: "bg-violet-500/10",  ring: "ring-violet-500/20"  },
-  internship:    { label: "Internship",  dot: "bg-amber-500",   text: "text-amber-400",   bg: "bg-amber-500/10",   ring: "ring-amber-500/20"   },
-  live:          { label: "Live",        dot: "bg-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/10", ring: "ring-emerald-500/20" },
-  "in-progress": { label: "In Progress", dot: "bg-sky-500",     text: "text-sky-400",     bg: "bg-sky-500/10",     ring: "ring-sky-500/20"     },
-  coursework:    { label: "Coursework",  dot: "bg-slate-400",   text: "text-slate-400",   bg: "bg-slate-500/10",   ring: "ring-slate-500/20"   },
+const STATUS_LABELS = {
+  capstone:      "Capstone",
+  internship:    "Internship",
+  live:          "Live",
+  "in-progress": "In Progress",
+  coursework:    "Coursework",
 };
 
-const CATEGORY_GRADIENT = {
-  networking: "from-sky-500/25 via-indigo-500/10 to-transparent",
-  systems:    "from-amber-500/25 via-orange-500/10 to-transparent",
-  cloud:      "from-violet-500/25 via-fuchsia-500/10 to-transparent",
-  automation: "from-emerald-500/25 via-teal-500/10 to-transparent",
-  web:        "from-rose-500/25 via-pink-500/10 to-transparent",
-};
-
-const CATEGORY_LABEL = {
+const CATEGORY_LABELS = {
   networking: "Networking",
   systems:    "Systems Administration",
   cloud:      "Cloud Infrastructure",
@@ -172,384 +149,362 @@ const CATEGORY_LABEL = {
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
 
-/* ─────────────────────────── Presentation primitives ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   STATUS PILL — minimal, no color dots
+   ═══════════════════════════════════════════════════════════════════════ */
 
-const StatusBadge = ({ status }) => {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.coursework;
-  const isPulsing = status === "live" || status === "in-progress";
+const StatusPill = ({ status }) => {
   const reducedMotion = useReducedMotion();
+  const label = STATUS_LABELS[status] ?? status;
+  const isPulsing = status === "live" || status === "in-progress";
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 backdrop-blur-sm",
-        cfg.bg,
-        cfg.text,
-        cfg.ring
-      )}
-    >
-      <span className="relative inline-flex h-1.5 w-1.5">
+    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+      <span className="relative inline-flex h-1 w-1">
         {isPulsing && !reducedMotion && (
           <motion.span
             aria-hidden
-            className={cn("absolute inset-0 rounded-full", cfg.dot)}
-            animate={{ scale: [1, 2.2], opacity: [0.6, 0] }}
+            className="absolute inset-0 rounded-full bg-foreground"
+            animate={{ scale: [1, 2.4], opacity: [0.7, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
           />
         )}
-        <span className={cn("relative h-full w-full rounded-full", cfg.dot)} />
+        <span className="relative h-full w-full rounded-full bg-foreground" />
       </span>
-      {cfg.label}
+      {label}
     </span>
   );
 };
 
-const CourseChip = ({ code }) => (
-  <span className="rounded border border-border/60 bg-background/50 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-    {code}
-  </span>
-);
+/* ═══════════════════════════════════════════════════════════════════════
+   PROJECT ROW — editorial expandable case study
+   ═══════════════════════════════════════════════════════════════════════ */
 
-const TechTag = ({ children }) => (
-  <span className="rounded-full border border-border/60 bg-background/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground/80">
-    {children}
-  </span>
-);
-
-const Cover = ({ icon: Icon, category, featured = false }) => {
-  const gradient = CATEGORY_GRADIENT[category] ?? CATEGORY_GRADIENT.systems;
-  const reducedMotion = useReducedMotion();
-
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden bg-gradient-to-br",
-        gradient,
-        featured ? "h-full min-h-[260px]" : "h-40"
-      )}
-    >
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      <div className="absolute inset-0 flex items-center justify-center">
-        <motion.div
-          whileHover={reducedMotion ? {} : { scale: 1.05, rotate: -2 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className={cn(
-            "rounded-2xl bg-background/40 ring-1 ring-primary/20 backdrop-blur-md",
-            featured ? "p-6" : "p-4"
-          )}
-        >
-          <Icon
-            size={featured ? 48 : 32}
-            className="text-primary"
-            aria-hidden="true"
-            strokeWidth={1.5}
-          />
-        </motion.div>
-      </div>
-    </div>
-  );
-};
-
-/* ─────────────────────────── Featured project ─────────────────────────── */
-
-const FeaturedProject = ({ project }) => {
-  const reducedMotion = useReducedMotion();
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.15 });
-
-  return (
-    <motion.article
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, ease: EASE_OUT }}
-      className="relative mb-10 overflow-hidden rounded-2xl border border-primary/15 bg-card/60 shadow-xl shadow-primary/5 backdrop-blur-sm"
-    >
-      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-yellow-500/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-yellow-500 ring-1 ring-yellow-500/30 backdrop-blur-sm">
-        <Star size={10} fill="currentColor" aria-hidden="true" />
-        Featured Project
-      </div>
-
-      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
-        <StatusBadge status={project.status} />
-        <span className="rounded bg-background/60 px-2 py-1 font-mono text-[10px] text-muted-foreground backdrop-blur-sm">
-          {project.year}
-        </span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-5">
-        <div className="md:col-span-2">
-          <Cover icon={project.icon} category={project.category} featured />
-        </div>
-
-        <div className="flex flex-col gap-4 p-6 md:col-span-3 md:p-8">
-          <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
-            <span className="text-primary">{CATEGORY_LABEL[project.category]}</span>
-            <span className="text-muted-foreground/40">·</span>
-            <div className="flex flex-wrap gap-1">
-              {project.courses.map((c) => (
-                <CourseChip key={c} code={c} />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="mb-1 text-2xl font-bold leading-tight md:text-3xl">
-              {project.title}
-            </h3>
-            <p className="text-sm italic text-muted-foreground">{project.tagline}</p>
-          </div>
-
-          <p className="leading-relaxed text-foreground/90">{project.description}</p>
-
-          <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-primary">
-              Key Outcomes
-            </p>
-            <ul className="space-y-1.5 text-sm text-muted-foreground">
-              {project.outcomes.map((outcome, i) => (
-                <motion.li
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={inView ? { opacity: 1, x: 0 } : {}}
-                  transition={{
-                    delay: reducedMotion ? 0 : 0.3 + i * 0.08,
-                    duration: 0.4,
-                  }}
-                  className="flex items-start gap-2"
-                >
-                  <ArrowUpRight
-                    size={14}
-                    className="mt-1 flex-shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  <span>{outcome}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            {project.tags.map((tag) => (
-              <TechTag key={tag}>{tag}</TechTag>
-            ))}
-          </div>
-
-          {(project.githubUrl || project.demoUrl) && (
-            <div className="flex flex-wrap items-center gap-3 border-t border-border/40 pt-4">
-              {project.demoUrl && (
-                <a
-                  href={project.demoUrl}
-                  target={project.demoUrl.startsWith("/") ? "_self" : "_blank"}
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-                >
-                  <ExternalLink size={14} aria-hidden="true" />
-                  View Live
-                </a>
-              )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-                >
-                  <Github size={14} aria-hidden="true" />
-                  View Code
-                </a>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.article>
-  );
-};
-
-/* ─────────────────────────── Regular project card ─────────────────────────── */
-
-const ProjectCard = ({ project, index }) => {
+const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
   const reducedMotion = useReducedMotion();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
+  const hasLinks = project.githubUrl || project.demoUrl;
 
   return (
     <motion.article
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{
-        duration: 0.5,
+        delay: reducedMotion ? 0 : Math.min(index * 0.06, 0.36),
+        duration: 0.6,
         ease: EASE_OUT,
-        delay: reducedMotion ? 0 : Math.min(index * 0.08, 0.32),
       }}
-      whileHover={reducedMotion ? {} : { y: -4 }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-primary/10 bg-card/60 backdrop-blur-sm transition-shadow duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5"
+      className={cn(
+        "group relative border-t border-border",
+        index === total - 1 && "border-b"
+      )}
     >
-      <div className="relative">
-        <Cover icon={project.icon} category={project.category} />
-        <div className="absolute right-3 top-3 flex items-center gap-2">
-          <StatusBadge status={project.status} />
-        </div>
-        <span className="absolute bottom-3 right-3 rounded bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground backdrop-blur-sm">
-          {project.year}
+      {/* Trigger row */}
+      <button
+        type="button"
+        onClick={() => onToggle(project.id)}
+        aria-expanded={isOpen}
+        aria-controls={`project-detail-${project.id}`}
+        className="grid w-full grid-cols-[auto_1fr_auto] items-baseline gap-4 px-1 py-6 text-left transition-colors hover:bg-foreground/[0.015] md:grid-cols-[auto_1fr_auto_auto_auto] md:gap-6 md:py-7"
+      >
+        {/* Index */}
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          {String(index + 1).padStart(2, "0")}
         </span>
-      </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-wider">
-          <span className="text-primary">{CATEGORY_LABEL[project.category]}</span>
-          {project.courses.length > 0 && (
-            <>
-              <span className="text-muted-foreground/40">·</span>
-              <div className="flex flex-wrap gap-1">
-                {project.courses.map((c) => (
-                  <CourseChip key={c} code={c} />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold leading-tight">{project.title}</h3>
-          <p className="mt-0.5 text-xs italic text-muted-foreground">
+        {/* Title + tagline */}
+        <div className="min-w-0">
+          <h3 className="text-xl font-semibold leading-tight tracking-tight md:text-2xl">
+            {project.title}
+          </h3>
+          <p
+            className={cn(
+              "mt-1 truncate font-mono text-xs text-muted-foreground transition-opacity duration-300",
+              isOpen && "opacity-0 md:opacity-60"
+            )}
+          >
             {project.tagline}
           </p>
         </div>
 
-        <p className="flex-1 text-sm leading-relaxed text-muted-foreground">
-          {project.summary}
-        </p>
+        {/* Category — desktop only */}
+        <span className="hidden whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground md:inline">
+          {CATEGORY_LABELS[project.category]}
+        </span>
 
-        <ul className="space-y-1 text-xs text-muted-foreground/90">
-          {project.outcomes.slice(0, 3).map((outcome, i) => (
-            <li key={i} className="flex items-start gap-1.5">
-              <span className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-primary" />
-              <span>{outcome}</span>
-            </li>
-          ))}
-        </ul>
+        {/* Year — desktop only */}
+        <span className="hidden font-mono text-[10px] tabular-nums text-muted-foreground/70 md:inline">
+          {project.year}
+        </span>
 
-        <div className="flex flex-wrap gap-1">
-          {project.tags.slice(0, 5).map((tag) => (
-            <TechTag key={tag}>{tag}</TechTag>
-          ))}
-          {project.tags.length > 5 && (
-            <span className="px-1 py-0.5 text-[10px] text-muted-foreground/60">
-              +{project.tags.length - 5}
-            </span>
-          )}
-        </div>
+        {/* Plus icon */}
+        <motion.span
+          animate={{ rotate: isOpen ? 45 : 0 }}
+          transition={{ duration: 0.3, ease: EASE_OUT }}
+          className="text-muted-foreground transition-colors group-hover:text-foreground"
+          aria-hidden
+        >
+          <Plus size={18} />
+        </motion.span>
+      </button>
 
-        <div className="flex items-center gap-3 border-t border-border/40 pt-3">
-          {project.demoUrl && (
-            <a
-              href={project.demoUrl}
-              target={project.demoUrl.startsWith("/") ? "_self" : "_blank"}
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded text-xs font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <ExternalLink size={12} aria-hidden="true" />
-              <span>Live</span>
-            </a>
-          )}
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded text-xs font-medium text-foreground/80 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <Github size={12} aria-hidden="true" />
-              <span>Code</span>
-            </a>
-          )}
-          {!project.demoUrl && !project.githubUrl && (
-            <span className="text-[11px] italic text-muted-foreground/60">
-              Available on request
-            </span>
-          )}
-        </div>
+      {/* Mobile meta row — visible only on small screens */}
+      <div className="-mt-4 mb-2 flex items-center gap-3 px-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground md:hidden">
+        <span>{CATEGORY_LABELS[project.category]}</span>
+        <span className="opacity-40">·</span>
+        <span className="tabular-nums">{project.year}</span>
       </div>
+
+      {/* Expandable body */}
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            id={`project-detail-${project.id}`}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.45, ease: EASE_OUT }}
+            className="overflow-hidden"
+          >
+            <div className="grid grid-cols-1 gap-10 px-1 pb-10 pt-2 md:grid-cols-12 md:gap-12">
+              {/* LEFT — narrative */}
+              <div className="md:col-span-7 md:col-start-1">
+                {/* Status + courses strip */}
+                <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <StatusPill status={project.status} />
+                  {project.courses.length > 0 && (
+                    <>
+                      <span className="text-muted-foreground/30">·</span>
+                      <div className="flex flex-wrap gap-1">
+                        {project.courses.map((code) => (
+                          <span
+                            key={code}
+                            className="rounded border border-border bg-card/40 px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-muted-foreground"
+                          >
+                            {code}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Description */}
+                <p className="text-[15px] leading-relaxed text-foreground/80">
+                  {project.description}
+                </p>
+
+                {/* Outcomes */}
+                <div className="mt-6">
+                  <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Key Outcomes
+                  </p>
+                  <ul className="space-y-2">
+                    {project.outcomes.map((outcome, i) => (
+                      <li
+                        key={i}
+                        className="grid grid-cols-[auto_1fr] gap-3 text-sm leading-relaxed text-foreground/75"
+                      >
+                        <span className="mt-2 inline-block h-px w-3 bg-foreground/40" />
+                        <span>{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* RIGHT — sidebar with meta + tags + links */}
+              <aside className="md:col-span-5">
+                <div className="space-y-6 md:sticky md:top-24">
+                  {/* Meta data — Tags */}
+                  <div>
+                    <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      Stack
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-border bg-transparent px-2.5 py-0.5 text-[11px] font-medium text-foreground/80"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Links */}
+                  <div>
+                    <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      Links
+                    </p>
+                    {hasLinks ? (
+                      <div className="flex flex-col gap-2">
+                        {project.demoUrl && (
+                          <a
+                            href={project.demoUrl}
+                            target={project.demoUrl.startsWith("/") ? "_self" : "_blank"}
+                            rel="noopener noreferrer"
+                            className="group/link flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <ExternalLink size={14} className="text-muted-foreground" />
+                              <span className="font-medium">View live demo</span>
+                            </span>
+                            <ArrowUpRight
+                              size={14}
+                              className="text-muted-foreground transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 group-hover/link:text-foreground"
+                            />
+                          </a>
+                        )}
+                        {project.githubUrl && (
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group/link flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
+                          >
+                            <span className="flex items-center gap-2.5">
+                              <Github size={14} className="text-muted-foreground" />
+                              <span className="font-medium">View source code</span>
+                            </span>
+                            <ArrowUpRight
+                              size={14}
+                              className="text-muted-foreground transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5 group-hover/link:text-foreground"
+                            />
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 rounded-md border border-dashed border-border px-3 py-2.5 text-xs text-muted-foreground">
+                        <Lock size={12} aria-hidden="true" />
+                        <span>Private — available on request</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.article>
   );
 };
 
-/* ─────────────────────────── Main section ─────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   MAIN SECTION
+   ═══════════════════════════════════════════════════════════════════════ */
 
 export const ProjectsSection = () => {
-  const headerRef = useRef(null);
-  const headerInView = useInView(headerRef, { once: true, amount: 0.5 });
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, amount: 0.1 });
 
-  const featured = PROJECTS.find((p) => p.featured);
-  const others = PROJECTS.filter((p) => !p.featured);
+  // First project open by default — invites interaction
+  const [openId, setOpenId] = useState(PROJECTS[0].id);
+  const handleToggle = useCallback((id) => {
+    setOpenId((current) => (current === id ? null : id));
+  }, []);
 
   return (
     <section
       id="projects"
-      className="relative px-4 py-24"
+      ref={sectionRef}
+      className="relative overflow-hidden px-4 py-24 md:py-32"
       aria-labelledby="projects-heading"
     >
       <div className="container mx-auto max-w-6xl">
-        <header ref={headerRef} className="mb-12 text-center">
-          <motion.h2
-            id="projects-heading"
-            initial={{ opacity: 0, y: 20 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, ease: EASE_OUT }}
-            className="mb-3 text-3xl font-bold md:text-4xl"
-          >
-            Featured{" "}
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">
+
+        {/* ─── Section header ─── */}
+        <div className="mb-16 flex items-end justify-between gap-8">
+          <div>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5 }}
+              className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
+            >
+              <span className="text-primary">§ 04</span>
+              <span className="mx-2 opacity-40">/</span>
               Projects
-            </span>
-          </motion.h2>
+            </motion.p>
+            <motion.h2
+              id="projects-heading"
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, ease: EASE_OUT }}
+              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
+            >
+              Selected work <br className="hidden sm:block" />
+              across the stack.
+            </motion.h2>
+          </div>
 
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
-            animate={headerInView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.15, duration: 0.5 }}
-            className="mx-auto max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base"
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            A Selection of things I've built in such as Systems Administration, Cloud Infrastructure, Automation with Ansible, Web Development and a Enterprise Network Automation. 
-          </motion.p>
-        </header>
+            {PROJECTS.length} projects in systems, networking, cloud, automation,
+            and the web. Click any title to read the case study.
+          </motion.div>
+        </div>
 
-        {featured && <FeaturedProject project={featured} />}
+        {/* ─── Column headers (desktop only) ─── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mb-2 hidden grid-cols-[auto_1fr_auto_auto_auto] items-baseline gap-6 px-1 pb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground md:grid"
+        >
+          <span className="w-4" aria-hidden />
+          <span>Project</span>
+          <span>Category</span>
+          <span>Year</span>
+          <span className="w-[18px]" aria-hidden />
+        </motion.div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {others.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
+        {/* ─── Projects list ─── */}
+        <div role="list" aria-label="Projects">
+          {PROJECTS.map((project, i) => (
+            <ProjectRow
+              key={project.id}
+              project={project}
+              index={i}
+              total={PROJECTS.length}
+              isOpen={openId === project.id}
+              onToggle={handleToggle}
+            />
           ))}
         </div>
 
+        {/* ─── See more CTA ─── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.5 }}
-          className="mt-12 text-center"
+          className="mt-16 flex flex-col items-center gap-3"
         >
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            More on GitHub
+          </p>
           <a
             href="https://github.com/Santi2307"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-6 py-2.5 font-medium text-primary transition-all hover:scale-105 hover:bg-primary/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+            className="group inline-flex items-center gap-2 rounded-full border border-border bg-transparent px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
             aria-label="View all projects on GitHub"
           >
-            See More on GitHub
-            <ArrowRight size={16} aria-hidden="true" />
+            <Github size={14} />
+            <span>View all repositories</span>
+            <ArrowUpRight
+              size={14}
+              className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
           </a>
         </motion.div>
       </div>
