@@ -1,30 +1,23 @@
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  useLayoutEffect,
-} from "react";
-import {
-  Menu,
-  X,
-  Search,
-  Command,
-  ArrowUpRight,
-  CornerDownLeft,
   ArrowDown,
   ArrowUp,
+  ArrowUpRight,
+  Command,
+  CornerDownLeft,
+  Menu,
+  Search,
+  X,
 } from "lucide-react";
 import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useScroll,
-} from "framer-motion";
-import { cn } from "@/lib/utils";
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 /* ═══════════════════════════════════════════════════════════════════════
    CONFIG
@@ -260,9 +253,8 @@ const ScrollProgressBar = () => {
 const Wordmark = () => (
   <div className="flex items-center gap-2">
     <span className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-foreground">
-      SD
+      Santiago Delgado
     </span>
-    <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
   </div>
 );
 
