@@ -144,23 +144,15 @@ const StatusLine = () => {
           className="flex items-center gap-2.5"
         >
           <span className="relative inline-flex h-4 w-4 items-center justify-center">
-            {!isSleeping && (
-              <motion.span
-                aria-hidden
-                className="absolute inset-0 rounded-full bg-foreground/40"
-                animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-              />
-            )}
-            <span
-              className="relative text-sm leading-none"
-              role="img"
-              aria-label={status.label}
-            >
-              {status.emoji}
-            </span>
-            {isSleeping && <SleepingZzz />}
-          </span>
+  <span
+    className="relative text-sm leading-none"
+    role="img"
+    aria-label={status.label}
+  >
+    {status.emoji}
+  </span>
+  {isSleeping && <SleepingZzz />}
+</span>
 
           <span className="font-medium text-foreground">{status.label}</span>
         </motion.div>

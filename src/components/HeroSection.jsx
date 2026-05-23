@@ -1,62 +1,9 @@
-import { ArrowDown } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { ArrowDown, ArrowUpRight, Download } from "lucide-react";
 import { Avatar3D } from "./Avatar3D";
 
-const typingSpeed = 80;
-const deletingSpeed = 50;
-const pauseAfterTyping = 1500;
-
-const phrases = [
-  "Web Developer.",
-  "Systems Engineer.",
-  "IT Student.",
-  "Network Analyst.",
-  "Colombian in Canada.",
-  "Enthusiastic.",
-  "Adaptable.",
-  "Lifelong Learner.",
-];
-
-const useTypingEffect = (phrases) => {
-  const [typedText, setTypedText] = useState("");
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(
-      () => {
-        const currentPhrase = phrases[phraseIndex];
-
-        setTypedText(
-          currentPhrase.substring(
-            0,
-            isDeleting ? typedText.length - 1 : typedText.length + 1
-          )
-        );
-
-        if (!isDeleting && typedText === currentPhrase) {
-          setTimeout(() => setIsDeleting(true), pauseAfterTyping);
-        } else if (isDeleting && typedText === "") {
-          setIsDeleting(false);
-          setPhraseIndex((prev) => (prev + 1) % phrases.length);
-        }
-      },
-      isDeleting
-        ? deletingSpeed
-        : typedText.length === phrases[phraseIndex].length
-        ? pauseAfterTyping
-        : typingSpeed
-    );
-
-    return () => clearTimeout(timer);
-  }, [typedText, isDeleting, phraseIndex, phrases]);
-
-  return typedText;
-};
-
-const fullGreeting = "Hi, I'm Santiago.";
+const EASE_OUT = [0.22, 1, 0.36, 1];
 
 export const HeroSection = () => {
   const ref = useRef(null);
@@ -64,128 +11,152 @@ export const HeroSection = () => {
     target: ref,
     offset: ["start start", "end start"],
   });
-  const greetingY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const jobTitleY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  // Scroll-driven fade for the scroll indicator at the bottom
   const arrowOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-
-  const [typedGreeting, setTypedGreeting] = useState("");
-  const [greetingComplete, setGreetingComplete] = useState(false);
-  const typedJobTitle = useTypingEffect(phrases);
-
-  useEffect(() => {
-    if (!greetingComplete) {
-      if (typedGreeting.length < fullGreeting.length) {
-        const timer = setTimeout(() => {
-          setTypedGreeting(fullGreeting.substring(0, typedGreeting.length + 1));
-        }, typingSpeed);
-        return () => clearTimeout(timer);
-      } else {
-        setGreetingComplete(true);
-      }
-    }
-  }, [typedGreeting, greetingComplete]);
 
   return (
     <section
       id="hero"
       ref={ref}
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4"
     >
-      {/* Background layers */}
-      <div className="absolute inset-0 z-0 bg-background-pattern opacity-70"></div>
-      <div className="absolute inset-0 z-0 bg-background-glow"></div>
+      <div className="container mx-auto max-w-6xl">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
 
-      <div className="container max-w-6xl mx-auto z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-
-          {/* ─── LEFT COLUMN: Avatar 3D ─── */}
+          {/* ─── LEFT — Avatar 3D ─── */}
           <motion.div
-            className="order-1 lg:order-1 flex justify-center"
-            initial={{ opacity: 0, scale: 0.85 }}
+            className="order-1 flex justify-center lg:col-span-5 lg:order-1"
+            initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
+            transition={{ duration: 1.2, ease: EASE_OUT }}
           >
-            <div className="w-full max-w-[380px] lg:max-w-[460px]">
+            <div className="w-full max-w-[380px] lg:max-w-[440px]">
               <Avatar3D />
             </div>
           </motion.div>
 
-          {/* ─── RIGHT COLUMN: Text content ─── */}
-          <div className="order-2 lg:order-2 text-center lg:text-left space-y-6">
+          {/* ─── RIGHT — Text content ─── */}
+          <div className="order-2 lg:col-span-7 lg:order-2">
+
+            {/* Section index — same pattern as About/Skills/Projects/Contact */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
+            >
+              <span className="text-primary">§ 01</span>
+              <span className="mx-2 opacity-40">/</span>
+              Introduction
+            </motion.p>
+
+            {/* Main heading */}
             <motion.h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              style={{ y: greetingY }}
+              transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.1 }}
+              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl"
             >
-              <span className="text-glow">
-                {typedGreeting}
-                <motion.span
-                  className="inline-block w-1 h-10 ml-1 bg-primary align-middle"
-                  animate={{ opacity: [1, 0, 1] }}
-                  transition={{ repeat: Infinity, duration: 1 }}
-                ></motion.span>
+              Hi, I'm Santiago. <br className="hidden sm:block" />
+              <span className="text-muted-foreground">
+                IT &amp; Systems Specialist.
               </span>
             </motion.h1>
 
-            <motion.h2
-              className={cn(
-                "text-xl md:text-2xl font-semibold text-muted-foreground h-8"
-              )}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{
-                opacity: greetingComplete ? 1 : 0,
-                y: greetingComplete ? 0 : 20,
-              }}
-              transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-              style={{ y: jobTitleY }}
-            >
-              I'm a{" "}
-              <span className="text-primary font-bold">{typedJobTitle}</span>
-              <motion.span
-                className="inline-block w-1 h-6 ml-1 bg-primary align-middle"
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ repeat: Infinity, duration: 1 }}
-              ></motion.span>
-            </motion.h2>
-
+            {/* Bio */}
             <motion.p
-              className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.8 }}
+              transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.3 }}
+              className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground"
             >
               I'm an aspiring IT professional from Colombia currently in
-              Toronto, Canada who's genuinely fascinated by technology and how
-              it connects people. I love helping others solve problems, whether
-              it's fixing a computer glitch or making tech feel less
-              intimidating.
+              Toronto. I troubleshoot and automate systems with Linux, Ansible,
+              and Docker, and I build clean React interfaces on top of them.
             </motion.p>
 
-            <motion.div
-              className="pt-4"
+            {/* Meta strip */}
+            <motion.dl
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5, duration: 0.8 }}
+              transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.45 }}
+              className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-y border-border py-5 sm:grid-cols-3"
             >
-              <a href="#projects" className="cosmic-button">
-                View My Work
+              <div>
+                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Location
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-foreground">
+                  Toronto, Canada
+                </dd>
+              </div>
+              <div>
+                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Focus
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-foreground">
+                  Systems · Networking
+                </dd>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Status
+                </dt>
+                <dd className="mt-1 text-sm font-medium text-foreground">
+                  Open to opportunities
+                </dd>
+              </div>
+            </motion.dl>
+
+            {/* CTAs — same pattern as About */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.6 }}
+              className="mt-8 flex flex-col gap-3 sm:flex-row"
+            >
+              <a
+                href="#projects"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+              >
+                View my work
+                <ArrowUpRight
+                  size={14}
+                  className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </a>
+              <a
+                href="/Santiago_Delgado_Resume.pdf"
+                download
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-transparent px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
+              >
+                <Download size={14} aria-hidden="true" />
+                Download CV
               </a>
             </motion.div>
           </div>
         </div>
       </div>
 
+      {/* Scroll indicator — bottom center */}
       <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
         style={{ opacity: arrowOpacity }}
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
-        <span className="text-sm text-muted-foreground mb-2">Scroll</span>
-        <ArrowDown className="h-5 w-5 text-primary" />
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+          className="flex flex-col items-center gap-2"
+        >
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Scroll
+          </span>
+          <ArrowDown size={14} className="text-muted-foreground" />
+        </motion.div>
       </motion.div>
     </section>
   );
 };
+
+export default HeroSection;

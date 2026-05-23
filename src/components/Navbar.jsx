@@ -258,17 +258,11 @@ const ScrollProgressBar = () => {
    ═══════════════════════════════════════════════════════════════════════ */
 
 const Wordmark = () => (
-  <a
+
     href="#hero"
     aria-label="Back to top"
     className="group inline-flex items-baseline gap-2 font-mono text-sm tracking-tight"
   >
-    {/* Status dot */}
-    <span className="relative inline-flex h-1.5 w-1.5 translate-y-[-1px]">
-      <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500/60" />
-      <span className="relative inline-block h-full w-full rounded-full bg-emerald-500" />
-    </span>
-
     <span className="font-medium text-foreground transition-colors group-hover:text-foreground">
       santiago
     </span>
