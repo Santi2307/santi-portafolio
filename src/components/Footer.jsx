@@ -36,13 +36,9 @@ export const Footer = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground sm:flex-row">
           <span>
-            <span className="tabular-nums text-foreground">© {year}</span>
-            <span className="mx-2 opacity-40">/</span>
-            Santiago Delgado
-          </span>
-
-          <span className="flex items-center gap-2">
-            Built &amp; designed in Toronto
+            <span className="tabular-nums text-foreground">© {year + 1}</span>
+            <span className="mx-8 opacity-40">/</span>
+            Build and Designed by Santiago Delgado. All Rights Reserved.
           </span>
         </div>
       </div>
