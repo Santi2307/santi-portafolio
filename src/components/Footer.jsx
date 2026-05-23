@@ -29,15 +29,22 @@ export const Footer = () => {
   const year = useCurrentYear();
 
   return (
-    <footer id="footer" className="border-t border-border bg-card px-4 py-8">
-      <div className="container mx-auto max-w-5xl text-center">
-        <p className="text-sm text-muted-foreground">
-          © {year}{" "}
-          <span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text font-medium text-transparent">
-
+    <footer
+      id="footer"
+      className="border-t border-border bg-transparent px-4 py-10"
+    >
+      <div className="container mx-auto max-w-6xl">
+        <div className="flex flex-col items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground sm:flex-row">
+          <span>
+            <span className="tabular-nums text-foreground">© {year}</span>
+            <span className="mx-2 opacity-40">/</span>
+            Santiago Delgado
           </span>
-          Built and Designed by Santiago Delgado. All Rights Reserved.
-        </p>
+
+          <span className="flex items-center gap-2">
+            Built &amp; designed in Toronto
+          </span>
+        </div>
       </div>
     </footer>
   );
