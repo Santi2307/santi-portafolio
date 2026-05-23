@@ -258,19 +258,12 @@ const ScrollProgressBar = () => {
    ═══════════════════════════════════════════════════════════════════════ */
 
 const Wordmark = () => (
-
-    href="#hero"
-    aria-label="Back to top"
-    className="group inline-flex items-baseline gap-2 font-mono text-sm tracking-tight"
-  >
-    <span className="font-medium text-foreground transition-colors group-hover:text-foreground">
-      santiago
+  <div className="flex items-center gap-2">
+    <span className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-foreground">
+      SD
     </span>
-    <span className="text-muted-foreground/60">/</span>
-    <span className="text-muted-foreground transition-colors group-hover:text-foreground/80">
-      delgado
-    </span>
-  </a>
+    <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+  </div>
 );
 
 /* ═══════════════════════════════════════════════════════════════════════
