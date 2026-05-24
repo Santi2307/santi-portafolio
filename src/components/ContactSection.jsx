@@ -19,7 +19,7 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Slack,
-  
+
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -451,7 +451,7 @@ const SOCIAL_LINKS = [
     href: "https://www.instagram.com/santiagodelgadosanchez",
     label: "Instagram",
   },
-  { icon: FaXTwitter, href: "https://x.com/Santiagodelga23", label: "Twitter" },
+  { icon: FaXTwitter, href: "https://x.com/Santiagodelga23", label: "X" },
 
   { icon: Slack, href: "https://santiagodelga.slack.com", label: "Slack" },
 
