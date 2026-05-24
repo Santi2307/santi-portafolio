@@ -25,29 +25,6 @@ const PHOTOS = [
   { src: "/images/santi3.jpeg" },
 ];
 
-const getAge = (birthdate) => {
-  const birth = new Date(birthdate);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-  const dayDiff = today.getDate() - birth.getDate();
-
-  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-    age -= 1;
-  }
-
-  return age;
-};
-
-const META = [
-  { label: "Based in", value: "Toronto, Canada" },
-  { label: "Made in", value: "Colombia" },
-  {
-    label: "Age",
-    value: `${getAge("2004-07-23")} years old`,
-  },
-  { label: "Languages", value: "Spanish · English" },
-];
 
 const BIO = [
   "I'm Santiago Delgado, a recent Computer Systems Technology graduate from Seneca Polytechnic in Toronto. I troubleshoot and automate systems with Linux, Ansible, and Docker, and I build clean React interfaces on top of them.",
@@ -381,25 +358,7 @@ const SkillRow = ({ skill, index, isOpen, onToggle }) => {
   );
 };
 
-/* ─────────────────────────── Meta strip (Based in / From / etc.) ─────────────────────────── */
 
-const MetaStrip = ({ inView }) => (
-  <motion.dl
-    initial={{ opacity: 0, y: 20 }}
-    animate={inView ? { opacity: 1, y: 0 } : {}}
-    transition={{ delay: 0.4, duration: 0.6, ease: EASE_OUT }}
-    className="grid grid-cols-2 gap-x-6 gap-y-4 border-y border-border py-6 sm:grid-cols-4"
-  >
-    {META.map((m) => (
-      <div key={m.label}>
-        <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          {m.label}
-        </dt>
-        <dd className="mt-1 text-sm font-medium text-foreground">{m.value}</dd>
-      </div>
-    ))}
-  </motion.dl>
-);
 
 /* ─────────────────────────── Main section ─────────────────────────── */
 
@@ -468,9 +427,7 @@ export const AboutSection = () => {
           <div className="md:col-span-5 lg:col-span-5">
             <PhotoGallery />
 
-            <div className="mt-10">
-              <MetaStrip inView={inView} />
-            </div>
+          
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
