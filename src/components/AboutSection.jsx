@@ -1,36 +1,52 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import usePhotoStore from "@/store";
 import {
-  motion,
   AnimatePresence,
+  motion,
   useInView,
-  useMotionValue,
   useMotionTemplate,
+  useMotionValue,
   useReducedMotion,
-  useSpring,
 } from "framer-motion";
 import {
+  ArrowUpRight,
   ChevronLeft,
   ChevronRight,
   Download,
-  ArrowUpRight,
   Plus,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import usePhotoStore from "@/store";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ─────────────────────────── Content ─────────────────────────── */
 
 const PHOTOS = [
-  { src: "/images/santi1.jpeg", alt: "Santiago at Seneca Polytechnic" },
-  { src: "/images/santi2.jpeg", alt: "Santiago working on a networking lab" },
-  { src: "/images/santi3.jpeg", alt: "Santiago in Toronto" },
+  { src: "/images/santi1.jpeg" },
+  { src: "/images/santi2.jpeg" },
+  { src: "/images/santi3.jpeg" },
 ];
 
+const getAge = (birthdate) => {
+  const birth = new Date(birthdate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  const dayDiff = today.getDate() - birth.getDate();
+
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age -= 1;
+  }
+
+  return age;
+};
+
 const META = [
-  { label: "Based in",    value: "Toronto, Canada" },
-  { label: "From",        value: "Bucaramanga, Colombia" },
-  { label: "Education",   value: "Seneca Polytechnic · CST" },
-  { label: "Languages",   value: "Spanish · English" },
+  { label: "Based in", value: "Toronto, Canada" },
+  { label: "Made in", value: "Colombia" },
+  {
+    label: "Age",
+    value: `${getAge("2004-07-23")} years old`,
+  },
+  { label: "Languages", value: "Spanish · English" },
 ];
 
 const BIO = [
@@ -144,9 +160,12 @@ const PhotoGallery = () => {
           <span className="text-foreground">
             {String(currentPhotoIndex + 1).padStart(2, "0")}
           </span>
-          <span className="opacity-40"> / {String(photos.length).padStart(2, "0")}</span>
+          <span className="opacity-40">
+            {" "}
+            / {String(photos.length).padStart(2, "0")}
+          </span>
         </span>
-        <span className="opacity-50">Frame</span>
+        <span className="opacity-50"></span>
       </div>
 
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg ring-1 ring-border">
@@ -195,7 +214,11 @@ const PhotoGallery = () => {
 
       {/* Controls below */}
       <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-1" role="tablist" aria-label="Photo indicators">
+        <div
+          className="flex items-center gap-1"
+          role="tablist"
+          aria-label="Photo indicators"
+        >
           {photos.map((_, i) => (
             <button
               key={i}
@@ -214,7 +237,7 @@ const PhotoGallery = () => {
                 "h-px transition-all duration-500",
                 i === currentPhotoIndex
                   ? "w-12 bg-foreground"
-                  : "w-6 bg-muted-foreground/40 hover:bg-muted-foreground"
+                  : "w-6 bg-muted-foreground/40 hover:bg-muted-foreground",
               )}
             />
           ))}
@@ -266,7 +289,7 @@ const SkillRow = ({ skill, index, isOpen, onToggle }) => {
       mouseX.set(e.clientX - rect.left);
       mouseY.set(e.clientY - rect.top);
     },
-    [mouseX, mouseY, reducedMotion]
+    [mouseX, mouseY, reducedMotion],
   );
 
   const glow = useMotionTemplate`radial-gradient(280px circle at ${mouseX}px ${mouseY}px, hsl(var(--primary) / 0.07), transparent 70%)`;
@@ -305,7 +328,7 @@ const SkillRow = ({ skill, index, isOpen, onToggle }) => {
           <p
             className={cn(
               "mt-1 text-sm text-muted-foreground transition-opacity duration-300",
-              isOpen && "opacity-0 md:opacity-60"
+              isOpen && "opacity-0 md:opacity-60",
             )}
           >
             {skill.summary}
@@ -403,7 +426,6 @@ export const AboutSection = () => {
       aria-labelledby="about-heading"
     >
       <div className="container mx-auto max-w-6xl">
-
         {/* ─── Section header ─── */}
         <div className="mb-16 flex items-end justify-between gap-8">
           <div>
@@ -424,8 +446,8 @@ export const AboutSection = () => {
               transition={{ duration: 0.7, ease: EASE_OUT }}
               className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
             >
-              The story <br className="hidden sm:block" />
-              behind the work.
+              My story <br className="hidden sm:block" />
+              Who am I.
             </motion.h2>
           </div>
 
@@ -436,13 +458,12 @@ export const AboutSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            Click any expertise area below to read more about how I work in it.
+            This is what I have been working so far daily.
           </motion.div>
         </div>
 
         {/* ─── Two-column body ─── */}
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-16">
-
           {/* LEFT — photos + meta + bio + CTAs */}
           <div className="md:col-span-5 lg:col-span-5">
             <PhotoGallery />

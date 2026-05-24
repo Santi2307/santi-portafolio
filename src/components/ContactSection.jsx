@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence, useInView } from "framer-motion";
+import { FaXTwitter } from "react-icons/fa6";
 import {
   Mail,
   Phone,
@@ -17,7 +18,8 @@ import {
   Loader2,
   ArrowLeft,
   ArrowUpRight,
-  Twitter,
+  Slack,
+  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -179,7 +181,7 @@ const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card/40 text-muted-foreground transition-colors group-hover:text-foreground">
         <Icon size={15} aria-hidden="true" />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col">
+      <span className="flex min-w-0 flex-1 flex-col items-center text-center">
         <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
           {label}
         </span>
@@ -341,7 +343,7 @@ const ContactForm = ({ onSent }) => {
         <Field label="Email" error={errors.email?.message}>
           <input
             type="email"
-            placeholder="you@example.com"
+            placeholder="youremail@gmail.com"
             {...register("email")}
             className={inputClasses(!!errors.email)}
           />
@@ -355,7 +357,7 @@ const ContactForm = ({ onSent }) => {
       >
         <textarea
           rows={6}
-          placeholder="Send me a message. In Colombia, we say 'Escribeme, Parcero'"
+          placeholder="Send me a message."
           {...register("message")}
           className={cn(
             inputClasses(!!errors.message),
@@ -449,7 +451,10 @@ const SOCIAL_LINKS = [
     href: "https://www.instagram.com/santiagodelgadosanchez",
     label: "Instagram",
   },
-  { icon: Twitter, href: "https://x.com/Santiagodelga23", label: "Twitter" },
+  { icon: FaXTwitter, href: "https://x.com/Santiagodelga23", label: "Twitter" },
+
+  { icon: Slack, href: "https://santiagodelga.slack.com", label: "Slack" },
+
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -500,7 +505,7 @@ export const ContactSection = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            Want to collaborate? Just curious? Drop a line — I respond to every
+            Want to collaborate? Have a question? Just come by and say hi. I am always open to discuss with new people ideas and new opportunities.
             message.
           </motion.div>
         </div>
@@ -526,7 +531,7 @@ export const ContactSection = () => {
               className="md:sticky md:top-24"
             >
               <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Direct channels
+                my socials
               </p>
 
               <div className="border-t border-border">
@@ -555,7 +560,7 @@ export const ContactSection = () => {
 
               <div className="mt-10">
                 <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  Elsewhere
+                  you can also find me here
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {SOCIAL_LINKS.map((link) => {
@@ -593,7 +598,7 @@ export const ContactSection = () => {
               transition={{ delay: 0.5, duration: 0.6 }}
             >
               <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Send a message
+                Send me a message
               </p>
 
               <div className="border-t border-border pt-6">

@@ -38,7 +38,7 @@ export const Footer = () => {
           <span>
             <span className="tabular-nums text-foreground">© {year}</span>
             <span className="mx-8 opacity-40">/</span>
-            Build and Designed by Santiago Delgado. All Rights Reserved.
+            Built and Designed by Santiago Delgado. All Rights Reserved.
           </span>
         </div>
       </div>
