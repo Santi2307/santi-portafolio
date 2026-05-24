@@ -39,7 +39,7 @@ const PROJECTS = [
     ],
     tags: ["Ansible", "YAML", "Jinja2", "Aruba AOS-CX", "Cisco IOS", "OSPF", "VLAN", "LACP", "Git"],
     githubUrl: "https://github.com/Santi2307",
-    demoUrl: null,
+    demoUrl: "https://demo.com",
   },
   {
     id: "linux-infrastructure",
@@ -60,8 +60,8 @@ const PROJECTS = [
       "Aligned with RHCSA (EX200) exam objectives",
     ],
     tags: ["RHEL", "Bash", "LVM", "NFS", "SELinux", "Podman", "autofs", "Systemd"],
-    githubUrl: null,
-    demoUrl: null,
+    githubUrl: "https://github.com/Santi2307",
+    demoUrl: "https://demo.com",
   },
   {
     id: "azure-cloud-workspace",
@@ -82,8 +82,8 @@ const PROJECTS = [
       "Coursework aligned with Microsoft AZ-104 objectives",
     ],
     tags: ["Microsoft Azure", "AVD", "Entra ID", "FSLogix", "PowerShell", "ARM"],
-    githubUrl: null,
-    demoUrl: null,
+    githubUrl: "https://github.com/Santi2307",
+    demoUrl: "https://demo.com",
   },
   {
     id: "marsupial-platform",
@@ -104,8 +104,8 @@ const PROJECTS = [
       "Mid-implementation: serving real customers in Bucaramanga, Colombia",
     ],
     tags: ["Treble.ai", "WhatsApp Business API", "Cuenti ERP", "HSM Templates", "CRM"],
-    githubUrl: null,
-    demoUrl: null,
+    githubUrl: "https://github.com/Santi2307/",
+    demoUrl: "https://demo.com",
   },
   {
     id: "portfolio-design-system",

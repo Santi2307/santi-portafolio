@@ -74,38 +74,6 @@ export const HeroSection = () => {
               and Docker, and I build clean React interfaces on top of them.
             </motion.p>
 
-            {/* Meta strip */}
-            <motion.dl
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.45 }}
-              className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 border-y border-border py-5 sm:grid-cols-3"
-            >
-              <div>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Location
-                </dt>
-                <dd className="mt-1 text-sm font-medium text-foreground">
-                  Toronto, Canada
-                </dd>
-              </div>
-              <div>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Focus
-                </dt>
-                <dd className="mt-1 text-sm font-medium text-foreground">
-                  Systems · Networking
-                </dd>
-              </div>
-              <div className="col-span-2 sm:col-span-1">
-                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Status
-                </dt>
-                <dd className="mt-1 text-sm font-medium text-foreground">
-                  Open to opportunities
-                </dd>
-              </div>
-            </motion.dl>
 
             {/* CTAs — same pattern as About */}
             <motion.div

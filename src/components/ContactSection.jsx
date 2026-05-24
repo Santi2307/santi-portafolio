@@ -193,7 +193,7 @@ const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
   );
 
   return (
-    <div className="group relative flex items-center gap-3 border-b border-border py-3.5 last:border-b-0">
+    <div className="group relative flex items-center gap-3 py-3.5">
       {href ? (
         <a
           href={href}
@@ -506,7 +506,6 @@ export const ContactSection = () => {
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
             Want to collaborate? Have a question? Just come by and say hi. I am always open to discuss with new people ideas and new opportunities.
-            message.
           </motion.div>
         </div>
 
@@ -534,7 +533,7 @@ export const ContactSection = () => {
                 my socials
               </p>
 
-              <div className="border-t border-border">
+              <div className="divide-y divide-border border-t border-b border-border">
                 <ChannelRow
                   icon={Mail}
                   label="Email"

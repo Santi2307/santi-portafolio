@@ -731,8 +731,7 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isHidden =
-    scrollDirection === "down" && scrolledPast && !isMenuOpen && !isPaletteOpen;
+  const isHidden = false;
 
   return (
     <>
