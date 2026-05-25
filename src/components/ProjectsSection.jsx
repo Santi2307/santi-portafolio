@@ -449,7 +449,7 @@ export const ProjectsSection = () => {
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
             {PROJECTS.length} projects in systems, networking, cloud, automation,
-            and the web. Click any title to read the case study.
+            and the web. Click on any title and know more about each. 
           </motion.div>
         </div>
 
