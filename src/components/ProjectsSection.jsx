@@ -437,8 +437,8 @@ export const ProjectsSection = () => {
               transition={{ duration: 0.7, ease: EASE_OUT }}
               className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
             >
-              Selected work <br className="hidden sm:block" />
-              across the stack.
+              From the ground up, <br className="hidden sm:block" />
+              no shortcuts.
             </motion.h2>
           </div>
 
