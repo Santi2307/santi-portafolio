@@ -24,6 +24,7 @@ const PHOTOS = [
   { src: "/images/santi2.jpeg" },
   { src: "/images/santi3.jpeg" },
   { src: "/images/santi4.jpeg" },
+  {src: "/images/santi5.jpeg" },
 ];
 
 

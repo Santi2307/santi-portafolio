@@ -494,8 +494,8 @@ export const ContactSection = () => {
               transition={{ duration: 0.7, ease: EASE_OUT }}
               className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
             >
-              Let's build <br className="hidden sm:block" />
-              something together.
+              Let's join forces <br className="hidden sm:block" />
+              and build this up.
             </motion.h2>
           </div>
 
