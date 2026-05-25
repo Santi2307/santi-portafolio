@@ -23,6 +23,7 @@ const PHOTOS = [
   { src: "/images/santi1.jpeg" },
   { src: "/images/santi2.jpeg" },
   { src: "/images/santi3.jpeg" },
+  { src: "/images/santi4.jpeg" },
 ];
 
 
@@ -427,7 +428,7 @@ export const AboutSection = () => {
           <div className="md:col-span-5 lg:col-span-5">
             <PhotoGallery />
 
-          
+
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
