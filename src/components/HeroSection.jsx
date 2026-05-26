@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, ArrowUpRight, Download } from "lucide-react";
-import { Avatar3D } from "./Avatar3D";
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
 
@@ -25,19 +24,10 @@ export const HeroSection = () => {
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
 
           {/* ─── LEFT — Avatar 3D ─── */}
-          <motion.div
-            className="order-1 flex justify-center lg:col-span-5 lg:order-1"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: EASE_OUT }}
-          >
-            <div className="w-full max-w-[380px] lg:max-w-[440px]">
-              <Avatar3D />
-            </div>
-          </motion.div>
+
 
           {/* ─── RIGHT — Text content ─── */}
-          <div className="order-2 lg:col-span-7 lg:order-2">
+          <div className="order-2 lg:col-span-12 lg:order-2">
 
             {/* Section index — same pattern as About/Skills/Projects/Contact */}
             <motion.p
