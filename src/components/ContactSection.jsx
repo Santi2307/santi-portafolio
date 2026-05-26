@@ -193,50 +193,52 @@ const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
   );
 
   return (
-    <div className="group relative flex items-center gap-3 py-3.5">
+    <div className="group relative grid grid-cols-[1fr_auto] items-center gap-3 py-4">
       {href ? (
-        <a
+      <a
           href={href}
-          className="flex flex-1 items-center gap-3 transition-colors"
+          className="flex items-center gap-3 transition-colors"
         >
           {Inner}
         </a>
       ) : (
-        <div className="flex flex-1 items-center gap-3">{Inner}</div>
+        <div className="flex items-center gap-3">{Inner}</div>
       )}
 
-      {copyable && (
-        <button
-          type="button"
-          onClick={() => copy(value)}
-          aria-label={`Copy ${label.toLowerCase()}`}
-          className="shrink-0 rounded-md p-2 text-muted-foreground opacity-0 transition-all hover:bg-foreground/5 hover:text-foreground focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 group-hover:opacity-100"
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {copied ? (
-              <motion.span
-                key="check"
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.6, opacity: 0 }}
-                className="block"
-              >
-                <Check size={13} />
-              </motion.span>
-            ) : (
-              <motion.span
-                key="copy"
-                initial={{ scale: 0.6, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.6, opacity: 0 }}
-                className="block"
-              >
-                <Copy size={13} />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-      )}
+      <div className="w-9 flex justify-end">
+        {copyable && (
+          <button
+            type="button"
+            onClick={() => copy(value)}
+            aria-label={`Copy ${label.toLowerCase()}`}
+            className="shrink-0 rounded-md p-2 text-muted-foreground opacity-0 transition-all hover:bg-foreground/5 hover:text-foreground focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 group-hover:opacity-100"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {copied ? (
+                <motion.span
+                  key="check"
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  className="block"
+                >
+                  <Check size={13} />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="copy"
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  className="block"
+                >
+                  <Copy size={13} />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        )}
+      </div>
     </div>
   );
 };
