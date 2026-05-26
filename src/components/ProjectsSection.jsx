@@ -60,7 +60,7 @@ const PROJECTS = [
       "Aligned with RHCSA (EX200) exam objectives",
     ],
     tags: ["RHEL", "Bash", "LVM", "NFS", "SELinux", "Podman", "autofs", "Systemd"],
-    githubUrl: "https://github.com/Santi2307",
+    githubUrl: "https://github.com/Santi2307/santi-homelab",
     demoUrl: "https://demo.com",
   },
   {
@@ -449,7 +449,7 @@ export const ProjectsSection = () => {
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
             {PROJECTS.length} projects in systems, networking, cloud, automation,
-            and the web. Click on any title and know more about each. 
+            and the web. Click on any title and know more about each.
           </motion.div>
         </div>
 
