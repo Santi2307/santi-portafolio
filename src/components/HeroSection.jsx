@@ -27,7 +27,7 @@ export const HeroSection = () => {
 
 
           {/* ─── RIGHT — Text content ─── */}
-          <div className="order-2 lg:col-span-12 lg:order-2">
+          <div className="order-2 lg:col-span-7 lg:order-2">
 
             {/* Section index — same pattern as About/Skills/Projects/Contact */}
             <motion.p
