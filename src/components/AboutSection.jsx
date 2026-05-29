@@ -60,8 +60,8 @@ const SKILLS = [
   },
   {
     number: "04",
-    title: "IT Support",
-    summary: "Nearly two years helping people make tech feel less hostile.",
+    title: "Student Support",
+    summary: "Nearly two years helping students have better environments.",
     detail:
       "As a Student Support Ambassador at Seneca, I helped students with accessibility needs navigate hardware, software, and the small frustrations that get in the way of their work. Patient troubleshooting and clear written communication are the parts of the job I enjoy most.",
     tags: ["Troubleshooting", "Accessibility", "Documentation"],
