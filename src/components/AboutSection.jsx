@@ -39,7 +39,7 @@ const SKILLS = [
     title: "Systems & Infrastructure",
     summary: "Linux, Windows, macOS administration with automation.",
     detail:
-      "Daily work in RHEL and Ubuntu — LVM, NFS, SELinux, Podman, autofs. I automate everything I can with Ansible playbooks, and I'm comfortable with Docker, OpenShift, and Azure Virtual Desktop in production environments.",
+      " I worked daily in Linux, Windows and MacOS environments,troubleshooting and automating processes. I am comfortable with Docker, OpenShift, and Azure in production environments.",
     tags: ["Linux", "Ansible", "Docker", "OpenShift", "Azure"],
   },
   {
@@ -47,7 +47,7 @@ const SKILLS = [
     title: "Networking",
     summary: "Designing and configuring networks that actually stay up.",
     detail:
-      "Hands-on with Aruba AOS-CX and 2530 switches — VLANs, OSPF, LAG/LACP, DHCP. I designed RF infrastructure for an underserved community in Santander during my Tigo Colombia internship, calculating EIRP, Fresnel zones, and link budgets.",
+      "I worked with Aruba AOS-CX switches to implement and design automations to run processes more efficiently. I have experience configuring VLANs, OSPF, and DHCP.  ",
     tags: ["Cisco", "Aruba", "VLANs", "OSPF", "RF Engineering"],
   },
   {
@@ -55,8 +55,8 @@ const SKILLS = [
     title: "Web Development",
     summary: "Interfaces built with React, Vite, and Tailwind.",
     detail:
-      "I build the kind of interfaces I want to use — fast, accessible, with motion that serves the content. My portfolio is a small example: React with Zustand for state, Framer Motion for animation, and Tailwind for styling.",
-    tags: ["React", "Vite", "Tailwind", "Zustand", "Framer Motion"],
+      "I build  interfaces I want to use that are fast, accessible, with motion that serves the content. My portfolio is a small example: React with Zustand for state, Framer Motion for animation, and Tailwind for styling.",
+    tags: ["React", "Vite", "Tailwind", "Framer Motion"],
   },
   {
     number: "04",
