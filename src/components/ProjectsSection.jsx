@@ -5,13 +5,7 @@ import {
   useInView,
   useReducedMotion,
 } from "framer-motion";
-import {
-  ArrowUpRight,
-  Github,
-  ExternalLink,
-  Plus,
-  Lock,
-} from "lucide-react";
+import { ArrowUpRight, Github, ExternalLink, Plus, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -22,11 +16,13 @@ const PROJECTS = [
   {
     id: "network-automation-capstone",
     title: "Automated Multi-Vendor Network Infrastructure",
+    tagline: "Capstone — APL701 Applied Integration",
     summary:
       "Multi-vendor switch provisioning automated end-to-end with Ansible to build a repeatable, version-controlled network foundation.",
     description:
       "Engineered an automated network topology simulating an enterprise core. Developed reusable Ansible playbooks and roles to deploy OSPF dynamic routing, VLAN trunking, and LACP/LAG across Aruba AOS-CX and Cisco IOS platforms, eliminating manual CLI drive configuration.",
     category: "networking",
+    courses: ["APL701", "CSN305", "CPO520"],
     year: "2026",
     status: "capstone",
     outcomes: [
@@ -51,13 +47,13 @@ const PROJECTS = [
   {
     id: "linux-infrastructure-security",
     title: "Enterprise Linux Hardening & Architecture",
-
+    tagline: "OPS445 · RHT524 · SEC220",
     summary:
       "Multi-server RHEL environment configured to RHCSA standards, hardened with SELinux, and integrated with core Windows enterprise services.",
     description:
       "Built a secure, corporate-grade hybrid lab environment. Integrated Red Hat Enterprise Linux (RHEL) systems (featuring LVM storage, NFS, and rootless Podman containers) with a Windows Server infrastructure managing Active Directory, DNS/DHCP, Group Policies (GPOs), and cross-domain trusts.",
     category: "systems",
-
+    courses: ["OPS445", "RHT524", "SEC220"],
     year: "2025",
     status: "coursework",
     outcomes: [
@@ -82,11 +78,13 @@ const PROJECTS = [
   {
     id: "cyber-threat-detection-streaming",
     title: "Cyber Threat Detection & Real-Time Network Simulation",
+    tagline: "MST400 · CPO550 Cyber Track",
     summary:
       "Real-time network traffic simulation and abnormal behavior analysis using Docker containers, Apache Kafka, and Packet Tracer.",
     description:
       "Designed an observation pipeline to detect compromised nodes. Simulated abnormal network traffic in Cisco Packet Tracer, streamed the logs into Apache Kafka (Confluent Cloud) for real-time analysis, and visualized cyber threats through PrivateGPT and dashboard containers deployed via Docker.",
     category: "cloud",
+    courses: ["MST400", "CPO550", "MST300"],
     year: "2026",
     status: "coursework",
     outcomes: [
@@ -110,19 +108,19 @@ const PROJECTS = [
 ];
 
 const STATUS_LABELS = {
-  capstone:      "Capstone",
-  internship:    "Internship",
-  live:          "Live",
+  capstone: "Capstone",
+  internship: "Internship",
+  live: "Live",
   "in-progress": "In Progress",
-  coursework:    "Coursework",
+  coursework: "Coursework",
 };
 
 const CATEGORY_LABELS = {
   networking: "Networking",
-  systems:    "Systems Administration",
-  cloud:      "Cloud Infrastructure",
+  systems: "Systems Administration",
+  cloud: "Cloud Infrastructure",
   automation: "Automation",
-  web:        "Web Development",
+  web: "Web Development",
 };
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
@@ -176,7 +174,7 @@ const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
       }}
       className={cn(
         "group relative border-t border-border",
-        index === total - 1 && "border-b"
+        index === total - 1 && "border-b",
       )}
     >
       {/* Trigger row */}
@@ -200,7 +198,7 @@ const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
           <p
             className={cn(
               "mt-1 truncate font-mono text-xs text-muted-foreground transition-opacity duration-300",
-              isOpen && "opacity-0 md:opacity-60"
+              isOpen && "opacity-0 md:opacity-60",
             )}
           >
             {project.tagline}
@@ -252,7 +250,7 @@ const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
                 {/* Status + courses strip */}
                 <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2">
                   <StatusPill status={project.status} />
-                  {project.courses.length > 0 && (
+                  {project.courses && project.courses.length > 0 && (
                     <>
                       <span className="text-muted-foreground/30">·</span>
                       <div className="flex flex-wrap gap-1">
@@ -323,13 +321,22 @@ const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
                         {project.demoUrl && (
                           <a
                             href={project.demoUrl}
-                            target={project.demoUrl.startsWith("/") ? "_self" : "_blank"}
+                            target={
+                              project.demoUrl.startsWith("/")
+                                ? "_self"
+                                : "_blank"
+                            }
                             rel="noopener noreferrer"
                             className="group/link flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
                           >
                             <span className="flex items-center gap-2.5">
-                              <ExternalLink size={14} className="text-muted-foreground" />
-                              <span className="font-medium">View live demo</span>
+                              <ExternalLink
+                                size={14}
+                                className="text-muted-foreground"
+                              />
+                              <span className="font-medium">
+                                View live demo
+                              </span>
                             </span>
                             <ArrowUpRight
                               size={14}
@@ -345,8 +352,13 @@ const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
                             className="group/link flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
                           >
                             <span className="flex items-center gap-2.5">
-                              <Github size={14} className="text-muted-foreground" />
-                              <span className="font-medium">View source code</span>
+                              <Github
+                                size={14}
+                                className="text-muted-foreground"
+                              />
+                              <span className="font-medium">
+                                View source code
+                              </span>
                             </span>
                             <ArrowUpRight
                               size={14}
@@ -394,7 +406,6 @@ export const ProjectsSection = () => {
       aria-labelledby="projects-heading"
     >
       <div className="container mx-auto max-w-6xl">
-
         {/* ─── Section header ─── */}
         <div className="mb-16 flex items-end justify-between gap-8">
           <div>
@@ -426,8 +437,9 @@ export const ProjectsSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            {PROJECTS.length} projects in systems, networking, cloud, automation,
-            and the web. Click on any title and know more about each.
+            {PROJECTS.length} projects in systems, networking, cloud,
+            automation, and the web. Click on any title and know more about
+            each.
           </motion.div>
         </div>
 
