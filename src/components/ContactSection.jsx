@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
 import { FaXTwitter } from "react-icons/fa6";
 import {
   Mail,
@@ -10,6 +15,7 @@ import {
   MapPin,
   Send,
   Linkedin,
+  Youtube,
   Github,
   Instagram,
   CheckCircle2,
@@ -19,7 +25,6 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Slack,
-
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -146,15 +151,15 @@ const StatusLine = () => {
           className="flex items-center gap-2.5"
         >
           <span className="relative inline-flex h-4 w-4 items-center justify-center">
-  <span
-    className="relative text-sm leading-none"
-    role="img"
-    aria-label={status.label}
-  >
-    {status.emoji}
-  </span>
-  {isSleeping && <SleepingZzz />}
-</span>
+            <span
+              className="relative text-sm leading-none"
+              role="img"
+              aria-label={status.label}
+            >
+              {status.emoji}
+            </span>
+            {isSleeping && <SleepingZzz />}
+          </span>
 
           <span className="font-medium text-foreground">{status.label}</span>
         </motion.div>
@@ -170,7 +175,7 @@ const StatusLine = () => {
 };
 
 /* ═══════════════════════════════════════════════════════════════════════
-   CHANNEL ROW — all three rows share the same grid → perfect alignment
+   CHANNEL ROW
    ═══════════════════════════════════════════════════════════════════════ */
 
 const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
@@ -195,10 +200,7 @@ const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
   return (
     <div className="group relative grid grid-cols-[1fr_auto] items-center gap-3 py-4">
       {href ? (
-      <a
-          href={href}
-          className="flex items-center gap-3 transition-colors"
-        >
+        <a href={href} className="flex items-center gap-3 transition-colors">
           {Inner}
         </a>
       ) : (
@@ -419,11 +421,10 @@ const SuccessState = ({ onReset }) => (
       Status — sent
     </p>
     <h3 className="mb-3 text-2xl font-semibold tracking-tight">
-      Message received.
+      I got your message.
     </h3>
     <p className="mb-8 max-w-sm text-sm leading-relaxed text-muted-foreground">
-      Thank you for reaching out. I'll get back to you within 24 hours — usually
-      much sooner.
+      Thank you for reaching out. I'll get back to you within asap.
     </p>
 
     <button
@@ -432,7 +433,7 @@ const SuccessState = ({ onReset }) => (
       className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
     >
       <ArrowLeft size={13} />
-      Send another
+      Back
     </button>
   </motion.div>
 );
@@ -446,18 +447,136 @@ const SOCIAL_LINKS = [
     icon: Linkedin,
     href: "https://www.linkedin.com/in/santiagodelgado23",
     label: "LinkedIn",
+    brand: {
+      bg: "#0A66C2",
+      text: "#ffffff",
+      shadow: "rgba(10, 102, 194, 0.35)",
+    },
   },
-  { icon: Github, href: "https://github.com/Santi2307", label: "GitHub" },
+  {
+    icon: Github,
+    href: "https://github.com/Santi2307",
+    label: "GitHub",
+    brand: {
+      bg: "#ffffff",
+      text: "#24292f",
+      shadow: "rgba(255, 255, 255, 0.2)",
+    },
+  },
   {
     icon: Instagram,
     href: "https://www.instagram.com/santiagodelgadosanchez",
     label: "Instagram",
+    brand: {
+      bg: "linear-gradient(45deg, #F58529 0%, #DD2A7B 40%, #8134AF 70%, #515BD4 100%)",
+      text: "#ffffff",
+      shadow: "rgba(221, 42, 123, 0.4)",
+    },
   },
-  { icon: FaXTwitter, href: "https://x.com/Santiagodelga23", label: "X" },
-
-  { icon: Slack, href: "https://santiagodelga.slack.com", label: "Slack" },
-
+  {
+    icon: FaXTwitter,
+    href: "https://x.com/Santiagodelga23",
+    label: "X",
+    brand: {
+      bg: "#000000",
+      text: "#ffffff",
+      shadow: "rgba(255, 255, 255, 0.15)",
+    },
+  },
+  {
+    icon: Slack,
+    href: "https://santiagodelga.slack.com",
+    label: "Slack",
+    brand: {
+      bg: "#4A154B",
+      text: "#ffffff",
+      shadow: "rgba(74, 21, 75, 0.4)",
+    },
+  },
+  {
+    icon: Youtube,
+    href: "https://www.youtube.com/@santiagodelgadosanchez5131",
+    label: "YouTube",
+    brand: {
+      bg: "#FF0000",
+      text: "#ffffff",
+      shadow: "rgba(255, 0, 0, 0.4)",
+    },
+  },
 ];
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SOCIAL BUTTON — brand-colored hover
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const SocialButton = ({ link }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const Icon = link.icon;
+
+  return (
+    <motion.a
+      href={link.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={link.label}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+      animate={{
+        boxShadow: isHovered
+          ? `0 12px 32px -10px ${link.brand.shadow}`
+          : "0 0 0 0 transparent",
+      }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        borderColor: isHovered ? "transparent" : undefined,
+      }}
+      className="group relative block overflow-hidden rounded-md border border-border text-xs transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
+    >
+      {/* Brand background layer */}
+      <motion.span
+        aria-hidden
+        initial={false}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        style={{ background: link.brand.bg }}
+        className="absolute inset-0"
+      />
+
+      {/* Content */}
+      <motion.span
+        animate={{ color: isHovered ? link.brand.text : undefined }}
+        transition={{ duration: 0.3 }}
+        className="relative flex items-center justify-between gap-2 px-3 py-2.5 text-foreground"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <motion.span
+            animate={{
+              scale: isHovered && !reducedMotion ? 1.15 : 1,
+              rotate: isHovered && !reducedMotion ? -4 : 0,
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="flex-shrink-0"
+          >
+            <Icon size={14} />
+          </motion.span>
+          <span className="truncate font-medium">{link.label}</span>
+        </span>
+        <motion.span
+          animate={{
+            x: isHovered && !reducedMotion ? 2 : 0,
+            y: isHovered && !reducedMotion ? -2 : 0,
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 22 }}
+          className="flex-shrink-0"
+        >
+          <ArrowUpRight size={12} />
+        </motion.span>
+      </motion.span>
+    </motion.a>
+  );
+};
 
 /* ═══════════════════════════════════════════════════════════════════════
    MAIN SECTION
@@ -485,17 +604,16 @@ export const ContactSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-
+              <span className="text-white">05</span> / contact
             </motion.p>
             <motion.h2
               id="contact-heading"
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
+              className="text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl"
             >
-              Let's Build <br className="hidden sm:block" />
-              Together.
+              Let's Build Together.
             </motion.h2>
           </div>
 
@@ -505,7 +623,8 @@ export const ContactSection = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            Want to collaborate? Have a question? Just come by and say hi. I am always open to discuss with new people ideas and new opportunities.
+            Want to collaborate? Have a question? Just come by and say hi. I am
+            always open to discuss with new people ideas and new opportunities.
           </motion.div>
         </div>
 
@@ -561,29 +680,10 @@ export const ContactSection = () => {
                 <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                   you can also find me here
                 </p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {SOCIAL_LINKS.map((link) => {
-                    const Icon = link.icon;
-                    return (
-                      <a
-                        key={link.label}
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.label}
-                        className="group flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-xs text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
-                      >
-                        <span className="flex items-center gap-2">
-                          <Icon size={13} className="text-muted-foreground" />
-                          <span className="font-medium">{link.label}</span>
-                        </span>
-                        <ArrowUpRight
-                          size={11}
-                          className="text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"
-                        />
-                      </a>
-                    );
-                  })}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {SOCIAL_LINKS.map((link) => (
+                    <SocialButton key={link.label} link={link} />
+                  ))}
                 </div>
               </div>
             </motion.div>

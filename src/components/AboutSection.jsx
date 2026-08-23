@@ -395,17 +395,16 @@ export const AboutSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-              
+              <span className="text-white">02</span> / about
             </motion.p>
             <motion.h2
               id="about-heading"
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
+              className="text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl"
             >
-              My story <br className="hidden sm:block" />
-              Who am I.
+              About Me
             </motion.h2>
           </div>
 
@@ -416,7 +415,7 @@ export const AboutSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            This is what I have been working so far daily.
+            Get to know the person behind the screen. 
           </motion.div>
         </div>
 
@@ -425,8 +424,6 @@ export const AboutSection = () => {
           {/* LEFT — photos + meta + bio + CTAs */}
           <div className="md:col-span-5 lg:col-span-5">
             <PhotoGallery />
-
-
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}

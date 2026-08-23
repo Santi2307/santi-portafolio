@@ -388,12 +388,10 @@ const ProjectRow = ({ project, index, total, isOpen, onToggle }) => {
 /* ═══════════════════════════════════════════════════════════════════════
    MAIN SECTION
    ═══════════════════════════════════════════════════════════════════════ */
-
 export const ProjectsSection = () => {
   const sectionRef = useRef(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
 
-  // First project open by default — invites interaction
   // All projects start closed
   const [openId, setOpenId] = useState(null);
   const handleToggle = useCallback((id) => {
@@ -416,19 +414,17 @@ export const ProjectsSection = () => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
-            ></motion.p>
+            >
+              <span className="text-white">04</span> / projects
+            </motion.p>
             <motion.h2
               id="projects-heading"
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="font-mono text-2xl font-bold leading-[1.4] tracking-tight text-foreground md:text-4xl lg:text-5xl"
+              className="text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl"
             >
-              git add .
-              <br />
-              git commit -m "lock in"
-              <br />
-              git push
+              Recent Projects
             </motion.h2>
           </div>
 
@@ -441,14 +437,6 @@ export const ProjectsSection = () => {
             {PROJECTS.length} projects in systems, networking, cloud,
             automation, and the web. Click any title to learn more.
           </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
-          >
-            ~ /projects
-          </motion.p>
         </div>
 
         {/* ─── Column headers (desktop only) ─── */}

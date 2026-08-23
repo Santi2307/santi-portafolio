@@ -392,7 +392,7 @@ const SearchInput = ({ value, onChange }) => (
             transition={{ duration: 0.5 }}
             className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
           >
-            ~ /skills
+            <span className="text-white">03</span> / skills
           </motion.p>
         </motion.button>
       )}
@@ -475,17 +475,16 @@ export const SkillsSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-
+              <span className="text-white">03</span> / skills
             </motion.p>
             <motion.h2
               id="skills-heading"
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
+              className="text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl"
             >
-              What I work <br className="hidden sm:block" />
-              with daily.
+              My Skills
             </motion.h2>
           </div>
 

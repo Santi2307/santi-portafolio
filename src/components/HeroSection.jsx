@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowDown, ArrowUpRight, Download } from "lucide-react";
+import { ArrowUpRight, Download } from "lucide-react";
 
 const EASE_OUT = [0.22, 1, 0.36, 1];
 
@@ -12,7 +12,7 @@ export const HeroSection = () => {
   });
 
   // Scroll-driven fade for the scroll indicator at the bottom
-  const arrowOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+
 
   return (
     <section
@@ -22,13 +22,10 @@ export const HeroSection = () => {
     >
       <div className="container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
-
           {/* ─── LEFT — Avatar 3D ─── */}
-
 
           {/* ─── RIGHT — Text content ─── */}
           <div className="order-2 lg:col-span-7 lg:order-2">
-
             {/* Section index — same pattern as About/Skills/Projects/Contact */}
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -36,7 +33,9 @@ export const HeroSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-            
+              <span className="text-white">01</span>
+              <span className="mx-2 opacity-100">/</span>
+              Home
             </motion.p>
 
             {/* Main heading */}
@@ -47,7 +46,6 @@ export const HeroSection = () => {
               className="text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl"
             >
               Hi, I'm Santiago. <br className="hidden sm:block" />
-
             </motion.h1>
 
             {/* Bio */}
@@ -62,13 +60,12 @@ export const HeroSection = () => {
               and Docker, and I build clean React interfaces on top of them.
             </motion.p>
 
-
             {/* CTAs — same pattern as About */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.6 }}
-              className="mt-8 flex flex-col gap-3 sm:flex-row"
+              className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
             >
               <a
                 href="#projects"
@@ -84,23 +81,6 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
-
-      {/* Scroll indicator — bottom center */}
-      <motion.div
-        style={{ opacity: arrowOpacity }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-2"
-        >
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            Scroll
-          </span>
-          <ArrowDown size={14} className="text-muted-foreground" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 };
