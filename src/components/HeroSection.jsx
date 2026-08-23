@@ -36,9 +36,7 @@ export const HeroSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-              <span className="text-primary">§ 01</span>
-              <span className="mx-2 opacity-40">/</span>
-              Introduction
+            
             </motion.p>
 
             {/* Main heading */}
