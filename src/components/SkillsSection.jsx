@@ -166,7 +166,6 @@ const SKILLS = [
 ];
 
 const CATEGORIES = [
-  { id: "all", label: "All", index: "00" },
   { id: "systems", label: "Systems", index: "01" },
   { id: "networking", label: "Networking", index: "02" },
   { id: "cloud", label: "Cloud & Automation", index: "03" },
@@ -346,6 +345,7 @@ const FilterRail = ({
                 ? "text-foreground/70"
                 : "text-muted-foreground/40 group-hover:text-muted-foreground",
             )}
+
           >
             {counts[cat.id] ?? 0}
           </span>
@@ -386,6 +386,14 @@ const SearchInput = ({ value, onChange }) => (
           aria-label="Clear search"
         >
           <X size={12} />
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
+          >
+            ~ /skills
+          </motion.p>
         </motion.button>
       )}
     </AnimatePresence>
@@ -397,7 +405,7 @@ const SearchInput = ({ value, onChange }) => (
    ═══════════════════════════════════════════════════════════════════════ */
 
 export const SkillsSection = () => {
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategory, setActiveCategory] = useState("systems");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const ref = useRef(null);
@@ -467,9 +475,7 @@ export const SkillsSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-              <span className="text-primary">§ 03</span>
-              <span className="mx-2 opacity-40">/</span>
-              Skills
+
             </motion.p>
             <motion.h2
               id="skills-heading"

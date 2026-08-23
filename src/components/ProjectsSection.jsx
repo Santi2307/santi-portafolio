@@ -41,6 +41,7 @@ const PROJECTS = [
       "YAML",
       "Git",
     ],
+    featured: false,
     githubUrl: "https://github.com/Santi2307",
     demoUrl: "https://demo.com",
   },
@@ -393,7 +394,8 @@ export const ProjectsSection = () => {
   const inView = useInView(sectionRef, { once: true, amount: 0.1 });
 
   // First project open by default — invites interaction
-  const [openId, setOpenId] = useState(PROJECTS[0].id);
+  // All projects start closed
+  const [openId, setOpenId] = useState(null);
   const handleToggle = useCallback((id) => {
     setOpenId((current) => (current === id ? null : id));
   }, []);
@@ -414,20 +416,19 @@ export const ProjectsSection = () => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
-            >
-              <span className="text-primary">§ 04</span>
-              <span className="mx-2 opacity-40">/</span>
-              Projects
-            </motion.p>
+            ></motion.p>
             <motion.h2
               id="projects-heading"
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
+              className="font-mono text-2xl font-bold leading-[1.4] tracking-tight text-foreground md:text-4xl lg:text-5xl"
             >
-              From the ground up, <br className="hidden sm:block" />
-              no shortcuts.
+              git add .
+              <br />
+              git commit -m "lock in"
+              <br />
+              git push
             </motion.h2>
           </div>
 
@@ -438,9 +439,16 @@ export const ProjectsSection = () => {
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
             {PROJECTS.length} projects in systems, networking, cloud,
-            automation, and the web. Click on any title and know more about
-            each.
+            automation, and the web. Click any title to learn more.
           </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
+          >
+            ~ /projects
+          </motion.p>
         </div>
 
         {/* ─── Column headers (desktop only) ─── */}
@@ -500,6 +508,6 @@ export const ProjectsSection = () => {
       </div>
     </section>
   );
-};
+};;
 
 export default ProjectsSection;

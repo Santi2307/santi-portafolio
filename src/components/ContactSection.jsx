@@ -336,7 +336,7 @@ const ContactForm = ({ onSent }) => {
         <Field label="Name" error={errors.name?.message}>
           <input
             type="text"
-            placeholder="Your name"
+            placeholder="First Name Last Name"
             {...register("name")}
             className={inputClasses(!!errors.name)}
           />
@@ -345,7 +345,7 @@ const ContactForm = ({ onSent }) => {
         <Field label="Email" error={errors.email?.message}>
           <input
             type="email"
-            placeholder="youremail@gmail.com"
+            placeholder="example@gmail.com"
             {...register("email")}
             className={inputClasses(!!errors.email)}
           />
@@ -363,7 +363,7 @@ const ContactForm = ({ onSent }) => {
           {...register("message")}
           className={cn(
             inputClasses(!!errors.message),
-            "resize-y min-h-[140px]",
+            "resize-y min-h-[140px] placeholder:text-indigo-400",
           )}
         />
       </Field>
@@ -485,9 +485,7 @@ export const ContactSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-              <span className="text-primary">§ 05</span>
-              <span className="mx-2 opacity-40">/</span>
-              Contact
+
             </motion.p>
             <motion.h2
               id="contact-heading"
@@ -496,8 +494,8 @@ export const ContactSection = () => {
               transition={{ duration: 0.7, ease: EASE_OUT }}
               className="text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
             >
-              Let's join forces <br className="hidden sm:block" />
-              and build this up.
+              Let's type some repos <br className="hidden sm:block" />
+              and build solutions.
             </motion.h2>
           </div>
 

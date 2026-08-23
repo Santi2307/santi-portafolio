@@ -395,9 +395,7 @@ export const AboutSection = () => {
               transition={{ duration: 0.5 }}
               className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
             >
-              <span className="text-primary">§ 02</span>
-              <span className="mx-2 opacity-40">/</span>
-              About
+              
             </motion.p>
             <motion.h2
               id="about-heading"
