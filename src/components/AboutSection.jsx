@@ -28,35 +28,38 @@ const PHOTOS = [
 
 
 const BIO = [
-  "I'm Santiago Delgado, a recent Computer Systems Technology graduate from Seneca Polytechnic in Toronto. I troubleshoot and automate systems with Linux, Ansible, and Docker, and I build clean React interfaces on top of them.",
-  "My focus is working in environments people work in feel quieter, faster, and more reliable — whether that's a network rack, a customer's laptop, or a web app. I think the best technology is the kind that disappears.",
-  "I moved from Colombia to Canada in 2023 to study, and I've stayed because Toronto has a quiet seriousness about building things well. I want to keep doing that here.",
+  "I'm a Computer Systems Technology professional who is curious about how technology works behind the scenes and how it can be used to solve real-world problems. I'm always exploring new technologies, building hands-on projects, and looking for opportunities where I can keep learning, grow my technical skills, and create meaningful solutions",
+  "I enjoy working across systems, cloud, networking, automation, and software, combining logic and creativity to turn complex problems into practical solutions. I'm especially interested in understanding how different technologies connect and how they can be used to make businesses and people's lives better",
+  "I graduated from Seneca Polytechnic with a diploma in Computer Systems Technology, where I developed a broad foundation across systems administration, networking, cloud computing, cybersecurity, programming, and IT infrastructure.",
+  "My goal is to continue expanding my knowledge across technology while building solutions that are technically reliable, practical, and impactful.",
 ];
 
 const SKILLS = [
   {
     number: "01",
-    title: "Systems & Infrastructure",
-    summary: "Linux, Windows, macOS administration with automation.",
+    title: "Systems & Cloud",
+    summary: "Managing and troubleshooting systems across Linux, Windows, and cloud environments.",
     detail:
-      " I worked daily in Linux, Windows and MacOS environments,troubleshooting and automating processes. I am comfortable with Docker, OpenShift, and Azure in production environments.",
-    tags: ["Linux", "Ansible", "Docker", "OpenShift", "Azure"],
+      "I work with Linux and Windows environments, focusing on system administration, troubleshooting, virtualization, and cloud infrastructure. I have hands-on experience with Azure, VMware, KVM, and enterprise Linux environments.",
+    tags: ["Linux", "Windows", "Azure", "VMware", "KVM"],
   },
+
   {
     number: "02",
-    title: "Networking",
-    summary: "Designing and configuring networks that actually stay up.",
+    title: "Networking & Infrastructure",
+    summary: "Understanding how systems connect, communicate, and stay reliable.",
     detail:
-      "I worked with Aruba AOS-CX switches to implement and design automations to run processes more efficiently. I have experience configuring VLANs, OSPF, and DHCP.  ",
-    tags: ["Cisco", "Aruba", "VLANs", "OSPF", "RF Engineering"],
+      "I have hands-on experience configuring and troubleshooting networks, working with services such as DNS and DHCP, as well as VLANs, routing, firewalls, and network security. I enjoy understanding how infrastructure works from the ground up.",
+    tags: ["Networking", "DNS", "DHCP", "VLANs", "Firewalls"],
   },
+
   {
     number: "03",
-    title: "Web Development",
-    summary: "Interfaces built with React, Vite, and Tailwind.",
+    title: "Automation & Development",
+    summary: "Using code and automation to make systems smarter and more efficient.",
     detail:
-      "I build  interfaces I want to use that are fast, accessible, with motion that serves the content. My portfolio is a small example: React with Zustand for state, Framer Motion for animation, and Tailwind for styling.",
-    tags: ["React", "Vite", "Tailwind", "Framer Motion"],
+      "I use programming and scripting to automate tasks, solve technical problems, and build practical solutions. My experience includes Python, Bash, PowerShell, React, and modern development tools.",
+    tags: ["Python", "Bash", "PowerShell", "React", "Git"],
   },
   {
     number: "04",
@@ -415,7 +418,7 @@ export const AboutSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
           >
-            Get to know the person behind the screen. 
+            Get to know the person behind the screen.
           </motion.div>
         </div>
 

@@ -55,9 +55,9 @@ export const HeroSection = () => {
               transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.3 }}
               className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted-foreground"
             >
-              I'm an aspiring IT professional from Colombia currently in
-              Toronto. I troubleshoot and automate systems with Linux, Ansible,
-              and Docker, and I build clean React interfaces on top of them.
+              Passionate about building meaningful solutions where technology,
+              creativity, logic, innovation, and real-world impact come
+              together.
             </motion.p>
 
             {/* CTAs — same pattern as About */}

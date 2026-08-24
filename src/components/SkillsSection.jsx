@@ -488,15 +488,7 @@ export const SkillsSection = () => {
             </motion.h2>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
-          >
-            {SKILLS.length} tools and technologies. Filter by category or search
-            by Seneca course code.
-          </motion.div>
+          
         </div>
 
         {/* ─── Two-column body ─── */}
