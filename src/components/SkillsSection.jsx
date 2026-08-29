@@ -370,7 +370,7 @@ const SearchInput = ({ value, onChange }) => (
       type="search"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      placeholder="search by name, course, or keyword…"
+      placeholder="search by name. "
       aria-label="Search skills"
       className="w-full rounded-full border border-border bg-card/30 py-2 pl-9 pr-9 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-foreground/40 focus:bg-card/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground/20"
     />
@@ -488,7 +488,7 @@ export const SkillsSection = () => {
             </motion.h2>
           </div>
 
-          
+
         </div>
 
         {/* ─── Two-column body ─── */}

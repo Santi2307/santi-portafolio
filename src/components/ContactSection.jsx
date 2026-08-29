@@ -356,7 +356,6 @@ const ContactForm = ({ onSent }) => {
 
       <Field
         label="Message"
-        hint={`${messageCount} / 2000`}
         error={errors.message?.message}
       >
         <textarea
@@ -365,7 +364,7 @@ const ContactForm = ({ onSent }) => {
           {...register("message")}
           className={cn(
             inputClasses(!!errors.message),
-            "resize-y min-h-[140px] placeholder:text-indigo-400",
+            "grid grid-cols-1 gap-4 sm:grid-cols-2",
           )}
         />
       </Field>

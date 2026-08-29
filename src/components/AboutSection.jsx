@@ -457,7 +457,7 @@ export const AboutSection = () => {
                 href="#contact"
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
               >
-                Get in touch
+                My Contact Info
                 <ArrowUpRight
                   size={14}
                   className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
@@ -469,7 +469,7 @@ export const AboutSection = () => {
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-transparent px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
               >
                 <Download size={14} aria-hidden="true" />
-                Download CV
+                Download my CV
               </a>
             </motion.div>
           </div>

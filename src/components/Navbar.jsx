@@ -654,7 +654,6 @@ const SearchTrigger = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    aria-label="Open command palette (⌘K)"
     className="hidden md:inline-flex items-center gap-2.5 rounded-full border border-border bg-card/40 px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-foreground/[0.04] hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
   >
     <Search size={11} />
@@ -754,7 +753,6 @@ export const Navbar = () => {
 
           {/* Right: search + mobile menu */}
           <div className="flex items-center gap-2">
-            <SearchTrigger onClick={openPalette} />
             <MobileMenuButton
               isOpen={isMenuOpen}
               onClick={() => setIsMenuOpen((v) => !v)}
