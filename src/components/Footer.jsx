@@ -12,7 +12,7 @@ const useTorontoYear = () => {
       10,
     );
 
-  const [year, setYear] = useState(getYear);
+  const [year, setYnoar] = useState(getYear);
 
   useEffect(() => {
     const scheduleNext = () => {
