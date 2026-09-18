@@ -24,7 +24,6 @@ const PROJECTS = [
     category: "systems",
     courses: [],
     year: "2026",
-    status: "lab",
     outcomes: [
       "Provisioned 20 users across departmental security groups with dynamic membership rules and group-based licensing, removing per-user manual assignment.",
       "Enforced MFA and Conditional Access policies covering legacy authentication blocking, device compliance requirements, and location-based sign-in restrictions.",
@@ -56,7 +55,6 @@ const PROJECTS = [
     category: "systems",
     courses: [],
     year: "2026",
-    status: "lab",
     outcomes: [
       "Deployed GLPI with MariaDB on a containerized stack, including persistent volumes and automated backups.",
       "Configured an urgency/impact priority matrix with SLA targets and automated escalation rules per ticket tier.",
@@ -87,7 +85,6 @@ const PROJECTS = [
     category: "documentation",
     courses: [],
     year: "2026",
-    status: "lab",
     outcomes: [
       "Authored 15 bilingual runbooks covering MFA re-registration, account lockouts, shared drive access, VPN failures, and network printing.",
       "Standardized every article around a symptom → diagnosis → resolution → escalation format to keep handoffs consistent.",
@@ -118,8 +115,7 @@ const PROJECTS = [
       "Automated the two most repetitive and error-prone workflows on any service desk. The onboarding script reads a CSV of new hires and creates each Entra ID account, assigns department-based group membership and licensing, provisions the mailbox, sets a temporary password with forced MFA registration, and outputs a welcome ticket. The offboarding script reverses it: disables the account, revokes all active sessions and tokens, converts the mailbox to shared, transfers OneDrive ownership to the manager, and removes group and license assignments. Both run against the Microsoft Graph API with logging, dry-run mode, and idempotent checks to prevent duplicate or partial runs.",
     category: "automation",
     courses: [],
-    year: "2026",
-    status: "lab",
+    year: "2025",
     outcomes: [
       "Reduced new-hire provisioning from roughly 20 minutes of manual portal clicks to a single scripted run per batch.",
       "Implemented offboarding with session revocation, mailbox conversion, and OneDrive ownership transfer to close security gaps on departure.",
@@ -149,9 +145,7 @@ const PROJECTS = [
     description:
       "Built a multi-switch topology and deliberately introduced ten common production faults, then documented the diagnosis of each one the way a technician would write it in a ticket. Scenarios include VLAN misassignment, native VLAN mismatch on trunks, exhausted DHCP scopes, spanning-tree loops, duplex mismatches, missing default gateways, and DNS resolution failures. Each write-up captures the reported symptom, the verification commands run in sequence, the actual CLI output, the root cause, and the fix.",
     category: "networking",
-    courses: ["CSN305"],
-    year: "2026",
-    status: "lab",
+    year: "2025",
     outcomes: [
       "Documented ten fault scenarios end to end with captured CLI output from show vlan, show interfaces trunk, show spanning-tree, and show ip dhcp binding.",
       "Established a repeatable diagnostic sequence moving from physical layer upward to isolate faults efficiently.",
@@ -169,7 +163,7 @@ const PROJECTS = [
       "Network Support",
     ],
     featured: false,
-    githubUrl: "https://github.com/Santi2307/network-troubleshooting-lab",
+    githubUrl: "https://github.com/Santi2307/network-troubleshooting-lab.git",
     demoUrl: null,
   },
 ];
