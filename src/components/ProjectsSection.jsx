@@ -82,7 +82,7 @@ const PROJECTS = [
       "Bilingual documentation site with 15 step-by-step troubleshooting runbooks covering identity, endpoint, network, and printing issues.",
     description:
       "Built and published a searchable knowledge base modeled on the internal documentation used by enterprise service desks. Each runbook follows a consistent structure: symptom, likely causes, verification steps, resolution procedure, and escalation criteria, so a tier-1 technician can follow it without prior context. Written in both English and Spanish, with screenshots and command snippets, and organized by category with tag-based filtering and full-text search.",
-    category: "documentation",
+    category: "Documentation",
     courses: [],
     year: "2026",
     outcomes: [
