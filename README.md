@@ -138,8 +138,6 @@ santi-portafolio/
 └── package.json
 ```
 
----------------------------------------------------------  Signature by Santiago ---------------------------------------------------------
-
 <sub>© Santiago Delgado · Computer Systems Technology Graduate · Seneca Polytechnic</sub>
 
 </div>
