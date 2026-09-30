@@ -10,11 +10,11 @@ const EASE_OUT = [0.22, 1, 0.36, 1];
 
 /* TODO: replace with your own info */
 const PROFILE = {
-  file: "santiago.ts",
+  file: "myinfo.txt",
   variable: "santiago",
   role: "IT Support Technician",
   base: "Toronto, ON",
-  stack: ["Linux", "Python", "React", "Azure", "Bash"],
+  stack: ["Linux", "Python", "Cisco", "Azure", "Bash"],
   focus: "reliable, practical solutions",
 };
 
