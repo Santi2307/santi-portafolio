@@ -14,149 +14,61 @@ import { cn } from "@/lib/utils";
 
 /**
  * Each skill includes:
- *   level   — 1: Familiar, 2: Working knowledge, 3: Comfortable, 4: Proficient
- *   courses — Seneca course codes where the skill was acquired
+ *   level — 1: Familiar, 2: Working knowledge, 3: Comfortable, 4: Proficient
  */
 const SKILLS = [
   /* Systems */
-  {
-    name: "Linux (RHEL / Ubuntu)",
-    category: "systems",
-    level: 4,
-    courses: [
-      "ULI101",
-      "OPS245",
-      "OPS345",
-      "OPS445",
-      "RHT524",
-      "RHT634",
-      "OPS635",
-    ],
-  },
-  {
-    name: "Bash Scripting",
-    category: "systems",
-    level: 4,
-    courses: ["OPS445"],
-  },
+  { name: "Linux (RHEL / Ubuntu)", category: "systems", level: 4 },
+  { name: "Bash Scripting", category: "systems", level: 4 },
   {
     name: "Virtualization",
     category: "systems",
     level: 3,
-    courses: ["MST200", "OPS245"],
     note: "VMware, VirtualBox, Hyper-V",
   },
-  {
-    name: "Windows Server",
-    category: "systems",
-    level: 3,
-    courses: ["MST100", "MST200", "MST400", "CPO550"],
-  },
-  { name: "LVM & Storage", category: "systems", level: 3, courses: ["OPS635"] },
-  {
-    name: "PowerShell",
-    category: "systems",
-    level: 2,
-    courses: ["MST200", "MST300", "MST400", "CPO550"],
-  },
+  { name: "Windows Server", category: "systems", level: 3 },
+  { name: "LVM & Storage", category: "systems", level: 3 },
+  { name: "PowerShell", category: "systems", level: 2 },
 
   /* Networking */
-  {
-    name: "Cisco IOS",
-    category: "networking",
-    level: 3,
-    courses: ["CSN305", "CPO520"],
-  },
-  {
-    name: "Aruba AOS-CX",
-    category: "networking",
-    level: 3,
-    courses: ["APL701"],
-  },
-  {
-    name: "VLANs & Trunking",
-    category: "networking",
-    level: 4,
-    courses: ["CSN205", "CSN305"],
-  },
-  {
-    name: "OSPF & DHCP",
-    category: "networking",
-    level: 3,
-    courses: ["CSN305", "CSN405", "CSN505", "APL701"],
-  },
+  { name: "Cisco IOS", category: "networking", level: 3 },
+  { name: "Aruba AOS-CX", category: "networking", level: 3 },
+  { name: "VLANs & Trunking", category: "networking", level: 4 },
+  { name: "OSPF & DHCP", category: "networking", level: 3 },
   {
     name: "Wireless & RF",
     category: "networking",
     level: 3,
-    courses: ["CSN405"],
     note: "Link budget, Fresnel zone, EIRP",
   },
-  {
-    name: "Packet Tracer",
-    category: "networking",
-    level: 4,
-    courses: ["CSN105", "CSN205", "CSN305"],
-  },
+  { name: "Packet Tracer", category: "networking", level: 4 },
 
   /* Cloud & Automation */
   {
     name: "Ansible",
     category: "cloud",
     level: 4,
-    courses: ["APL701"],
     note: "Aruba switch automation capstone",
   },
-  { name: "Docker / Podman", category: "cloud", level: 3, courses: ["OPS445"] },
-  { name: "OpenShift", category: "cloud", level: 2, courses: ["OPS635"] },
-  {
-    name: "Microsoft Azure",
-    category: "cloud",
-    level: 3,
-    courses: ["MST200", "MST300", "MST400", "CPO550"],
-  },
-  {
-    name: "Azure Virtual Desktop",
-    category: "cloud",
-    level: 3,
-    courses: ["MST400"],
-  },
-  { name: "GlusterFS", category: "cloud", level: 2, courses: ["OPS635"] },
+  { name: "Docker / Podman", category: "cloud", level: 3 },
+  { name: "OpenShift", category: "cloud", level: 2 },
+  { name: "Microsoft Azure", category: "cloud", level: 3 },
+  { name: "Azure Virtual Desktop", category: "cloud", level: 3 },
+  { name: "GlusterFS", category: "cloud", level: 2 },
 
   /* Security */
-  {
-    name: "Incident Response",
-    category: "security",
-    level: 3,
-    courses: ["SEC320"],
-  },
-  {
-    name: "Security Analysis",
-    category: "security",
-    level: 2,
-    courses: ["SEC400"],
-  },
-  {
-    name: "SELinux & Hardening",
-    category: "security",
-    level: 3,
-    courses: ["OPS445", "SEC220"],
-  },
+  { name: "Incident Response", category: "security", level: 3 },
+  { name: "Security Analysis", category: "security", level: 2 },
+  { name: "SELinux & Hardening", category: "security", level: 3 },
 
   /* Databases */
-  {
-    name: "PostgreSQL / SQL",
-    category: "databases",
-    level: 3,
-    courses: ["DAT330"],
-  },
+  { name: "PostgreSQL / SQL", category: "databases", level: 3 },
 
   /* Web Development */
   {
     name: "React",
     category: "web",
     level: 4,
-    courses: [],
     note: "Santi's Portfolio",
   },
   { name: "JavaScript (ES6+)", category: "web", level: 4 },
@@ -212,8 +124,7 @@ const ProficiencyDots = ({ level }) => (
 const SkillRow = ({ skill, index }) => {
   const reducedMotion = useReducedMotion();
   const tooltipId = `skill-${skill.name.replace(/\W+/g, "-").toLowerCase()}-info`;
-  const hasContext = (skill.courses?.length ?? 0) > 0 || skill.note;
-  const totalCourses = skill.courses?.length ?? 0;
+  const hasContext = Boolean(skill.note);
 
   return (
     <motion.div
@@ -245,26 +156,6 @@ const SkillRow = ({ skill, index }) => {
           <span className="uppercase tracking-[0.12em] text-muted-foreground/70">
             {skill.category}
           </span>
-          {totalCourses > 0 && (
-            <>
-              <span className="opacity-40">·</span>
-              <span className="inline-flex items-center gap-1.5">
-                {skill.courses.slice(0, 4).map((code) => (
-                  <span
-                    key={code}
-                    className="rounded border border-border bg-card/40 px-1.5 py-0.5 tabular-nums"
-                  >
-                    {code}
-                  </span>
-                ))}
-                {totalCourses > 4 && (
-                  <span className="text-muted-foreground/60">
-                    +{totalCourses - 4}
-                  </span>
-                )}
-              </span>
-            </>
-          )}
           {skill.note && (
             <>
               <span className="opacity-40">·</span>
@@ -284,9 +175,7 @@ const SkillRow = ({ skill, index }) => {
 
       {hasContext && (
         <span id={tooltipId} className="sr-only">
-          {LEVEL_LABELS[skill.level]}.
-          {totalCourses > 0 && ` Learned in ${skill.courses.join(", ")}.`}
-          {skill.note && ` ${skill.note}.`}
+          {LEVEL_LABELS[skill.level]}.{skill.note && ` ${skill.note}.`}
         </span>
       )}
     </motion.div>
@@ -386,14 +275,6 @@ const SearchInput = ({ value, onChange }) => (
           aria-label="Clear search"
         >
           <X size={12} />
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
-          >
-            <span className="text-white">03</span> / skills
-          </motion.p>
         </motion.button>
       )}
     </AnimatePresence>
@@ -423,7 +304,6 @@ export const SkillsSection = () => {
     const matchesSearch = (s) =>
       !term ||
       s.name.toLowerCase().includes(term) ||
-      s.courses?.some((c) => c.toLowerCase().includes(term)) ||
       s.note?.toLowerCase().includes(term);
 
     const result = { all: 0 };
@@ -447,7 +327,6 @@ export const SkillsSection = () => {
         (s) =>
           !term ||
           s.name.toLowerCase().includes(term) ||
-          s.courses?.some((c) => c.toLowerCase().includes(term)) ||
           s.note?.toLowerCase().includes(term),
       )
       .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
