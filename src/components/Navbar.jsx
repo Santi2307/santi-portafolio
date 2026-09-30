@@ -4,6 +4,7 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpRight,
+  Clock,
   Command,
   CornerDownLeft,
   Menu,
@@ -206,6 +207,53 @@ const useElementRect = (ref, containerRef, deps = []) => {
   return rect;
 };
 
+/**
+ * Traps Tab/Shift+Tab cycling inside a container while `isOpen`, and
+ * restores focus to whatever was focused before the container opened.
+ * Used by the command palette and the mobile drawer so keyboard users
+ * can't tab into content hidden behind the overlay.
+ */
+const useFocusTrap = (containerRef, isOpen) => {
+  const previouslyFocused = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    previouslyFocused.current = document.activeElement;
+
+    const focusableSelector =
+      'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
+
+    const getFocusable = () => {
+      const container = containerRef.current;
+      if (!container) return [];
+      return Array.from(
+        container.querySelectorAll(focusableSelector),
+      ).filter((el) => el.offsetParent !== null);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key !== "Tab") return;
+      const focusable = getFocusable();
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previouslyFocused.current?.focus?.();
+    };
+  }, [isOpen, containerRef]);
+};
+
 /* ═══════════════════════════════════════════════════════════════════════
    SECTION PREFETCH — gentle scroll-into-view on hover
    ═══════════════════════════════════════════════════════════════════════
@@ -262,12 +310,18 @@ const Wordmark = () => (
    DESKTOP NAV — index-prefixed links + magnetic underline indicator
    ═══════════════════════════════════════════════════════════════════════ */
 
-const DesktopNavLink = ({ item, isActive, linkRef }) => (
+const DesktopNavLink = ({ item, isActive, linkRef, onHoverStart }) => (
   <a
     ref={linkRef}
     href={item.href}
-    onMouseEnter={() => prefetchSection(item.href)}
-    onFocus={() => prefetchSection(item.href)}
+    onMouseEnter={() => {
+      prefetchSection(item.href);
+      onHoverStart(item.href);
+    }}
+    onFocus={() => {
+      prefetchSection(item.href);
+      onHoverStart(item.href);
+    }}
     aria-current={isActive ? "location" : undefined}
     className={cn(
       "group relative inline-flex items-baseline gap-1.5 px-2 py-1 font-mono text-[13px] transition-colors",
@@ -293,6 +347,7 @@ const DesktopNavLink = ({ item, isActive, linkRef }) => (
 const DesktopNav = ({ activeSection }) => {
   const containerRef = useRef(null);
   const linkRefs = useRef({});
+  const [hoveredHref, setHoveredHref] = useState(null);
 
   // Ensure a ref exists for each item.
   navItems.forEach((item) => {
@@ -307,12 +362,19 @@ const DesktopNav = ({ activeSection }) => {
     containerRef,
     [activeSection],
   );
+  const hoverRect = useElementRect(
+    linkRefs.current[hoveredHref] ?? { current: null },
+    containerRef,
+    [hoveredHref],
+  );
+  const showHover = hoveredHref && hoveredHref !== activeHref;
 
   return (
     <nav
       ref={containerRef}
       aria-label="Primary"
       className="relative hidden items-center gap-1 md:flex"
+      onMouseLeave={() => setHoveredHref(null)}
     >
       {navItems.map((item) => (
         <DesktopNavLink
@@ -320,10 +382,26 @@ const DesktopNav = ({ activeSection }) => {
           item={item}
           isActive={activeSection === item.href.substring(1)}
           linkRef={linkRefs.current[item.href]}
+          onHoverStart={setHoveredHref}
         />
       ))}
 
-      {/* Magnetic underline indicator */}
+      {/* Hover preview — a faint underline that follows the cursor. */}
+      <AnimatePresence>
+        {showHover && hoverRect && (
+          <motion.span
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, x: hoverRect.left, width: hoverRect.width }}
+            exit={{ opacity: 0 }}
+            transition={SPRING_FAST}
+            style={{ height: 1 }}
+            className="pointer-events-none absolute bottom-0 left-0 bg-foreground/25"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Magnetic underline indicator — the active section, always solid. */}
       <AnimatePresence>
         {activeRect && (
           <motion.span
@@ -348,6 +426,31 @@ const DesktopNav = ({ activeSection }) => {
    COMMAND PALETTE — fuzzy search, keyboard nav, recently used
    ═══════════════════════════════════════════════════════════════════════ */
 
+const RECENTS_KEY = "nav:recent-sections";
+const MAX_RECENTS = 3;
+
+const getRecentHrefs = () => {
+  try {
+    const raw = localStorage.getItem(RECENTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const pushRecentHref = (href) => {
+  try {
+    const next = [href, ...getRecentHrefs().filter((h) => h !== href)].slice(
+      0,
+      MAX_RECENTS,
+    );
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+  } catch {
+    // Private browsing / quota exceeded — recents are a nice-to-have, skip silently.
+  }
+};
+
 const fuzzyMatch = (query, text) => {
   const q = query.toLowerCase();
   const t = text.toLowerCase();
@@ -364,20 +467,41 @@ const fuzzyMatch = (query, text) => {
 const CommandPalette = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [recentHrefs, setRecentHrefs] = useState([]);
   const inputRef = useRef(null);
+  const dialogRef = useRef(null);
+
+  useFocusTrap(dialogRef, isOpen);
 
   const results = useMemo(() => {
     const q = query.trim();
-    if (!q) return navItems;
+    if (!q) {
+      if (!recentHrefs.length) return navItems;
+      const recentSet = new Set(recentHrefs);
+      const recentItems = recentHrefs
+        .map((href) => navItems.find((i) => i.href === href))
+        .filter(Boolean);
+      const restItems = navItems.filter((i) => !recentSet.has(i.href));
+      return [...recentItems, ...restItems];
+    }
     return navItems.filter(
       (i) => fuzzyMatch(q, i.name) || fuzzyMatch(q, i.description),
     );
-  }, [query]);
+  }, [query, recentHrefs]);
+
+  const selectItem = useCallback(
+    (item) => {
+      pushRecentHref(item.href);
+      onClose();
+    },
+    [onClose],
+  );
 
   useEffect(() => {
     if (isOpen) {
       setQuery("");
       setSelectedIdx(0);
+      setRecentHrefs(getRecentHrefs());
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
     }
@@ -401,12 +525,12 @@ const CommandPalette = ({ isOpen, onClose }) => {
       if (e.key === "Enter" && results[selectedIdx]) {
         e.preventDefault();
         window.location.hash = results[selectedIdx].href;
-        onClose();
+        selectItem(results[selectedIdx]);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, results, selectedIdx, onClose]);
+  }, [isOpen, results, selectedIdx, selectItem, onClose]);
 
   return (
     <AnimatePresence>
@@ -420,6 +544,7 @@ const CommandPalette = ({ isOpen, onClose }) => {
             className="fixed inset-0 z-[60] bg-background/70 backdrop-blur-md"
           />
           <motion.div
+            ref={dialogRef}
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
@@ -457,11 +582,12 @@ const CommandPalette = ({ isOpen, onClose }) => {
               ) : (
                 results.map((item, i) => {
                   const isSelected = i === selectedIdx;
+                  const isRecent = !query.trim() && recentHrefs.includes(item.href);
                   return (
                     <a
                       key={item.href}
                       href={item.href}
-                      onClick={onClose}
+                      onClick={() => selectItem(item)}
                       onMouseEnter={() => setSelectedIdx(i)}
                       className={cn(
                         "relative grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
@@ -485,6 +611,12 @@ const CommandPalette = ({ isOpen, onClose }) => {
                         <span className="ml-2 text-xs text-muted-foreground">
                           {item.description}
                         </span>
+                        {isRecent && (
+                          <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-muted-foreground/50">
+                            <Clock size={9} />
+                            recent
+                          </span>
+                        )}
                       </span>
                       <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                         g {item.shortcut}
@@ -536,12 +668,33 @@ const CommandPalette = ({ isOpen, onClose }) => {
    ═══════════════════════════════════════════════════════════════════════ */
 
 const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
+  const asideRef = useRef(null);
+  const closeButtonRef = useRef(null);
+
+  useFocusTrap(asideRef, isOpen);
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const t = setTimeout(() => closeButtonRef.current?.focus(), 50);
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -555,10 +708,17 @@ const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
             className="md:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-md"
           />
           <motion.aside
+            ref={asideRef}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 340, damping: 36 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={{ left: 0, right: 0.4 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.x > 80 || info.velocity.x > 500) onClose();
+            }}
             role="dialog"
             aria-modal="true"
             className="md:hidden fixed top-0 right-0 z-50 h-full w-[78%] max-w-sm overflow-hidden border-l border-border bg-card"
@@ -574,6 +734,7 @@ const MobileDrawer = ({ isOpen, onClose, activeSection }) => {
                 </span>
               </div>
               <button
+                ref={closeButtonRef}
                 onClick={onClose}
                 aria-label="Close menu"
                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
