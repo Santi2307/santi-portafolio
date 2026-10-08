@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   motion,
   AnimatePresence,
   useInView,
   useReducedMotion,
 } from "framer-motion";
-import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -245,97 +244,29 @@ const FilterRail = ({
 );
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SEARCH INPUT — bare-bones, monospaced
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const SearchInput = ({ value, onChange }) => (
-  <div className="relative w-full">
-    <Search
-      size={13}
-      aria-hidden="true"
-      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-    />
-    <input
-      type="search"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="search by name. "
-      aria-label="Search skills"
-      className="w-full rounded-full border border-border bg-card/30 py-2 pl-9 pr-9 font-mono text-xs text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-foreground/40 focus:bg-card/50 focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground/20"
-    />
-    <AnimatePresence>
-      {value && (
-        <motion.button
-          type="button"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-          aria-label="Clear search"
-        >
-          <X size={12} />
-        </motion.button>
-      )}
-    </AnimatePresence>
-  </div>
-);
-
-/* ═══════════════════════════════════════════════════════════════════════
    MAIN SECTION
    ═══════════════════════════════════════════════════════════════════════ */
 
 export const SkillsSection = () => {
   const [activeCategory, setActiveCategory] = useState("systems");
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.1 });
 
-  // Debounce search input — feels instant, skips noisy keystrokes
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 150);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  // Live counts per category (after search filter is applied)
+  // Skills per category
   const counts = useMemo(() => {
-    const term = debouncedSearch.trim().toLowerCase();
-    const matchesSearch = (s) =>
-      !term ||
-      s.name.toLowerCase().includes(term) ||
-      s.note?.toLowerCase().includes(term);
-
-    const result = { all: 0 };
-    for (const cat of CATEGORIES) if (cat.id !== "all") result[cat.id] = 0;
-
-    for (const skill of SKILLS) {
-      if (!matchesSearch(skill)) continue;
-      result.all += 1;
-      result[skill.category] = (result[skill.category] ?? 0) + 1;
-    }
+    const result = { all: SKILLS.length };
+    for (const skill of SKILLS) result[skill.category] = (result[skill.category] ?? 0) + 1;
     return result;
-  }, [debouncedSearch]);
-
-  // Filtered + sorted skills
-  const filteredSkills = useMemo(() => {
-    const term = debouncedSearch.trim().toLowerCase();
-    return SKILLS.filter(
-      (s) => activeCategory === "all" || s.category === activeCategory,
-    )
-      .filter(
-        (s) =>
-          !term ||
-          s.name.toLowerCase().includes(term) ||
-          s.note?.toLowerCase().includes(term),
-      )
-      .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name));
-  }, [activeCategory, debouncedSearch]);
-
-  const resetFilters = useCallback(() => {
-    setActiveCategory("all");
-    setSearch("");
   }, []);
+
+  // Skills of the selected category, strongest first
+  const filteredSkills = useMemo(
+    () =>
+      SKILLS.filter((s) => activeCategory === "all" || s.category === activeCategory).sort(
+        (a, b) => b.level - a.level || a.name.localeCompare(b.name),
+      ),
+    [activeCategory],
+  );
 
   return (
     <section
@@ -372,7 +303,7 @@ export const SkillsSection = () => {
 
         {/* ─── Two-column body ─── */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-16">
-          {/* LEFT — Filter rail + search */}
+          {/* LEFT — Filter rail */}
           <aside className="md:col-span-3">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -392,12 +323,6 @@ export const SkillsSection = () => {
                 />
               </div>
 
-              <div>
-                <p className="mb-3 hidden font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground md:block">
-                  Search
-                </p>
-                <SearchInput value={search} onChange={setSearch} />
-              </div>
             </motion.div>
           </aside>
 
@@ -414,12 +339,6 @@ export const SkillsSection = () => {
                 <span className="text-foreground">{filteredSkills.length}</span>
                 <span className="opacity-50"> / {SKILLS.length}</span>
               </span>
-              {debouncedSearch && (
-                <span className="normal-case tracking-normal">
-                  matching{" "}
-                  <span className="text-foreground">"{debouncedSearch}"</span>
-                </span>
-              )}
               <span className="hidden md:inline">Proficiency</span>
             </motion.div>
 
@@ -437,47 +356,6 @@ export const SkillsSection = () => {
               </AnimatePresence>
             </motion.div>
 
-            {/* Empty state */}
-            <AnimatePresence>
-              {filteredSkills.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="mt-12 border border-dashed border-border p-10 text-center"
-                >
-                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    No results
-                  </p>
-                  <p className="mt-3 text-sm text-foreground">
-                    Nothing matches that filter.
-                  </p>
-                  <p className="mt-4 font-mono text-xs text-muted-foreground">
-                    try{" "}
-                    <button
-                      className="text-foreground underline-offset-4 hover:underline"
-                      onClick={() => setSearch("linux")}
-                    >
-                      linux
-                    </button>
-                    {" · "}
-                    <button
-                      className="text-foreground underline-offset-4 hover:underline"
-                      onClick={() => setSearch("ansible")}
-                    >
-                      ansible
-                    </button>
-                    {" · "}
-                    <button
-                      className="text-foreground underline-offset-4 hover:underline"
-                      onClick={resetFilters}
-                    >
-                      reset
-                    </button>
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </div>
       </div>

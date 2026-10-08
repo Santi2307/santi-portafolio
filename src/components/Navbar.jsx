@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowDown,
   ArrowUp,
@@ -272,26 +272,6 @@ const prefetchSection = (href) => {
   // The dataset attribute is read by the section's own intersection observer
   // to start any one-time setup work.
   el.dataset.prefetched = "true";
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SCROLL PROGRESS BAR — hairline indicator under the navbar
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const ScrollProgressBar = () => {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 180,
-    damping: 28,
-    mass: 0.25,
-  });
-  return (
-    <motion.div
-      aria-hidden
-      style={{ scaleX, transformOrigin: "0% 50%" }}
-      className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-foreground/80"
-    />
-  );
 };
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -920,9 +900,6 @@ export const Navbar = () => {
             />
           </div>
         </div>
-
-        {/* Scroll progress hairline */}
-        {scrolledPast && <ScrollProgressBar />}
       </motion.header>
 
       <MobileDrawer
