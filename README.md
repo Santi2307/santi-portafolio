@@ -50,4 +50,4 @@ server/           Optional WebSocket server for a live visitor count (experiment
 
 ---
 
-<sub>Built and maintained by Santiago Delgado · Computer Systems Technology, Seneca Polytechnic · Toronto</sub>
+<sub>Built and maintained by Santiago Delgado. </sub>
