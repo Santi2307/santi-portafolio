@@ -21,16 +21,16 @@ const PROFILE = {
 /* ─────────────────────────── Token components ─────────────────────────── */
 
 const KW = ({ children }) => (
-  <span className="text-primary/90">{children}</span>
+  <span className="text-foreground/45">{children}</span>
 );
 const Ident = ({ children }) => (
-  <span className="font-semibold text-sky-300">{children}</span>
+  <span className="font-semibold text-foreground">{children}</span>
 );
 const Key = ({ children }) => (
   <span className="text-foreground/80">{children}</span>
 );
 const Str = ({ children }) => (
-  <span className="text-amber-300">&apos;{children}&apos;</span>
+  <span className="text-foreground/90">&apos;{children}&apos;</span>
 );
 const Punct = ({ children }) => (
   <span className="text-foreground/30">{children}</span>
@@ -45,7 +45,7 @@ const Cursor = ({ reducedMotion }) => (
         ? undefined
         : { duration: 1, repeat: Infinity, times: [0, 0.5, 0.5, 1] }
     }
-    className="ml-1 inline-block h-3.5 w-[2px] translate-y-0.5 bg-primary"
+    className="ml-1 inline-block h-3.5 w-[2px] translate-y-0.5 bg-foreground/60"
   />
 );
 
@@ -149,12 +149,6 @@ export const CodeCard = () => {
       className="relative mx-auto w-full max-w-md"
       style={{ perspective: 1200 }}
     >
-      {/* Ambient glow */}
-      <div
-        aria-hidden="true"
-        className="animate-pulse-subtle absolute -inset-6 -z-10 rounded-[2rem] bg-primary/20 blur-3xl"
-      />
-
       {/* Idle float */}
       <motion.div
         animate={reducedMotion ? {} : { y: [0, -10, 0] }}
@@ -166,7 +160,7 @@ export const CodeCard = () => {
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-          className="relative rounded-2xl bg-gradient-to-br from-primary/50 via-border to-transparent p-px shadow-2xl shadow-primary/10"
+          className="relative rounded-2xl border border-border shadow-2xl shadow-black/40"
         >
           <div className="overflow-hidden rounded-2xl bg-card/95 backdrop-blur-xl">
             {/* Title bar */}
@@ -177,7 +171,7 @@ export const CodeCard = () => {
               <span className="ml-3 flex items-center gap-1.5 font-mono text-xs text-foreground/50">
                 <span
                   aria-hidden="true"
-                  className="h-1.5 w-1.5 rounded-full bg-primary/70"
+                  className="h-1.5 w-1.5 rounded-full bg-foreground/30"
                 />
                 {PROFILE.file}
               </span>
@@ -205,11 +199,8 @@ export const CodeCard = () => {
             </div>
 
             {/* Status bar */}
-            <div className="flex items-center justify-between border-t border-border/80 px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-foreground/35">
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                TypeScript
-              </span>
+            <div className="flex items-center justify-between border-t border-border/80 px-4 py-2 font-mono text-[10px] text-foreground/35">
+              <span>plain text</span>
               <span>UTF-8</span>
             </div>
           </div>
