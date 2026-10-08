@@ -87,11 +87,11 @@ export const HeroSection = () => {
               transition={{ duration: 0.6, ease: EASE_OUT, delay: 0.3 }}
               className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-foreground/70 lg:mx-0"
             >
-              I&apos;m an IT support and systems specialist based in Toronto,
+              I&apos;m an IT Support and Systems Specialist based in Toronto,
               Canada. I keep Linux servers and networks running, automate the
-              repetitive parts with Ansible and Python, and build the web apps
-              around them. Most recently I&apos;ve been building WhatsApp
-              automations for a small business back home in Colombia.
+              repetitive parts with Ansible and Python, and make environments more productive and safe
+              .Most recently I&apos;ve been building
+              automations for a small business to reduce time and operation activity.
             </motion.p>
 
             {/* Socials */}
