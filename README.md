@@ -2,142 +2,52 @@
 
 # Santiago Delgado — Portfolio
 
+IT support & systems work, presented like a product instead of a résumé.
 
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
-[![Zustand](https://img.shields.io/badge/Zustand-2D3748?style=for-the-badge&logo=react&logoColor=white)](https://zustand-demo.pmnd.rs/)
+**[santi-portafolio.vercel.app](https://santi-portafolio.vercel.app)** · [LinkedIn](https://linkedin.com/in/santiagodelgado23) · [Email](mailto:santiagodelgadosanchez9@gmail.com)
 
-[**Live Demo**](#) · [**Report Bug**](https://github.com/Santi2307/santi-portafolio/issues) · [**LinkedIn**](https://linkedin.com/in/santiagodelgado23)
+![React](https://img.shields.io/badge/React_18-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
 
 </div>
 
----
+## What's inside
 
-## 📌 About the Project
+- **Projects** — five hands-on IT labs: identity & device management, a service desk with ticket workflows, bilingual (EN/ES) runbooks, automated user on/offboarding, and network fault diagnosis.
+- **Live status** — a small indicator that shows what I'm likely doing right now, based on Toronto local time, plus real connection detection.
+- **Contact form** — validated with React Hook Form + Zod and delivered through Formspree, with toast feedback.
+- **Starfield background** — drawn on a single `<canvas>`, so it scales to thousands of stars without extra DOM nodes.
+- **Light & dark themes** — remembered between visits.
+- **Accessible motion** — animations with Framer Motion that respect `prefers-reduced-motion`.
 
-A dynamic personal portfolio that showcases my skills, projects, and passion for technology. Built with a modern, performance-first stack and crafted to feel as much like a product as it does a resume.
+## Run it locally
 
-```
- ┌──────────────────────────────────────────────┐
- │   React + Vite · Tailwind · Framer Motion    │
- │                                              |
- └──────────────────────────────────────────────┘
-```
-
----
-
-## ✨ Features
-
-| | Feature | Description |
-|---|---|---|
-| 🎬 | **Interactive Hero** | Dynamic welcome screen with self-typing effect and subtle parallax |
-| 🧩 | **Creative About Me** | Interactive 3D photo gallery and skill cards with advanced hover states |
-| 📊 | **Dynamic Skills Display** | Skills grouped by category with animated visualization and creative filters |
-| 🗂️ | **Filterable Projects** | Professional project gallery with interactive card animations |
-| 📱 | **Fully Responsive** | Optimized for every device — mobile, tablet, and desktop |
-| 🔄 | **Auto Copyright** | Footer year updates automatically — zero manual maintenance |
-| ⬆️ | **Smooth Navigation** | Back-to-top button and fluid internal anchor links |
-
----
-
-## 🚀 Tech Stack
-
-<table>
-  <tr>
-    <td align="center" width="120">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="40" height="40" /><br>
-      <b>React</b><br>
-      <sub>UI Library</sub>
-    </td>
-    <td align="center" width="120">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="40" height="40" /><br>
-      <b>Vite</b><br>
-      <sub>Build Tool</sub>
-    </td>
-    <td align="center" width="120">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="40" height="40" /><br>
-      <b>Tailwind</b><br>
-      <sub>Styling</sub>
-    </td>
-    <td align="center" width="120">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/framermotion/framermotion-original.svg" width="40" height="40" /><br>
-      <b>Framer Motion</b><br>
-      <sub>Animations</sub>
-    </td>
-    <td align="center" width="120">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="40" height="40" /><br>
-      <b>Zustand</b><br>
-      <sub>State</sub>
-    </td>
-    <td align="center" width="120">
-      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="40" height="40" /><br>
-      <b>Lucide</b><br>
-      <sub>Icons</sub>
-    </td>
-  </tr>
-</table>
-
-> **React** powers the UI · **Vite** delivers near-instant HMR · **Tailwind** keeps styling consistent · **Framer Motion** handles every animation · **Zustand** manages global state with minimal boilerplate · **Lucide React** provides the icon set.
-
----
-
-## ⚙️ Setup & Installation
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) **v18+**
-- npm, yarn, or pnpm
-
-### Quick Start
+Requires Node.js 18+.
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Santi2307/santi-portafolio.git
-
-# 2. Enter the project directory
 cd santi-portafolio
-
-# 3. Install dependencies
 npm install
-
-# 4. Start the development server
-npm run dev
+npm run dev        # http://localhost:5173
 ```
 
-Then open **http://localhost:5173** in your browser. 🚀
+`npm run build` creates the production bundle and `npm run preview` serves it.
 
-> ⚠️ **Note:** Avoid running `npm install` with `sudo` — it can cause permission issues. If you hit `EACCES` errors, fix npm's global directory permissions instead.
+## Structure
 
-### Build for Production
-
-```bash
-npm run build      # bundle for production
-npm run preview    # locally preview the production build
+```
+src/
+├── pages/        Home and 404
+├── components/   Hero, About, Skills, Projects, Contact, Navbar, Footer, UI primitives
+├── hooks/        Active section, scroll direction, current status, toasts
+├── lib/          Shared utilities
+└── store.js      Zustand store for the photo gallery
+server/           Optional WebSocket server for a live visitor count (experiment)
 ```
 
 ---
 
-## 📂 Project Structure
-
-```
-santi-portafolio/
-├── public/              # Static assets
-├── src/
-│   ├── components/      # Reusable UI components
-│   ├── sections/        # Hero, About, Skills, Projects, Footer
-│   ├── store/           # Zustand state slices
-│   ├── data/            # Skills, projects, content
-│   ├── hooks/           # Custom React hooks
-│   ├── App.jsx          # Root component
-│   └── main.jsx         # Entry point
-├── index.html
-├── tailwind.config.js
-├── vite.config.js
-└── package.json
-```
-
-<sub>© Santiago Delgado · Computer Systems Technology Graduate · Seneca Polytechnic</sub>
-
-</div>
+<sub>Built and maintained by Santiago Delgado · Computer Systems Technology, Seneca Polytechnic · Toronto</sub>
