@@ -89,8 +89,7 @@ export const HeroSection = () => {
             >
               I&apos;m an IT Support and Systems Specialist based in Toronto,
               Canada. I keep Linux servers and networks running, automate the
-              repetitive parts with Ansible and Python, and make environments more productive and safe
-              .Most recently I&apos;ve been building
+              repetitive parts with Ansible and Python, and make environments more productive and safe. Most recently I&apos;ve been building
               automations for a small business to reduce time and operation activity.
             </motion.p>
 
