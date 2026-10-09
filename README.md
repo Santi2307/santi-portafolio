@@ -16,7 +16,7 @@ IT support & systems work, presented like a product instead of a résumé.
 
 ## What's inside
 
-- **Projects** — five hands-on IT labs: identity & device management, a service desk with ticket workflows, bilingual (EN/ES) runbooks, automated user on/offboarding, and network fault diagnosis.
+- **Projects** — what's live (a full-stack learning platform, an online store, a VLAN troubleshooting lab) and the IT labs I'm building next.
 - **Contact** — one short note with links to LinkedIn, GitHub, Instagram and email, plus the current time in Toronto and when I'm likely to reply.
 - **Starfield background** — drawn on a single `<canvas>`, so it scales to thousands of stars without extra DOM nodes.
 - **Light & dark themes** — remembered between visits.
