@@ -2,41 +2,35 @@ import { useState, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
 
 
-const useTorontoYear = () => {
-  const getYear = () =>
-    parseInt(
-      new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Toronto",
-        year: "numeric",
-      }).format(new Date()),
-      10,
-    );
+/* Year in Toronto. Updates on its own at 12:00 am on January 1 (Toronto time),
+   even if the page has been open for days. */
+const torontoYear = () =>
+  Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/Toronto", year: "numeric" }).format(new Date()));
 
-  const [year, setYear] = useState(getYear);
+/* Milliseconds until the next new year in Toronto, measured on Toronto's wall clock */
+const msUntilNewYear = () => {
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Toronto" }));
+  return new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0).getTime() - now.getTime();
+};
+
+/* Browsers can't wait longer than ~24.8 days in one timer, so we check back at most
+   every 6 hours and land exactly on midnight during the last stretch. */
+const MAX_WAIT = 6 * 60 * 60 * 1000;
+
+const useTorontoYear = () => {
+  const [year, setYear] = useState(torontoYear);
 
   useEffect(() => {
-    const scheduleNext = () => {
-      const nowInToronto = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "America/Toronto" }),
-      );
-      const nextNewYear = new Date(
-        nowInToronto.getFullYear() + 1,
-        0,
-        1,
-        0,
-        0,
-        1,
-      );
-      const msUntil = nextNewYear.getTime() - nowInToronto.getTime();
-
-      return setTimeout(() => {
-        setYear(getYear());
-        scheduleNext();
-      }, msUntil);
+    let timer;
+    const schedule = () => {
+      const wait = Math.min(Math.max(msUntilNewYear(), 0) + 500, MAX_WAIT);
+      timer = setTimeout(() => {
+        setYear(torontoYear());
+        schedule();
+      }, wait);
     };
-
-    const id = scheduleNext();
-    return () => clearTimeout(id);
+    schedule();
+    return () => clearTimeout(timer);
   }, []);
 
   return year;
