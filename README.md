@@ -17,8 +17,7 @@ IT support & systems work, presented like a product instead of a résumé.
 ## What's inside
 
 - **Projects** — five hands-on IT labs: identity & device management, a service desk with ticket workflows, bilingual (EN/ES) runbooks, automated user on/offboarding, and network fault diagnosis.
-- **Live status** — a small indicator that shows what I'm likely doing right now, based on Toronto local time, plus real connection detection.
-- **Contact form** — validated with React Hook Form + Zod and delivered through Formspree, with toast feedback.
+- **Contact** — one short note with links to LinkedIn, GitHub, Instagram and email, plus the current time in Toronto and when I'm likely to reply.
 - **Starfield background** — drawn on a single `<canvas>`, so it scales to thousands of stars without extra DOM nodes.
 - **Light & dark themes** — remembered between visits.
 - **Accessible motion** — animations with Framer Motion that respect `prefers-reduced-motion`.
@@ -42,7 +41,7 @@ npm run dev        # http://localhost:5173
 src/
 ├── pages/        Home and 404
 ├── components/   Hero, About, Skills, Projects, Contact, Navbar, Footer, UI primitives
-├── hooks/        Active section, scroll direction, current status, toasts
+├── hooks/        Active section, scroll direction, toasts
 ├── lib/          Shared utilities
 └── store.js      Zustand store for the photo gallery
 server/           Optional WebSocket server for a live visitor count (experiment)

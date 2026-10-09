@@ -1,680 +1,99 @@
-import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  motion,
-  AnimatePresence,
-  useInView,
-  useReducedMotion,
-} from "framer-motion";
-import { FaXTwitter } from "react-icons/fa6";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  Linkedin,
-  Youtube,
-  Github,
-  Instagram,
-  CheckCircle2,
-  Copy,
-  Check,
-  Loader2,
-  ArrowLeft,
-  ArrowUpRight,
-  Slack,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { useCurrentStatus } from "@/hooks/useCurrentStatus";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/xldwapjy";
 const EASE_OUT = [0.22, 1, 0.36, 1];
 
-/* ═══════════════════════════════════════════════════════════════════════
-   HOOKS
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const useCopy = (resetMs = 1500) => {
-  const [copied, setCopied] = useState(false);
-  const copy = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), resetMs);
-    } catch {
-      // silent fail
-    }
-  };
-  return { copied, copy };
+const LINKS = {
+  linkedin: "https://www.linkedin.com/in/santiagodelgado23",
+  github: "https://github.com/Santi2307",
+  instagram: "https://www.instagram.com/santiagodelgadosanchez",
+  email: "mailto:santiagodelgadosanchez9@gmail.com",
 };
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SLEEPING ZZZ
-   ═══════════════════════════════════════════════════════════════════════ */
+/* What I'm probably doing right now, in Toronto time */
+const noteFor = (hour) => {
+  if (hour < 7) return "I'm probably asleep, but I'll reply in the morning.";
+  if (hour < 9) return "I'm on my first coffee, good time to write.";
+  if (hour < 17) return "I'm around, so you'll likely hear back today.";
+  if (hour < 22) return "I'm done for the day, but I still check messages.";
+  return "I'm winding down, I'll get back to you tomorrow.";
+};
 
-const SleepingZzz = () => (
-  <div
-    aria-hidden
-    className="pointer-events-none absolute -right-3 -top-2 h-6 w-6"
+const torontoNow = () => {
+  const now = new Date();
+  const time = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Toronto",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(now);
+  const hour = Number(
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/Toronto", hour: "numeric", hourCycle: "h23" }).format(now),
+  );
+  return { time: time.toLowerCase(), note: noteFor(hour) };
+};
+
+const useTorontoTime = () => {
+  const [now, setNow] = useState(torontoNow);
+  useEffect(() => {
+    const id = setInterval(() => setNow(torontoNow()), 30 * 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+};
+
+const InlineLink = ({ href, children }) => (
+  <a
+    href={href}
+    target={href.startsWith("mailto:") ? undefined : "_blank"}
+    rel={href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
+    className="font-semibold text-foreground underline decoration-foreground/30 decoration-2 underline-offset-[6px] transition-colors hover:decoration-foreground"
   >
-    {[0, 1, 2].map((i) => (
-      <motion.span
-        key={i}
-        className="absolute left-0 top-0 font-mono text-[9px] font-bold text-foreground/70"
-        animate={{
-          y: [2, -10, -18],
-          x: [0, 3, 7],
-          opacity: [0, 1, 0],
-          scale: [0.5, 1, 1.15],
-          rotate: [0, 6, 14],
-        }}
-        transition={{
-          duration: 2.8,
-          repeat: Infinity,
-          delay: i * 0.85,
-          ease: "easeOut",
-        }}
-      >
-        z
-      </motion.span>
-    ))}
-  </div>
-);
-
-/* ═══════════════════════════════════════════════════════════════════════
-   STATUS LINE
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const StatusLine = () => {
-  const status = useCurrentStatus();
-  const isSleeping = status.key === "sleeping";
-
-  return (
-    <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card/40 px-4 py-2 font-mono text-xs">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={status.key}
-          initial={{ opacity: 0, y: 3 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.3 }}
-          className="flex items-center gap-2.5"
-        >
-          <span className="relative inline-flex h-4 w-4 items-center justify-center">
-            <span
-              className="relative text-sm leading-none"
-              role="img"
-              aria-label={status.label}
-            >
-              {status.emoji}
-            </span>
-            {isSleeping && <SleepingZzz />}
-          </span>
-
-          <span className="font-medium text-foreground">{status.label}</span>
-        </motion.div>
-      </AnimatePresence>
-
-      <span className="h-3 w-px bg-border" aria-hidden />
-
-      <span className="text-muted-foreground">
-        I'll get back asap. Have a great day!
-      </span>
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   CHANNEL ROW
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const ChannelRow = ({ icon: Icon, label, value, href, copyable = true }) => {
-  const { copied, copy } = useCopy();
-
-  const Inner = (
-    <>
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card/40 text-muted-foreground transition-colors group-hover:text-foreground">
-        <Icon size={15} aria-hidden="true" />
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col items-center text-center">
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          {label}
-        </span>
-        <span className="truncate text-sm font-medium text-foreground">
-          {value}
-        </span>
-      </span>
-    </>
-  );
-
-  return (
-    <div className="group relative grid grid-cols-[1fr_auto] items-center gap-3 py-4">
-      {href ? (
-        <a href={href} className="flex items-center gap-3 transition-colors">
-          {Inner}
-        </a>
-      ) : (
-        <div className="flex items-center gap-3">{Inner}</div>
-      )}
-
-      <div className="w-9 flex justify-end">
-        {copyable && (
-          <button
-            type="button"
-            onClick={() => copy(value)}
-            aria-label={`Copy ${label.toLowerCase()}`}
-            className="shrink-0 rounded-md p-2 text-muted-foreground opacity-0 transition-all hover:bg-foreground/5 hover:text-foreground focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 group-hover:opacity-100"
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {copied ? (
-                <motion.span
-                  key="check"
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.6, opacity: 0 }}
-                  className="block"
-                >
-                  <Check size={13} />
-                </motion.span>
-              ) : (
-                <motion.span
-                  key="copy"
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.6, opacity: 0 }}
-                  className="block"
-                >
-                  <Copy size={13} />
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   FORM
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const contactFormSchema = z.object({
-  name: z.string().min(1, "Name is required."),
-  email: z.string().email("Please enter a valid email."),
-  message: z
-    .string()
-    .min(10, "Message should be at least 10 characters.")
-    .max(2000, "Message is too long."),
-});
-
-const Field = ({ label, hint, error, children }) => (
-  <div>
-    <div className="mb-1.5 flex items-baseline justify-between">
-      <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </label>
-      {hint && (
-        <span className="font-mono text-[10px] tabular-nums text-muted-foreground/60">
-          {hint}
-        </span>
-      )}
-    </div>
     {children}
-    {error && (
-      <p role="alert" className="mt-1.5 font-mono text-[10px] text-destructive">
-        {error}
-      </p>
-    )}
-  </div>
+  </a>
 );
-
-const inputClasses = (hasError) =>
-  cn(
-    "w-full rounded-md border bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 transition-colors",
-    "focus:outline-none focus:border-foreground/40",
-    hasError ? "border-destructive/60" : "border-border",
-  );
-
-const ContactForm = ({ onSent }) => {
-  const { toast } = useToast();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    watch,
-    reset,
-  } = useForm({
-    resolver: zodResolver(contactFormSchema),
-  });
-
-  const messageValue = watch("message", "");
-  const messageCount = messageValue?.length ?? 0;
-
-  const onSubmit = async (data) => {
-    try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          _subject: `New message from ${data.name}`,
-        }),
-      });
-
-      if (response.ok) {
-        reset();
-        onSent();
-      } else {
-        toast({
-          title: "Couldn't send your message",
-          description:
-            "Something went wrong on our end. Please try again or email me directly.",
-          variant: "destructive",
-        });
-      }
-    } catch {
-      toast({
-        title: "Network error",
-        description: "Check your internet connection and try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Name" error={errors.name?.message}>
-          <input
-            type="text"
-            placeholder="First Name Last Name"
-            {...register("name")}
-            className={inputClasses(!!errors.name)}
-          />
-        </Field>
-
-        <Field label="Email" error={errors.email?.message}>
-          <input
-            type="email"
-            placeholder="example@gmail.com"
-            {...register("email")}
-            className={inputClasses(!!errors.email)}
-          />
-        </Field>
-      </div>
-
-      <Field
-        label="Message"
-        error={errors.message?.message}
-      >
-        <textarea
-          rows={6}
-          placeholder="Send me a message."
-          {...register("message")}
-          className={cn(
-            inputClasses(!!errors.message),
-            "grid grid-cols-1 gap-4 sm:grid-cols-2",
-          )}
-        />
-      </Field>
-
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className={cn(
-          "group inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all hover:gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40",
-          isSubmitting && "cursor-not-allowed opacity-70",
-        )}
-      >
-        {isSubmitting ? (
-          <>
-            <Loader2 size={14} className="animate-spin" />
-            Sending…
-          </>
-        ) : (
-          <>
-            Send message
-            <Send
-              size={14}
-              className="transition-transform group-hover:translate-x-0.5"
-            />
-          </>
-        )}
-      </button>
-    </form>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SUCCESS STATE
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const SuccessState = ({ onReset }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, ease: EASE_OUT }}
-    className="flex flex-col items-center justify-center py-16 text-center"
-  >
-    <motion.div
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
-      className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-full border border-foreground/20"
-    >
-      <CheckCircle2 className="h-7 w-7 text-foreground" strokeWidth={1.5} />
-    </motion.div>
-
-    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-      Status — sent
-    </p>
-    <h3 className="mb-3 text-2xl font-semibold tracking-tight">
-      I got your message.
-    </h3>
-    <p className="mb-8 max-w-sm text-sm leading-relaxed text-muted-foreground">
-      Thank you for reaching out. I'll get back to you within asap.
-    </p>
-
-    <button
-      type="button"
-      onClick={onReset}
-      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
-    >
-      <ArrowLeft size={13} />
-      Back
-    </button>
-  </motion.div>
-);
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SOCIAL LINKS
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const SOCIAL_LINKS = [
-  {
-    icon: Linkedin,
-    href: "https://www.linkedin.com/in/santiagodelgado23",
-    label: "LinkedIn",
-    brand: {
-      bg: "#0A66C2",
-      text: "#ffffff",
-      shadow: "rgba(10, 102, 194, 0.35)",
-    },
-  },
-  {
-    icon: Github,
-    href: "https://github.com/Santi2307",
-    label: "GitHub",
-    brand: {
-      bg: "#ffffff",
-      text: "#24292f",
-      shadow: "rgba(255, 255, 255, 0.2)",
-    },
-  },
-  {
-    icon: Instagram,
-    href: "https://www.instagram.com/santiagodelgadosanchez",
-    label: "Instagram",
-    brand: {
-      bg: "linear-gradient(45deg, #F58529 0%, #DD2A7B 40%, #8134AF 70%, #515BD4 100%)",
-      text: "#ffffff",
-      shadow: "rgba(221, 42, 123, 0.4)",
-    },
-  },
-  {
-    icon: FaXTwitter,
-    href: "https://x.com/Santiagodelga23",
-    label: "X",
-    brand: {
-      bg: "#000000",
-      text: "#ffffff",
-      shadow: "rgba(255, 255, 255, 0.15)",
-    },
-  },
-  {
-    icon: Slack,
-    href: "https://santiagodelga.slack.com",
-    label: "Slack",
-    brand: {
-      bg: "#4A154B",
-      text: "#ffffff",
-      shadow: "rgba(74, 21, 75, 0.4)",
-    },
-  },
-  {
-    icon: Youtube,
-    href: "https://www.youtube.com/@santiagodelgadosanchez5131",
-    label: "YouTube",
-    brand: {
-      bg: "#FF0000",
-      text: "#ffffff",
-      shadow: "rgba(255, 0, 0, 0.4)",
-    },
-  },
-];
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SOCIAL BUTTON — brand-colored hover
-   ═══════════════════════════════════════════════════════════════════════ */
-
-const SocialButton = ({ link }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const reducedMotion = useReducedMotion();
-  const Icon = link.icon;
-
-  return (
-    <motion.a
-      href={link.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={link.label}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-      animate={{
-        boxShadow: isHovered
-          ? `0 12px 32px -10px ${link.brand.shadow}`
-          : "0 0 0 0 transparent",
-      }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      style={{
-        borderColor: isHovered ? "transparent" : undefined,
-      }}
-      className="group relative block overflow-hidden rounded-md border border-border text-xs transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30"
-    >
-      {/* Brand background layer */}
-      <motion.span
-        aria-hidden
-        initial={false}
-        animate={{ opacity: isHovered ? 1 : 0 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        style={{ background: link.brand.bg }}
-        className="absolute inset-0"
-      />
-
-      {/* Content */}
-      <motion.span
-        animate={{ color: isHovered ? link.brand.text : undefined }}
-        transition={{ duration: 0.3 }}
-        className="relative flex items-center justify-between gap-2 px-3 py-2.5 text-foreground"
-      >
-        <span className="flex min-w-0 items-center gap-2">
-          <motion.span
-            animate={{
-              scale: isHovered && !reducedMotion ? 1.15 : 1,
-              rotate: isHovered && !reducedMotion ? -4 : 0,
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="flex-shrink-0"
-          >
-            <Icon size={14} />
-          </motion.span>
-          <span className="truncate font-medium">{link.label}</span>
-        </span>
-        <motion.span
-          animate={{
-            x: isHovered && !reducedMotion ? 2 : 0,
-            y: isHovered && !reducedMotion ? -2 : 0,
-          }}
-          transition={{ type: "spring", stiffness: 400, damping: 22 }}
-          className="flex-shrink-0"
-        >
-          <ArrowUpRight size={12} />
-        </motion.span>
-      </motion.span>
-    </motion.a>
-  );
-};
-
-/* ═══════════════════════════════════════════════════════════════════════
-   MAIN SECTION
-   ═══════════════════════════════════════════════════════════════════════ */
 
 export const ContactSection = () => {
-  const [sent, setSent] = useState(false);
-  const sectionRef = useRef(null);
-  const inView = useInView(sectionRef, { once: true, amount: 0.1 });
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.2 });
+  const { time, note } = useTorontoTime();
+
+  const show = (delay = 0) => ({
+    initial: { opacity: 0, y: 16 },
+    animate: inView ? { opacity: 1, y: 0 } : {},
+    transition: { duration: 0.6, ease: EASE_OUT, delay },
+  });
 
   return (
-    <section
-      id="contact"
-      ref={sectionRef}
-      className="relative overflow-hidden px-4 py-24 md:py-32"
-      aria-labelledby="contact-heading"
-    >
-      <div className="container mx-auto max-w-6xl">
-        {/* ─── Section header ─── */}
-        <div className="mb-16 flex items-end justify-between gap-8">
-          <div>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5 }}
-              className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
-            >
-              <span className="text-white">05</span> / contact
-            </motion.p>
-            <motion.h2
-              id="contact-heading"
-              initial={{ opacity: 0, y: 20 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, ease: EASE_OUT }}
-              className="text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl"
-            >
-              Let's Build Together.
-            </motion.h2>
-          </div>
+    <section id="contact" ref={ref} className="relative px-4 py-24 md:py-32" aria-labelledby="contact-heading">
+      <div className="container mx-auto max-w-6xl text-left">
+        <motion.p {...show()} className="mb-3 font-mono text-xs tracking-wide text-foreground/50">
+          <span className="text-foreground">05</span> / contact
+        </motion.p>
+        <motion.h2 {...show(0.05)} id="contact-heading" className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+          Let&apos;s talk.
+        </motion.h2>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="hidden max-w-xs text-right text-xs leading-relaxed text-muted-foreground md:block"
-          >
-            Want to collaborate? Have a question? Just come by and say hi. I am
-            always open to discuss with new people ideas and new opportunities.
-          </motion.div>
-        </div>
+        <motion.div {...show(0.15)} className="mt-12 max-w-3xl rounded-2xl border border-border bg-card/40 p-8 backdrop-blur-sm sm:p-12">
+          <p className="font-mono text-xs text-foreground/50">Toronto, ON · Canada</p>
 
-        {/* ─── Status line ─── */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mb-16 flex justify-start"
-        >
-          <StatusLine />
+          <p className="mt-6 text-xl leading-relaxed text-foreground/80 sm:text-2xl sm:leading-relaxed">
+            Hiring for IT support or systems work, or just want to compare homelab setups? Message me on{" "}
+            <InlineLink href={LINKS.linkedin}>LinkedIn</InlineLink>, see what I&apos;m building on{" "}
+            <InlineLink href={LINKS.github}>GitHub</InlineLink>, follow along on{" "}
+            <InlineLink href={LINKS.instagram}>Instagram</InlineLink>, or send me an{" "}
+            <InlineLink href={LINKS.email}>email</InlineLink>.
+          </p>
+
+          <p className="mt-10 flex items-start gap-3 border-t border-border pt-6 text-sm text-foreground/60">
+            <span className="relative mt-1.5 flex h-2 w-2 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-foreground/40 motion-reduce:hidden" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-foreground/70" />
+            </span>
+            <span>
+              It&apos;s <span className="font-mono text-foreground/80">{time}</span> in Toronto. {note}
+            </span>
+          </p>
         </motion.div>
-
-        {/* ─── Two-column body ─── */}
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-16">
-          {/* LEFT — channels + socials */}
-          <aside className="md:col-span-5">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="md:sticky md:top-24"
-            >
-              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                my socials
-              </p>
-
-              <div className="divide-y divide-border border-t border-b border-border">
-                <ChannelRow
-                  icon={Mail}
-                  label="Email"
-                  value="santiagodelgadosanchez9@gmail.com"
-                  href="mailto:santiagodelgadosanchez9@gmail.com"
-                  copyable
-                />
-                <ChannelRow
-                  icon={Phone}
-                  label="Phone"
-                  value="+1 (437) 661-6843"
-                  href="tel:+14376616843"
-                  copyable
-                />
-                <ChannelRow
-                  icon={MapPin}
-                  label="Location"
-                  value="Toronto, Ontario · Canada"
-                  href={null}
-                  copyable={false}
-                />
-              </div>
-
-              <div className="mt-10">
-                <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  you can also find me here
-                </p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {SOCIAL_LINKS.map((link) => (
-                    <SocialButton key={link.label} link={link} />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </aside>
-
-          {/* RIGHT — form */}
-          <div className="md:col-span-7">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                Send me a message
-              </p>
-
-              <div className="border-t border-border pt-6">
-                <AnimatePresence mode="wait">
-                  {sent ? (
-                    <SuccessState
-                      key="success"
-                      onReset={() => setSent(false)}
-                    />
-                  ) : (
-                    <motion.div
-                      key="form"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <ContactForm onSent={() => setSent(true)} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          </div>
-        </div>
       </div>
     </section>
   );
